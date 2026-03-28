@@ -7,8 +7,9 @@ const CACHE_PATH = join(__dirname, '..', 'src', 'data', 'weather-cache.json');
 const BASE_URL = 'https://api.open-meteo.com/v1/forecast';
 
 // Fetch config - tuned for Open-Meteo free tier (600 req/min)
-const BATCH_SIZE = 10;
-const BATCH_DELAY_MS = 1200; // 10 req per 1.2s = ~500 req/min (safe under 600 limit)
+// Use small batches with longer delays to avoid 429 rate limiting entirely
+const BATCH_SIZE = 5;
+const BATCH_DELAY_MS = 2500; // 5 req per 2.5s = 120 req/min (well under 600 limit, no 429s)
 const TIMEOUT_MS = 12000;
 const MAX_RETRIES = 4;
 
