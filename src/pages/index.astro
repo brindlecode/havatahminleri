@@ -141,9 +141,10 @@ const regionGroups = regions.map((r: any) => ({
   <Footer slot="footer" />
 </BaseLayout>
 
-<script is:inline define:vars={{ cities: JSON.stringify(provinces) }}>
-  // Hero search
-  const allCities = JSON.parse(cities);
+<script is:inline>
+  // Hero search - loads provinces inline + districts from search-index.json
+  let heroItems = [];
+  let heroDistrictsLoaded = false;
   const heroInput = document.getElementById('hero-search');
   const heroResults = document.getElementById('hero-search-results');
 
@@ -154,18 +155,37 @@ const regionGroups = regions.map((r: any) => ({
       .replace(/â/g, 'a').replace(/î/g, 'i').replace(/û/g, 'u');
   }
 
-  heroInput.addEventListener('input', (e) => {
+  async function loadHeroSearch() {
+    if (heroDistrictsLoaded) return;
+    try {
+      const res = await fetch('/search-index.json');
+      if (res.ok) {
+        const districts = await res.json();
+        heroItems = districts;
+        heroDistrictsLoaded = true;
+      }
+    } catch {}
+  }
+
+  heroInput.addEventListener('focus', loadHeroSearch);
+
+  heroInput.addEventListener('input', async (e) => {
     const query = normalize(e.target.value.trim());
     if (query.length < 2) { heroResults.classList.add('hidden'); return; }
 
-    const matches = allCities.filter(c => normalize(c.name).includes(query)).slice(0, 6);
+    await loadHeroSearch();
+
+    const matches = heroItems.filter(c => normalize(c.n).includes(query)).slice(0, 8);
     if (matches.length === 0) {
       heroResults.innerHTML = '<div class="px-4 py-3 text-sm text-slate-400">Sonuç bulunamadı</div>';
     } else {
       heroResults.innerHTML = matches.map(c =>
-        `<a href="/${c.slug}-hava-durumu" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200">
+        `<a href="${c.u}" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200">
           <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-          <span class="text-sm font-medium">${c.name}</span>
+          <div>
+            <span class="text-sm font-medium">${c.n}</span>
+            <span class="text-xs text-slate-400 ml-1">${c.t === 'ilce' ? '(İlçe)' : '(İl)'}</span>
+          </div>
         </a>`
       ).join('');
     }

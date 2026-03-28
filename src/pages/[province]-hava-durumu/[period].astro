@@ -52,15 +52,9 @@ const structuredData = generateStructuredData('province', {
   breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://havatahminleri.com' }, ...breadcrumbs],
 });
 
+import { getPeriodLinks } from '../../lib/periods';
 const baseUrl = `/${province.slug}-hava-durumu`;
-const links = [
-  { label: 'Bugün', href: `${baseUrl}/bugun` },
-  { label: 'Yarın', href: `${baseUrl}/yarin` },
-  { label: '7 Günlük', href: `${baseUrl}/7-gunluk` },
-  { label: '10 Günlük', href: `${baseUrl}/10-gunluk` },
-  { label: '15 Günlük', href: baseUrl },
-  { label: 'Saatlik', href: `${baseUrl}/saatlik` },
-];
+const links = getPeriodLinks(baseUrl);
 
 const provinceDistricts = districts.filter((d: any) => d.province === province.slug);
 const nearbyProvinces = provinces

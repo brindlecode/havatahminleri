@@ -9,16 +9,17 @@ export const PERIODS: ForecastPeriod[] = [
   { id: 'yarin', label: 'Yarın', slug: 'yarin' },
   { id: '7gun', label: '7 Günlük', slug: '7-gunluk' },
   { id: '10gun', label: '10 Günlük', slug: '10-gunluk' },
+  { id: '15gun', label: '15 Günlük', slug: '15-gunluk' },
   { id: 'saatlik', label: 'Saatlik', slug: 'saatlik' },
 ];
 
-export function getPeriodLinks(baseUrl: string, activeLabel?: string) {
+export function getPeriodLinks(baseUrl: string) {
   return [
     { label: 'Bugün', href: `${baseUrl}/bugun` },
     { label: 'Yarın', href: `${baseUrl}/yarin` },
     { label: '7 Günlük', href: `${baseUrl}/7-gunluk` },
     { label: '10 Günlük', href: `${baseUrl}/10-gunluk` },
-    { label: '15 Günlük', href: baseUrl },
+    { label: '15 Günlük', href: `${baseUrl}/15-gunluk` },
     { label: 'Saatlik', href: `${baseUrl}/saatlik` },
   ];
 }

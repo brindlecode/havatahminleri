@@ -53,15 +53,9 @@ const nearbyProvinces = provinces
   .filter((p: any) => p.region === province.region && p.slug !== province.slug)
   .slice(0, 6);
 
+import { getPeriodLinks } from '../lib/periods';
 const baseUrl = `/${province.slug}-hava-durumu`;
-const periodLinks = [
-  { label: 'Bugün', href: `${baseUrl}/bugun` },
-  { label: 'Yarın', href: `${baseUrl}/yarin` },
-  { label: '7 Günlük', href: `${baseUrl}/7-gunluk` },
-  { label: '10 Günlük', href: `${baseUrl}/10-gunluk` },
-  { label: '15 Günlük', href: baseUrl },
-  { label: 'Saatlik', href: `${baseUrl}/saatlik` },
-];
+const periodLinks = getPeriodLinks(baseUrl);
 ---
 
 <BaseLayout
