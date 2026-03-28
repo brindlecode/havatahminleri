@@ -1,11 +1,5 @@
 ---
-import provinces from '../../data/provinces.json';
-import districts from '../../data/districts.json';
-import regions from '../../data/regions.json';
-
-const totalPages = provinces.length + districts.length + 4; // +4 for home, about, privacy, contact
-const provincesWithDistricts = new Set(districts.map((d: any) => d.province));
-const provincesWithoutDistricts = provinces.filter((p: any) => !provincesWithDistricts.has(p.slug));
+// Admin panel - no server-side data exposed, everything loaded client-side after auth
 ---
 
 <!doctype html>
@@ -21,203 +15,79 @@ const provincesWithoutDistricts = provinces.filter((p: any) => !provincesWithDis
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
-      .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+      .container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
       .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
       .header h1 { font-size: 1.5rem; font-weight: 700; }
       .header a { color: #60a5fa; text-decoration: none; font-size: 0.875rem; }
-      .login-section { text-align: center; padding: 4rem 1rem; }
-      .login-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; color: white; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+      .login-section { text-align: center; padding: 6rem 1rem; }
+      .login-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; color: white; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background 0.2s; text-decoration: none; }
       .login-btn:hover { background: #334155; }
       .login-btn svg { width: 20px; height: 20px; }
-      .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+      .hidden { display: none !important; }
+      .section { background: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; }
+      .section h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+      .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
       .stat-card { background: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 1.25rem; }
       .stat-card .label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem; }
       .stat-card .value { font-size: 1.5rem; font-weight: 700; }
-      .stat-card .sub { font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; }
-      .section { background: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; }
-      .section h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
-      .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+      .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
       .btn-primary { background: #3b82f6; color: white; }
       .btn-primary:hover { background: #2563eb; }
-      .btn-danger { background: #ef4444; color: white; }
       .status { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; }
       .status-ok { background: #064e3b; color: #34d399; }
       .status-warn { background: #78350f; color: #fbbf24; }
-      .hidden { display: none; }
       .user-info { display: flex; align-items: center; gap: 0.75rem; }
       .user-info img { width: 32px; height: 32px; border-radius: 50%; }
-      .user-info span { font-size: 0.875rem; font-weight: 500; }
       .logout-btn { font-size: 0.75rem; color: #ef4444; cursor: pointer; background: none; border: none; }
-      table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
-      th { text-align: left; padding: 0.5rem; color: #94a3b8; border-bottom: 1px solid #334155; font-weight: 500; }
-      td { padding: 0.5rem; border-bottom: 1px solid #1e293b; }
-      .ad-toggle { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; border-bottom: 1px solid #334155; }
-      .toggle { position: relative; width: 40px; height: 22px; background: #475569; border-radius: 11px; cursor: pointer; transition: background 0.2s; }
-      .toggle.active { background: #3b82f6; }
-      .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: transform 0.2s; }
-      .toggle.active::after { transform: translateX(18px); }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <h1>⚙️ Hava Tahminleri Admin</h1>
-        <div>
-          <a href="/">← Siteye Dön</a>
-        </div>
+        <h1>Hava Tahminleri Admin</h1>
+        <a href="/">← Siteye Dön</a>
       </div>
 
-      <!-- Login Section -->
+      <!-- Login -->
       <div id="login-section" class="login-section">
-        <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Admin Paneline Giriş</h2>
-        <p style="color: #94a3b8; margin-bottom: 2rem; font-size: 0.875rem;">GitHub hesabınız ile giriş yapın</p>
-        <button class="login-btn" id="github-login-btn">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5" style="margin: 0 auto 1rem;">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Admin Paneli</h2>
+        <p style="color: #94a3b8; margin-bottom: 2rem; font-size: 0.875rem;">Devam etmek için GitHub hesabınızla giriş yapın</p>
+        <a id="github-login-btn" class="login-btn" href="#">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
           GitHub ile Giriş Yap
-        </button>
+        </a>
       </div>
 
-      <!-- Admin Content (hidden until login) -->
-      <div id="admin-content" class="hidden">
-        <div id="user-bar" class="section" style="display: flex; align-items: center; justify-content: space-between;">
-          <div class="user-info">
-            <img id="user-avatar" src="" alt="avatar" />
-            <span id="user-name"></span>
-            <span class="status status-ok">Admin</span>
-          </div>
-          <button class="logout-btn" id="logout-btn">Çıkış Yap</button>
-        </div>
-
-        <!-- Stats -->
-        <div class="stats">
-          <div class="stat-card">
-            <div class="label">Toplam Sayfa</div>
-            <div class="value">{totalPages}</div>
-            <div class="sub">Statik HTML sayfası</div>
-          </div>
-          <div class="stat-card">
-            <div class="label">İl Sayısı</div>
-            <div class="value">{provinces.length}</div>
-            <div class="sub">Tüm Türkiye</div>
-          </div>
-          <div class="stat-card">
-            <div class="label">İlçe Sayısı</div>
-            <div class="value">{districts.length}</div>
-            <div class="sub">{provincesWithDistricts.size} il kapsamında</div>
-          </div>
-          <div class="stat-card">
-            <div class="label">Bölge Sayısı</div>
-            <div class="value">{regions.length}</div>
-            <div class="sub">Coğrafi bölge</div>
-          </div>
-        </div>
-
-        <!-- API Status -->
-        <div class="section">
-          <h2>🌐 API Durumu</h2>
-          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-            <span>Open-Meteo API:</span>
-            <span id="api-status" class="status status-warn">Kontrol ediliyor...</span>
-            <button class="btn btn-primary" id="check-api-btn" style="margin-left: auto;">API Kontrol Et</button>
-          </div>
-        </div>
-
-        <!-- Build Trigger -->
-        <div class="section">
-          <h2>🔨 Build Yönetimi</h2>
-          <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 1rem;">
-            Netlify build hook URL'sini girerek manuel build tetikleyebilirsiniz.
-          </p>
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <input type="text" id="build-hook-input" placeholder="Netlify Build Hook URL'si"
-              style="flex: 1; min-width: 200px; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.875rem;" />
-            <button class="btn btn-primary" id="trigger-build-btn">Build Tetikle</button>
-          </div>
-          <p id="build-status" style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem;"></p>
-        </div>
-
-        <!-- Ad Slots Management -->
-        <div class="section">
-          <h2>📢 Reklam Alanları</h2>
-          <div>
-            <div class="ad-toggle">
-              <span style="font-size: 0.875rem;">Header Leaderboard (city-top)</span>
-              <div class="toggle active" data-ad="city-top"></div>
-            </div>
-            <div class="ad-toggle">
-              <span style="font-size: 0.875rem;">İçerik Arası (city-mid)</span>
-              <div class="toggle active" data-ad="city-mid"></div>
-            </div>
-            <div class="ad-toggle">
-              <span style="font-size: 0.875rem;">Detay Sonrası (city-details)</span>
-              <div class="toggle active" data-ad="city-details"></div>
-            </div>
-            <div class="ad-toggle">
-              <span style="font-size: 0.875rem;">Sayfa Altı (city-bottom)</span>
-              <div class="toggle active" data-ad="city-bottom"></div>
-            </div>
-            <div class="ad-toggle">
-              <span style="font-size: 0.875rem;">Ana Sayfa Üst (home-top)</span>
-              <div class="toggle active" data-ad="home-top"></div>
-            </div>
-            <div class="ad-toggle">
-              <span style="font-size: 0.875rem;">Ana Sayfa Orta (home-mid)</span>
-              <div class="toggle active" data-ad="home-mid"></div>
-            </div>
-          </div>
-          <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.75rem;">
-            Not: Reklam alanları Ezoic/AdSense entegrasyonu sonrası aktif olacaktır.
-          </p>
-        </div>
-
-        <!-- Province Coverage -->
-        {provincesWithoutDistricts.length > 0 && (
-          <div class="section">
-            <h2>⚠️ İlçe Verisi Eksik İller ({provincesWithoutDistricts.length})</h2>
-            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
-              {provincesWithoutDistricts.map((p: any) => (
-                <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #78350f; border-radius: 0.375rem; color: #fbbf24;">
-                  {p.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+      <!-- Admin Content - rendered by JS only after auth -->
+      <div id="admin-content" class="hidden"></div>
     </div>
 
     <script is:inline>
-      // GitHub OAuth configuration
-      // For production: Set up a GitHub OAuth App and configure Netlify Identity
-      // For now: Simple GitHub token-based auth
-
-      const ADMIN_USERS = ['ilkukaya']; // Allowed GitHub usernames
-      const TOKEN_KEY = 'admin_github_token';
+      const ADMIN_USERS = ['ilkukaya'];
+      const TOKEN_KEY = 'admin_gh_token';
 
       function checkAuth() {
         const token = localStorage.getItem(TOKEN_KEY);
-        if (token) {
-          validateToken(token);
-        }
+        if (token) validateToken(token);
       }
 
       async function validateToken(token) {
         try {
           const res = await fetch('https://api.github.com/user', {
-            headers: { 'Authorization': `token ${token}` }
+            headers: { 'Authorization': 'token ' + token }
           });
           if (res.ok) {
             const user = await res.json();
             if (ADMIN_USERS.includes(user.login)) {
               showAdmin(user);
               return;
-            } else {
-              alert('Bu GitHub hesabının admin yetkisi yok.');
-              localStorage.removeItem(TOKEN_KEY);
             }
-          } else {
-            localStorage.removeItem(TOKEN_KEY);
+            alert('Bu GitHub hesabının admin yetkisi bulunmamaktadır.');
           }
+          localStorage.removeItem(TOKEN_KEY);
         } catch {
           localStorage.removeItem(TOKEN_KEY);
         }
@@ -225,84 +95,121 @@ const provincesWithoutDistricts = provinces.filter((p: any) => !provincesWithDis
 
       function showAdmin(user) {
         document.getElementById('login-section').classList.add('hidden');
-        document.getElementById('admin-content').classList.remove('hidden');
-        document.getElementById('user-avatar').src = user.avatar_url;
-        document.getElementById('user-name').textContent = user.login;
+        const content = document.getElementById('admin-content');
+        content.classList.remove('hidden');
+
+        content.innerHTML = `
+          <div class="section" style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="user-info">
+              <img src="${user.avatar_url}" alt="${user.login}" />
+              <span>${user.login}</span>
+              <span class="status status-ok">Admin</span>
+            </div>
+            <button class="logout-btn" id="logout-btn">Çıkış Yap</button>
+          </div>
+
+          <div class="stats" id="stats-grid">
+            <div class="stat-card"><div class="label">Yükleniyor...</div><div class="value">-</div></div>
+          </div>
+
+          <div class="section">
+            <h2>API Durumu</h2>
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+              <span>Open-Meteo API:</span>
+              <span id="api-status" class="status status-warn">Kontrol ediliyor...</span>
+              <button class="btn btn-primary" id="check-api-btn" style="margin-left:auto;">Kontrol Et</button>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Build Yönetimi</h2>
+            <p style="font-size:0.875rem;color:#94a3b8;margin-bottom:1rem;">Netlify build hook URL'si ile manuel build tetikleyebilirsiniz.</p>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+              <input type="text" id="build-hook-input" placeholder="Netlify Build Hook URL"
+                style="flex:1;min-width:200px;padding:0.5rem 0.75rem;border-radius:0.5rem;border:1px solid #334155;background:#0f172a;color:white;font-size:0.875rem;" />
+              <button class="btn btn-primary" id="trigger-build-btn">Build Tetikle</button>
+            </div>
+            <p id="build-status" style="font-size:0.75rem;color:#94a3b8;margin-top:0.5rem;"></p>
+          </div>
+        `;
+
+        // Load stats via search index
+        loadStats();
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+          localStorage.removeItem(TOKEN_KEY);
+          location.reload();
+        });
+
+        document.getElementById('check-api-btn').addEventListener('click', checkAPI);
+        document.getElementById('trigger-build-btn').addEventListener('click', triggerBuild);
+
+        checkAPI();
       }
 
-      // GitHub OAuth login
-      document.getElementById('github-login-btn').addEventListener('click', () => {
-        const token = prompt('GitHub Personal Access Token girin:\n\n(GitHub → Settings → Developer settings → Personal access tokens → Generate new token)\n\nSadece "read:user" scope yeterli.');
-        if (token) {
-          localStorage.setItem(TOKEN_KEY, token);
-          validateToken(token);
-        }
-      });
+      async function loadStats() {
+        try {
+          const res = await fetch('/search-index.json');
+          const districts = res.ok ? await res.json() : [];
+          const provinceCount = 81;
+          const districtCount = districts.length;
+          const totalPages = provinceCount + districtCount + 4;
+          const coveredProvinces = new Set(districts.map(d => {
+            const parts = d.u.split('/');
+            return parts[1];
+          })).size;
 
-      // Logout
-      document.getElementById('logout-btn').addEventListener('click', () => {
-        localStorage.removeItem(TOKEN_KEY);
-        document.getElementById('login-section').classList.remove('hidden');
-        document.getElementById('admin-content').classList.add('hidden');
-      });
+          document.getElementById('stats-grid').innerHTML = `
+            <div class="stat-card"><div class="label">Toplam Sayfa</div><div class="value">${totalPages}</div></div>
+            <div class="stat-card"><div class="label">İl Sayısı</div><div class="value">${provinceCount}</div></div>
+            <div class="stat-card"><div class="label">İlçe Sayısı</div><div class="value">${districtCount}</div></div>
+            <div class="stat-card"><div class="label">İlçe Kapsam</div><div class="value">${coveredProvinces}/81</div></div>
+          `;
+        } catch {}
+      }
 
-      // API Status Check
-      document.getElementById('check-api-btn').addEventListener('click', async () => {
-        const statusEl = document.getElementById('api-status');
-        statusEl.textContent = 'Kontrol ediliyor...';
-        statusEl.className = 'status status-warn';
+      async function checkAPI() {
+        const el = document.getElementById('api-status');
+        el.textContent = 'Kontrol ediliyor...';
+        el.className = 'status status-warn';
         try {
           const start = Date.now();
           const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=41&longitude=29&current=temperature_2m');
-          const elapsed = Date.now() - start;
+          const ms = Date.now() - start;
           if (res.ok) {
-            statusEl.textContent = `Aktif (${elapsed}ms)`;
-            statusEl.className = 'status status-ok';
+            el.textContent = 'Aktif (' + ms + 'ms)';
+            el.className = 'status status-ok';
           } else {
-            statusEl.textContent = `Hata: ${res.status}`;
-            statusEl.className = 'status status-warn';
+            el.textContent = 'Hata: ' + res.status;
           }
-        } catch (e) {
-          statusEl.textContent = 'Bağlantı hatası';
-          statusEl.className = 'status status-warn';
-        }
-      });
-
-      // Build Trigger
-      document.getElementById('trigger-build-btn').addEventListener('click', async () => {
-        const url = document.getElementById('build-hook-input').value.trim();
-        const statusEl = document.getElementById('build-status');
-        if (!url) { statusEl.textContent = 'Build hook URL giriniz.'; return; }
-        try {
-          statusEl.textContent = 'Build tetikleniyor...';
-          await fetch(url, { method: 'POST', body: '{}' });
-          statusEl.textContent = '✅ Build başarıyla tetiklendi! Netlify panelinden takip edebilirsiniz.';
         } catch {
-          statusEl.textContent = '❌ Build tetiklenemedi. URL\'yi kontrol edin.';
+          el.textContent = 'Bağlantı hatası';
+        }
+      }
+
+      async function triggerBuild() {
+        const url = document.getElementById('build-hook-input').value.trim();
+        const el = document.getElementById('build-status');
+        if (!url) { el.textContent = 'URL giriniz.'; return; }
+        try {
+          el.textContent = 'Tetikleniyor...';
+          await fetch(url, { method: 'POST', body: '{}' });
+          el.textContent = 'Build başarıyla tetiklendi!';
+        } catch {
+          el.textContent = 'Tetiklenemedi. URL kontrol edin.';
+        }
+      }
+
+      // GitHub login - using personal access token
+      document.getElementById('github-login-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        const token = prompt('GitHub Personal Access Token girin:\\n\\nGitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token\\n\\nSadece "read:user" scope yeterli.');
+        if (token && token.trim()) {
+          localStorage.setItem(TOKEN_KEY, token.trim());
+          validateToken(token.trim());
         }
       });
 
-      // Ad toggles
-      document.querySelectorAll('.toggle').forEach(toggle => {
-        toggle.addEventListener('click', () => {
-          toggle.classList.toggle('active');
-          const adId = toggle.getAttribute('data-ad');
-          const isActive = toggle.classList.contains('active');
-          // Save preference
-          const prefs = JSON.parse(localStorage.getItem('ad_prefs') || '{}');
-          prefs[adId] = isActive;
-          localStorage.setItem('ad_prefs', JSON.stringify(prefs));
-        });
-
-        // Load saved preferences
-        const prefs = JSON.parse(localStorage.getItem('ad_prefs') || '{}');
-        const adId = toggle.getAttribute('data-ad');
-        if (adId && prefs[adId] === false) {
-          toggle.classList.remove('active');
-        }
-      });
-
-      // Check auth on load
       checkAuth();
     </script>
   </body>

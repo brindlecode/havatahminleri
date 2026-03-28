@@ -1,0 +1,109 @@
+---
+import ForecastLayout from '../../../layouts/ForecastLayout.astro';
+import { getDistrictSEO, generateStructuredData } from '../../../lib/seo';
+import { fetchWeatherData } from '../../../lib/weather';
+import { PERIODS } from '../../../lib/periods';
+import provinces from '../../../data/provinces.json';
+import districts from '../../../data/districts.json';
+import regions from '../../../data/regions.json';
+
+export function getStaticPaths() {
+  const paths: any[] = [];
+  for (const dist of districts) {
+    const prov = provinces.find((p: any) => p.slug === dist.province);
+    if (!prov) continue;
+    for (const period of PERIODS) {
+      paths.push({
+        params: { province: prov.slug, 'district': dist.slug, period: period.slug },
+        props: { district: dist, province: prov, periodInfo: period },
+      });
+    }
+  }
+  return paths;
+}
+
+const { district, province, periodInfo } = Astro.props;
+const weather = await fetchWeatherData(district.lat, district.lon);
+
+const periodTitleMap: Record<string, string> = {
+  'bugun': 'Bugünkü',
+  'yarin': 'Yarınki',
+  '7gun': '7 Günlük',
+  '10gun': '10 Günlük',
+  'saatlik': 'Saatlik',
+};
+
+const titlePrefix = periodTitleMap[periodInfo.id] || '';
+const title = `${district.name} (${province.name}) ${titlePrefix} Hava Durumu | Hava Tahminleri`;
+const description = `${district.name}, ${province.name} ${periodInfo.label.toLowerCase()} hava durumu tahmini.`;
+const canonical = `https://havatahminleri.com/${province.slug}/${district.slug}-hava-durumu/${periodInfo.slug}`;
+
+const region = regions.find((r: any) => r.id === province.region);
+const breadcrumbs = [
+  { name: region?.name || '', url: '/' },
+  { name: province.name, url: `/${province.slug}-hava-durumu` },
+  { name: district.name, url: `/${province.slug}/${district.slug}-hava-durumu` },
+  { name: `${periodInfo.label}`, url: canonical },
+];
+
+const structuredData = generateStructuredData('district', {
+  name: `${district.name} (${province.name}) ${titlePrefix} Hava Durumu`,
+  description,
+  url: canonical,
+  lat: district.lat,
+  lon: district.lon,
+  breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://havatahminleri.com' }, ...breadcrumbs],
+});
+
+const baseUrl = `/${province.slug}/${district.slug}-hava-durumu`;
+const links = [
+  { label: 'Bugün', href: `${baseUrl}/bugun` },
+  { label: 'Yarın', href: `${baseUrl}/yarin` },
+  { label: '7 Günlük', href: `${baseUrl}/7-gunluk` },
+  { label: '10 Günlük', href: `${baseUrl}/10-gunluk` },
+  { label: '15 Günlük', href: baseUrl },
+  { label: 'Saatlik', href: `${baseUrl}/saatlik` },
+];
+
+const siblingDistricts = districts
+  .filter((d: any) => d.province === province.slug && d.slug !== district.slug)
+  .slice(0, 16);
+---
+
+<ForecastLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  structuredData={structuredData}
+  cityName={`${district.name}, ${province.name}`}
+  weather={weather}
+  breadcrumbs={breadcrumbs}
+  period={periodInfo.id}
+  periodLabel={periodInfo.label}
+  lat={district.lat}
+  lon={district.lon}
+  isDistrict={true}
+  provinceName={province.name}
+  links={links}
+>
+  {siblingDistricts.length > 0 && (
+    <section class="weather-card mt-6">
+      <h2 class="text-lg font-semibold mb-4">{province.name} Diğer İlçeler</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+        {siblingDistricts.map((d: any) => (
+          <a href={`/${province.slug}/${d.slug}-hava-durumu`}
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors">
+            <svg class="w-3.5 h-3.5 text-[var(--color-text-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            </svg>
+            <span class="text-sm">{d.name}</span>
+          </a>
+        ))}
+      </div>
+      <a href={`/${province.slug}-hava-durumu`}
+        class="block text-center text-sm text-primary-500 hover:text-primary-600 mt-4 font-medium">
+        ← {province.name} Hava Durumuna Dön
+      </a>
+    </section>
+  )}
+</ForecastLayout>

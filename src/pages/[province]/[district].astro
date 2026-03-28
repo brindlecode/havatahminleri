@@ -6,7 +6,7 @@ import Breadcrumb from '../../components/Breadcrumb.astro';
 import CurrentWeather from '../../components/CurrentWeather.astro';
 import HourlyForecast from '../../components/HourlyForecast.astro';
 import DailyForecast from '../../components/DailyForecast.astro';
-import ForecastTabs from '../../components/ForecastTabs.astro';
+
 import WeatherDetails from '../../components/WeatherDetails.astro';
 import WeatherSummary from '../../components/WeatherSummary.astro';
 import AdSlot from '../../components/AdSlot.astro';
@@ -60,6 +60,16 @@ const structuredData = generateStructuredData('district', {
 const siblingDistricts = districts
   .filter((d: any) => d.province === province.slug && d.slug !== district.slug)
   .slice(0, 20);
+
+const baseUrl = `/${province.slug}/${district.slug}-hava-durumu`;
+const periodLinks = [
+  { label: 'Bugün', href: `${baseUrl}/bugun` },
+  { label: 'Yarın', href: `${baseUrl}/yarin` },
+  { label: '7 Günlük', href: `${baseUrl}/7-gunluk` },
+  { label: '10 Günlük', href: `${baseUrl}/10-gunluk` },
+  { label: '15 Günlük', href: baseUrl },
+  { label: 'Saatlik', href: `${baseUrl}/saatlik` },
+];
 ---
 
 <BaseLayout
@@ -77,8 +87,23 @@ const siblingDistricts = districts
 
     <AdSlot id="district-top" />
 
-    <div class="mt-4">
-      <ForecastTabs />
+    <!-- Period Navigation Links -->
+    <div class="weather-card my-4">
+      <div class="flex gap-1 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
+        {periodLinks.map(link => (
+          <a
+            href={link.href}
+            class:list={[
+              'px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all border',
+              link.label === '15 Günlük'
+                ? 'bg-blue-500 text-white border-blue-500'
+                : 'bg-[var(--color-bg)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]'
+            ]}
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
     </div>
 
     <div class="mt-4">
