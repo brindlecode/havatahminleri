@@ -44,118 +44,87 @@ export interface WeatherData {
   daily: DailyForecast;
 }
 
-const BASE_URL = 'https://api.open-meteo.com/v1/forecast';
+// --- Pre-built weather cache (created by scripts/fetch-weather.mjs) ---
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
-// Simple delay helper
-function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+let weatherCache: Record<string, WeatherData> = {};
+
+try {
+  const cachePath = resolve(process.cwd(), 'src/data/weather-cache.json');
+  const raw = readFileSync(cachePath, 'utf-8');
+  const parsed = JSON.parse(raw);
+  weatherCache = parsed.data || {};
+  const count = Object.keys(weatherCache).length;
+  if (count > 0) {
+    console.log(`[WEATHER] Cache loaded: ${count} locations (fetched: ${parsed.fetchedAt})`);
+  }
+} catch {
+  console.warn('[WEATHER] No pre-built cache found');
 }
 
-// Rate limiter - ensure we don't exceed 600 calls/minute
-let lastCallTime = 0;
-const MIN_INTERVAL = 150; // 150ms between calls = ~400 calls/min (well under 600 limit)
-
-async function rateLimitedFetch(url: string): Promise<Response> {
-  const now = Date.now();
-  const elapsed = now - lastCallTime;
-  if (elapsed < MIN_INTERVAL) {
-    await delay(MIN_INTERVAL - elapsed);
-  }
-  lastCallTime = Date.now();
-
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeout);
-
-      if (res.ok) return res;
-
-      if (res.status === 429 && attempt < 3) {
-        console.warn(`[WEATHER] Rate limited, waiting ${attempt * 3}s...`);
-        await delay(3000 * attempt);
-        continue;
-      }
-
-      throw new Error(`API error: ${res.status}`);
-    } catch (err: any) {
-      if (attempt === 3) throw err;
-      await delay(1000 * attempt);
+// Find nearest cached location as fallback (e.g., district → province center)
+function findNearest(lat: number, lon: number): WeatherData | null {
+  let best: WeatherData | null = null;
+  let bestDist = Infinity;
+  for (const [key, data] of Object.entries(weatherCache)) {
+    const [clat, clon] = key.split('_').map(Number);
+    const dist = Math.abs(clat - lat) + Math.abs(clon - lon);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = data;
     }
   }
-  throw new Error('All retries exhausted');
-}
-
-// In-memory cache to avoid fetching same location multiple times during build
-const buildCache = new Map<string, WeatherData>();
-
-// Minimal placeholder for OFFLINE local dev builds only - never shown on production
-function devPlaceholder(lat: number): WeatherData {
-  const now = new Date();
-  const times48 = Array.from({length: 48}, (_, i) => new Date(now.getTime() + i * 3600000).toISOString().slice(0, 16));
-  const times16 = Array.from({length: 16}, (_, i) => { const d = new Date(now.getTime() + i * 86400000); return d.toISOString().slice(0, 10); });
-  const t = 15; // generic spring temp
-  return {
-    current: { temperature: t, weatherCode: 2, windSpeed: 10, windDirection: 180, humidity: 60, apparentTemperature: t-2, isDay: true, pressure: 1013, cloudCover: 40, visibility: 10000 },
-    hourly: { time: times48, temperature: times48.map(() => t), weatherCode: times48.map(() => 2), humidity: times48.map(() => 60), precipitationProbability: times48.map(() => 10), windSpeed: times48.map(() => 10), isDay: times48.map((_, i) => (i % 24) >= 6 && (i % 24) <= 20 ? 1 : 0), dewPoint: times48.map(() => 8), visibility: times48.map(() => 10000), pressure: times48.map(() => 1013), cloudCover: times48.map(() => 40) },
-    daily: { time: times16, weatherCode: times16.map(() => 2), temperatureMax: times16.map(() => t+5), temperatureMin: times16.map(() => t-3), precipitationSum: times16.map(() => 0), precipitationProbabilityMax: times16.map(() => 10), windSpeedMax: times16.map(() => 15), uvIndexMax: times16.map(() => 4), sunrise: times16.map(d => d+'T06:30'), sunset: times16.map(d => d+'T19:00') },
-  };
+  return best;
 }
 
 export async function fetchWeatherData(lat: number, lon: number): Promise<WeatherData> {
-  // Check build-time cache (same location = same data for all period pages)
   const cacheKey = `${lat.toFixed(2)}_${lon.toFixed(2)}`;
-  const cached = buildCache.get(cacheKey);
-  if (cached) return cached;
 
-  const params = new URLSearchParams({
-    latitude: lat.toString(),
-    longitude: lon.toString(),
-    current: [
-      'temperature_2m',
-      'relative_humidity_2m',
-      'apparent_temperature',
-      'weather_code',
-      'wind_speed_10m',
-      'wind_direction_10m',
-      'is_day',
-      'surface_pressure',
-      'cloud_cover',
-      'visibility',
-    ].join(','),
-    hourly: [
-      'temperature_2m',
-      'weather_code',
-      'relative_humidity_2m',
-      'precipitation_probability',
-      'wind_speed_10m',
-      'is_day',
-      'dew_point_2m',
-      'visibility',
-      'surface_pressure',
-      'cloud_cover',
-    ].join(','),
-    daily: [
-      'weather_code',
-      'temperature_2m_max',
-      'temperature_2m_min',
-      'precipitation_sum',
-      'precipitation_probability_max',
-      'wind_speed_10m_max',
-      'uv_index_max',
-      'sunrise',
-      'sunset',
-    ].join(','),
-    timezone: 'Europe/Istanbul',
-    forecast_days: '16',
-    forecast_hours: '48',
-  });
+  // 1. Exact cache hit (handles 99%+ of cases)
+  if (weatherCache[cacheKey]) {
+    return weatherCache[cacheKey];
+  }
 
-  const url = `${BASE_URL}?${params}`;
+  // 2. Nearest cached location (handles missing districts)
+  const nearest = findNearest(lat, lon);
+  if (nearest) {
+    return nearest;
+  }
 
+  // 3. Last resort: fetch from API at build time
   try {
-    const res = await rateLimitedFetch(url);
+    const params = new URLSearchParams({
+      latitude: lat.toString(),
+      longitude: lon.toString(),
+      current: [
+        'temperature_2m', 'relative_humidity_2m', 'apparent_temperature',
+        'weather_code', 'wind_speed_10m', 'wind_direction_10m',
+        'is_day', 'surface_pressure', 'cloud_cover', 'visibility',
+      ].join(','),
+      hourly: [
+        'temperature_2m', 'weather_code', 'relative_humidity_2m',
+        'precipitation_probability', 'wind_speed_10m', 'is_day',
+        'dew_point_2m', 'visibility', 'surface_pressure', 'cloud_cover',
+      ].join(','),
+      daily: [
+        'weather_code', 'temperature_2m_max', 'temperature_2m_min',
+        'precipitation_sum', 'precipitation_probability_max',
+        'wind_speed_10m_max', 'uv_index_max', 'sunrise', 'sunset',
+      ].join(','),
+      timezone: 'Europe/Istanbul',
+      forecast_days: '16',
+      forecast_hours: '48',
+    });
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (!res.ok) throw new Error(`API ${res.status}`);
     const data = await res.json();
 
     const result: WeatherData = {
@@ -198,13 +167,10 @@ export async function fetchWeatherData(lat: number, lon: number): Promise<Weathe
       },
     };
 
-    // Cache for reuse by other period pages of same location
-    buildCache.set(cacheKey, result);
+    weatherCache[cacheKey] = result;
     return result;
   } catch (err) {
-    console.error(`[WEATHER API ERROR] lat=${lat}, lon=${lon}:`, err);
-    // Return dev placeholder instead of crashing the build
-    // Client-side JavaScript will fetch real data when user visits
-    return devPlaceholder(lat);
+    console.error(`[WEATHER] Failed to fetch lat=${lat}, lon=${lon}:`, err);
+    throw new Error(`No weather data available for ${cacheKey}. Run 'node scripts/fetch-weather.mjs' first.`);
   }
 }
