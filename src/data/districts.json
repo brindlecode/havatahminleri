@@ -1,121 +1,6785 @@
 [
-  { "name": "Kadıköy", "slug": "kadikoy", "province": "istanbul", "lat": 40.9927, "lon": 29.0291 },
-  { "name": "Beşiktaş", "slug": "besiktas", "province": "istanbul", "lat": 41.0422, "lon": 29.0083 },
-  { "name": "Üsküdar", "slug": "uskudar", "province": "istanbul", "lat": 41.0234, "lon": 29.0152 },
-  { "name": "Bakırköy", "slug": "bakirkoy", "province": "istanbul", "lat": 40.9819, "lon": 28.8769 },
-  { "name": "Fatih", "slug": "fatih", "province": "istanbul", "lat": 41.0186, "lon": 28.9397 },
-  { "name": "Beyoğlu", "slug": "beyoglu", "province": "istanbul", "lat": 41.0370, "lon": 28.9770 },
-  { "name": "Şişli", "slug": "sisli", "province": "istanbul", "lat": 41.0602, "lon": 28.9877 },
-  { "name": "Sarıyer", "slug": "sariyer", "province": "istanbul", "lat": 41.1667, "lon": 29.0500 },
-  { "name": "Ataşehir", "slug": "atasehir", "province": "istanbul", "lat": 40.9923, "lon": 29.1244 },
-  { "name": "Maltepe", "slug": "maltepe", "province": "istanbul", "lat": 40.9364, "lon": 29.1304 },
-  { "name": "Pendik", "slug": "pendik", "province": "istanbul", "lat": 40.8755, "lon": 29.2333 },
-  { "name": "Kartal", "slug": "kartal", "province": "istanbul", "lat": 40.9063, "lon": 29.1876 },
-  { "name": "Sultanbeyli", "slug": "sultanbeyli", "province": "istanbul", "lat": 40.9613, "lon": 29.2624 },
-  { "name": "Tuzla", "slug": "tuzla", "province": "istanbul", "lat": 40.8177, "lon": 29.2954 },
-  { "name": "Beykoz", "slug": "beykoz", "province": "istanbul", "lat": 41.1325, "lon": 29.0973 },
-  { "name": "Bağcılar", "slug": "bagcilar", "province": "istanbul", "lat": 41.0366, "lon": 28.8564 },
-  { "name": "Bahçelievler", "slug": "bahcelievler", "province": "istanbul", "lat": 41.0028, "lon": 28.8592 },
-  { "name": "Avcılar", "slug": "avcilar", "province": "istanbul", "lat": 40.9796, "lon": 28.7216 },
-  { "name": "Küçükçekmece", "slug": "kucukcekmece", "province": "istanbul", "lat": 41.0000, "lon": 28.7833 },
-  { "name": "Büyükçekmece", "slug": "buyukcekmece", "province": "istanbul", "lat": 41.0167, "lon": 28.5833 },
-  { "name": "Esenyurt", "slug": "esenyurt", "province": "istanbul", "lat": 41.0336, "lon": 28.6783 },
-  { "name": "Beylikdüzü", "slug": "beylikduzu", "province": "istanbul", "lat": 41.0031, "lon": 28.6407 },
-  { "name": "Başakşehir", "slug": "basaksehir", "province": "istanbul", "lat": 41.0920, "lon": 28.8033 },
-  { "name": "Esenler", "slug": "esenler", "province": "istanbul", "lat": 41.0435, "lon": 28.8766 },
-  { "name": "Güngören", "slug": "gungoren", "province": "istanbul", "lat": 41.0206, "lon": 28.8714 },
-  { "name": "Gaziosmanpaşa", "slug": "gaziosmanpasa", "province": "istanbul", "lat": 41.0667, "lon": 28.9167 },
-  { "name": "Eyüpsultan", "slug": "eyupsultan", "province": "istanbul", "lat": 41.0500, "lon": 28.9333 },
-  { "name": "Bayrampaşa", "slug": "bayrampasa", "province": "istanbul", "lat": 41.0489, "lon": 28.9058 },
-  { "name": "Kağıthane", "slug": "kagithane", "province": "istanbul", "lat": 41.0833, "lon": 28.9667 },
-  { "name": "Zeytinburnu", "slug": "zeytinburnu", "province": "istanbul", "lat": 41.0044, "lon": 28.9038 },
-  { "name": "Sultanahmet", "slug": "sultanahmet", "province": "istanbul", "lat": 41.0054, "lon": 28.9768 },
-  { "name": "Ümraniye", "slug": "umraniye", "province": "istanbul", "lat": 41.0167, "lon": 29.1167 },
-  { "name": "Çekmeköy", "slug": "cekmekoy", "province": "istanbul", "lat": 41.0333, "lon": 29.1833 },
-  { "name": "Sancaktepe", "slug": "sancaktepe", "province": "istanbul", "lat": 41.0000, "lon": 29.2333 },
-  { "name": "Silivri", "slug": "silivri", "province": "istanbul", "lat": 41.0736, "lon": 28.2467 },
-  { "name": "Çatalca", "slug": "catalca", "province": "istanbul", "lat": 41.1433, "lon": 28.4600 },
-  { "name": "Arnavutköy", "slug": "arnavutkoy", "province": "istanbul", "lat": 41.1833, "lon": 28.7333 },
-  { "name": "Adalar", "slug": "adalar", "province": "istanbul", "lat": 40.8764, "lon": 29.0906 },
-  { "name": "Çankaya", "slug": "cankaya", "province": "ankara", "lat": 39.9208, "lon": 32.8541 },
-  { "name": "Keçiören", "slug": "kecioren", "province": "ankara", "lat": 39.9833, "lon": 32.8667 },
-  { "name": "Yenimahalle", "slug": "yenimahalle", "province": "ankara", "lat": 39.9667, "lon": 32.8000 },
-  { "name": "Mamak", "slug": "mamak", "province": "ankara", "lat": 39.9333, "lon": 32.9167 },
-  { "name": "Etimesgut", "slug": "etimesgut", "province": "ankara", "lat": 39.9500, "lon": 32.6667 },
-  { "name": "Sincan", "slug": "sincan", "province": "ankara", "lat": 39.9667, "lon": 32.5833 },
-  { "name": "Altındağ", "slug": "altindag", "province": "ankara", "lat": 39.9500, "lon": 32.8667 },
-  { "name": "Pursaklar", "slug": "pursaklar", "province": "ankara", "lat": 40.0333, "lon": 32.9000 },
-  { "name": "Gölbaşı", "slug": "golbasi", "province": "ankara", "lat": 39.7833, "lon": 32.8000 },
-  { "name": "Polatlı", "slug": "polatli", "province": "ankara", "lat": 39.5833, "lon": 32.1500 },
-  { "name": "Konak", "slug": "konak", "province": "izmir", "lat": 38.4189, "lon": 27.1287 },
-  { "name": "Karşıyaka", "slug": "karsiyaka", "province": "izmir", "lat": 38.4554, "lon": 27.1109 },
-  { "name": "Bornova", "slug": "bornova", "province": "izmir", "lat": 38.4690, "lon": 27.2159 },
-  { "name": "Buca", "slug": "buca", "province": "izmir", "lat": 38.3883, "lon": 27.1753 },
-  { "name": "Bayraklı", "slug": "bayrakli", "province": "izmir", "lat": 38.4625, "lon": 27.1680 },
-  { "name": "Çiğli", "slug": "cigli", "province": "izmir", "lat": 38.5000, "lon": 27.0667 },
-  { "name": "Gaziemir", "slug": "gaziemir", "province": "izmir", "lat": 38.3167, "lon": 27.1333 },
-  { "name": "Karabağlar", "slug": "karabaglar", "province": "izmir", "lat": 38.3667, "lon": 27.1167 },
-  { "name": "Menemen", "slug": "menemen", "province": "izmir", "lat": 38.6000, "lon": 27.0667 },
-  { "name": "Torbalı", "slug": "torbali", "province": "izmir", "lat": 38.1500, "lon": 27.3500 },
-  { "name": "Muratpaşa", "slug": "muratpasa", "province": "antalya", "lat": 36.8841, "lon": 30.6997 },
-  { "name": "Konyaaltı", "slug": "konyaalti", "province": "antalya", "lat": 36.8694, "lon": 30.6356 },
-  { "name": "Kepez", "slug": "kepez", "province": "antalya", "lat": 36.9667, "lon": 30.7167 },
-  { "name": "Alanya", "slug": "alanya", "province": "antalya", "lat": 36.5436, "lon": 31.9994 },
-  { "name": "Manavgat", "slug": "manavgat", "province": "antalya", "lat": 36.7833, "lon": 31.4333 },
-  { "name": "Serik", "slug": "serik", "province": "antalya", "lat": 36.9167, "lon": 31.1000 },
-  { "name": "Kaş", "slug": "kas", "province": "antalya", "lat": 36.2000, "lon": 29.6333 },
-  { "name": "Kemer", "slug": "kemer", "province": "antalya", "lat": 36.5975, "lon": 30.5564 },
-  { "name": "Nilüfer", "slug": "nilufer", "province": "bursa", "lat": 40.2167, "lon": 28.9333 },
-  { "name": "Osmangazi", "slug": "osmangazi", "province": "bursa", "lat": 40.1833, "lon": 29.0667 },
-  { "name": "Yıldırım", "slug": "yildirim", "province": "bursa", "lat": 40.1833, "lon": 29.1000 },
-  { "name": "Mudanya", "slug": "mudanya", "province": "bursa", "lat": 40.3667, "lon": 28.8833 },
-  { "name": "Gemlik", "slug": "gemlik", "province": "bursa", "lat": 40.4333, "lon": 29.1500 },
-  { "name": "İnegöl", "slug": "inegol", "province": "bursa", "lat": 40.0833, "lon": 29.5167 },
-  { "name": "Seyhan", "slug": "seyhan", "province": "adana", "lat": 36.9833, "lon": 35.3333 },
-  { "name": "Çukurova", "slug": "cukurova", "province": "adana", "lat": 37.0000, "lon": 35.3500 },
-  { "name": "Yüreğir", "slug": "yuregir", "province": "adana", "lat": 37.0000, "lon": 35.4167 },
-  { "name": "Sarıçam", "slug": "saricam", "province": "adana", "lat": 37.0667, "lon": 35.4500 },
-  { "name": "Ceyhan", "slug": "ceyhan", "province": "adana", "lat": 37.0167, "lon": 35.8167 },
-  { "name": "Selçuklu", "slug": "selcuklu", "province": "konya", "lat": 37.8833, "lon": 32.4667 },
-  { "name": "Meram", "slug": "meram", "province": "konya", "lat": 37.8500, "lon": 32.4333 },
-  { "name": "Karatay", "slug": "karatay", "province": "konya", "lat": 37.9000, "lon": 32.5167 },
-  { "name": "Ereğli", "slug": "eregli", "province": "konya", "lat": 37.5167, "lon": 34.0500 },
-  { "name": "Akşehir", "slug": "aksehir", "province": "konya", "lat": 38.3556, "lon": 31.4167 },
-  { "name": "Şahinbey", "slug": "sahinbey", "province": "gaziantep", "lat": 37.0500, "lon": 37.3667 },
-  { "name": "Şehitkâmil", "slug": "sehitkamil", "province": "gaziantep", "lat": 37.0833, "lon": 37.3833 },
-  { "name": "Nizip", "slug": "nizip", "province": "gaziantep", "lat": 37.0000, "lon": 37.7833 },
-  { "name": "İzmit", "slug": "izmit", "province": "kocaeli", "lat": 40.7667, "lon": 29.9167 },
-  { "name": "Gebze", "slug": "gebze", "province": "kocaeli", "lat": 40.8000, "lon": 29.4333 },
-  { "name": "Darıca", "slug": "darica", "province": "kocaeli", "lat": 40.7667, "lon": 29.3667 },
-  { "name": "Körfez", "slug": "korfez", "province": "kocaeli", "lat": 40.7500, "lon": 29.7500 },
-  { "name": "Melikgazi", "slug": "melikgazi", "province": "kayseri", "lat": 38.7333, "lon": 35.4833 },
-  { "name": "Kocasinan", "slug": "kocasinan", "province": "kayseri", "lat": 38.7333, "lon": 35.4667 },
-  { "name": "Talas", "slug": "talas", "province": "kayseri", "lat": 38.6833, "lon": 35.5500 },
-  { "name": "İlkadım", "slug": "ilkadim", "province": "samsun", "lat": 41.2833, "lon": 36.3333 },
-  { "name": "Atakum", "slug": "atakum", "province": "samsun", "lat": 41.3333, "lon": 36.2667 },
-  { "name": "Canik", "slug": "canik", "province": "samsun", "lat": 41.2667, "lon": 36.3667 },
-  { "name": "Bafra", "slug": "bafra", "province": "samsun", "lat": 41.5667, "lon": 35.9000 },
-  { "name": "Ortahisar", "slug": "ortahisar", "province": "trabzon", "lat": 41.0000, "lon": 39.7167 },
-  { "name": "Akçaabat", "slug": "akcaabat", "province": "trabzon", "lat": 41.0333, "lon": 39.5667 },
-  { "name": "Of", "slug": "of", "province": "trabzon", "lat": 40.9333, "lon": 40.2667 },
-  { "name": "Yomra", "slug": "yomra", "province": "trabzon", "lat": 40.9667, "lon": 39.8667 },
-  { "name": "Bodrum", "slug": "bodrum", "province": "mugla", "lat": 37.0344, "lon": 27.4305 },
-  { "name": "Fethiye", "slug": "fethiye", "province": "mugla", "lat": 36.6538, "lon": 29.1226 },
-  { "name": "Marmaris", "slug": "marmaris", "province": "mugla", "lat": 36.8554, "lon": 28.2707 },
-  { "name": "Milas", "slug": "milas", "province": "mugla", "lat": 37.3167, "lon": 27.7833 },
-  { "name": "Dalaman", "slug": "dalaman", "province": "mugla", "lat": 36.7667, "lon": 28.7833 },
-  { "name": "Datça", "slug": "datca", "province": "mugla", "lat": 36.7333, "lon": 27.6833 },
-  { "name": "Yakutiye", "slug": "yakutiye", "province": "erzurum", "lat": 39.9000, "lon": 41.2667 },
-  { "name": "Palandöken", "slug": "palandoken", "province": "erzurum", "lat": 39.8833, "lon": 41.2500 },
-  { "name": "Aziziye", "slug": "aziziye", "province": "erzurum", "lat": 39.9167, "lon": 41.1833 },
-  { "name": "Bağlar", "slug": "baglar", "province": "diyarbakir", "lat": 37.9000, "lon": 40.2167 },
-  { "name": "Kayapınar", "slug": "kayapinar", "province": "diyarbakir", "lat": 37.9333, "lon": 40.1833 },
-  { "name": "Yenişehir", "slug": "yenisehir-diyarbakir", "province": "diyarbakir", "lat": 37.9167, "lon": 40.2333 },
-  { "name": "Sur", "slug": "sur", "province": "diyarbakir", "lat": 37.9167, "lon": 40.2333 },
-  { "name": "Yenişehir", "slug": "yenisehir", "province": "mersin", "lat": 36.8000, "lon": 34.6333 },
-  { "name": "Toroslar", "slug": "toroslar", "province": "mersin", "lat": 36.8500, "lon": 34.6167 },
-  { "name": "Akdeniz", "slug": "akdeniz", "province": "mersin", "lat": 36.7833, "lon": 34.6000 },
-  { "name": "Mezitli", "slug": "mezitli", "province": "mersin", "lat": 36.7667, "lon": 34.5333 },
-  { "name": "Tarsus", "slug": "tarsus", "province": "mersin", "lat": 36.9167, "lon": 34.8833 },
-  { "name": "Erdemli", "slug": "erdemli", "province": "mersin", "lat": 36.6167, "lon": 34.3167 }
+  {
+    "name": "Aladağ",
+    "slug": "aladag",
+    "province": "adana",
+    "lat": 36.9642,
+    "lon": 35.4625
+  },
+  {
+    "name": "Ceyhan",
+    "slug": "ceyhan",
+    "province": "adana",
+    "lat": 37.1468,
+    "lon": 35.4315
+  },
+  {
+    "name": "Çukurova",
+    "slug": "cukurova",
+    "province": "adana",
+    "lat": 37.1427,
+    "lon": 35.2712
+  },
+  {
+    "name": "Feke",
+    "slug": "feke",
+    "province": "adana",
+    "lat": 37.0573,
+    "lon": 35.5455
+  },
+  {
+    "name": "İmamoğlu",
+    "slug": "i-mamoglu",
+    "province": "adana",
+    "lat": 37.218,
+    "lon": 35.0893
+  },
+  {
+    "name": "Karaisalı",
+    "slug": "karaisali",
+    "province": "adana",
+    "lat": 36.9402,
+    "lon": 35.1017
+  },
+  {
+    "name": "Karataş",
+    "slug": "karatas",
+    "province": "adana",
+    "lat": 37.0776,
+    "lon": 35.432
+  },
+  {
+    "name": "Kozan",
+    "slug": "kozan",
+    "province": "adana",
+    "lat": 36.9387,
+    "lon": 35.1134
+  },
+  {
+    "name": "Pozantı",
+    "slug": "pozanti",
+    "province": "adana",
+    "lat": 36.7589,
+    "lon": 35.5636
+  },
+  {
+    "name": "Saimbeyli",
+    "slug": "saimbeyli",
+    "province": "adana",
+    "lat": 36.9521,
+    "lon": 35.0815
+  },
+  {
+    "name": "Sarıçam",
+    "slug": "saricam",
+    "province": "adana",
+    "lat": 37.1165,
+    "lon": 35.183
+  },
+  {
+    "name": "Seyhan",
+    "slug": "seyhan",
+    "province": "adana",
+    "lat": 36.9036,
+    "lon": 35.4328
+  },
+  {
+    "name": "Tufanbeyli",
+    "slug": "tufanbeyli",
+    "province": "adana",
+    "lat": 36.885,
+    "lon": 35.1229
+  },
+  {
+    "name": "Yumurtalık",
+    "slug": "yumurtalik",
+    "province": "adana",
+    "lat": 36.9548,
+    "lon": 35.5071
+  },
+  {
+    "name": "Yüreğir",
+    "slug": "yuregir",
+    "province": "adana",
+    "lat": 36.8138,
+    "lon": 35.5655
+  },
+  {
+    "name": "Besni",
+    "slug": "besni",
+    "province": "adiyaman",
+    "lat": 37.6889,
+    "lon": 38.422
+  },
+  {
+    "name": "Çelikhan",
+    "slug": "celikhan",
+    "province": "adiyaman",
+    "lat": 37.7565,
+    "lon": 38.4305
+  },
+  {
+    "name": "Gerger",
+    "slug": "gerger",
+    "province": "adiyaman",
+    "lat": 37.5453,
+    "lon": 38.1385
+  },
+  {
+    "name": "Gölbaşı",
+    "slug": "golbasi",
+    "province": "adiyaman",
+    "lat": 37.7312,
+    "lon": 38.2809
+  },
+  {
+    "name": "Kahta",
+    "slug": "kahta",
+    "province": "adiyaman",
+    "lat": 37.9407,
+    "lon": 38.1309
+  },
+  {
+    "name": "Merkez",
+    "slug": "adiyaman-merkez",
+    "province": "adiyaman",
+    "lat": 37.827,
+    "lon": 38.2309
+  },
+  {
+    "name": "Samsat",
+    "slug": "samsat",
+    "province": "adiyaman",
+    "lat": 37.5986,
+    "lon": 38.4797
+  },
+  {
+    "name": "Sincik",
+    "slug": "sincik",
+    "province": "adiyaman",
+    "lat": 37.9172,
+    "lon": 38.4671
+  },
+  {
+    "name": "Tut",
+    "slug": "tut",
+    "province": "adiyaman",
+    "lat": 37.5386,
+    "lon": 38.171
+  },
+  {
+    "name": "Başmakçı",
+    "slug": "basmakci",
+    "province": "afyonkarahisar",
+    "lat": 38.6376,
+    "lon": 30.545
+  },
+  {
+    "name": "Bayat",
+    "slug": "bayat",
+    "province": "afyonkarahisar",
+    "lat": 38.7683,
+    "lon": 30.6073
+  },
+  {
+    "name": "Bolvadin",
+    "slug": "bolvadin",
+    "province": "afyonkarahisar",
+    "lat": 38.8351,
+    "lon": 30.6682
+  },
+  {
+    "name": "Çay",
+    "slug": "cay",
+    "province": "afyonkarahisar",
+    "lat": 38.6728,
+    "lon": 30.4935
+  },
+  {
+    "name": "Çobanlar",
+    "slug": "cobanlar",
+    "province": "afyonkarahisar",
+    "lat": 38.5947,
+    "lon": 30.4891
+  },
+  {
+    "name": "Dazkırı",
+    "slug": "dazkiri",
+    "province": "afyonkarahisar",
+    "lat": 38.7857,
+    "lon": 30.6649
+  },
+  {
+    "name": "Dinar",
+    "slug": "dinar",
+    "province": "afyonkarahisar",
+    "lat": 38.776,
+    "lon": 30.4724
+  },
+  {
+    "name": "Emirdağ",
+    "slug": "emirdag",
+    "province": "afyonkarahisar",
+    "lat": 38.8734,
+    "lon": 30.7059
+  },
+  {
+    "name": "Evciler",
+    "slug": "evciler",
+    "province": "afyonkarahisar",
+    "lat": 38.7683,
+    "lon": 30.7132
+  },
+  {
+    "name": "Hocalar",
+    "slug": "hocalar",
+    "province": "afyonkarahisar",
+    "lat": 38.8985,
+    "lon": 30.7525
+  },
+  {
+    "name": "İhsaniye",
+    "slug": "i-hsaniye",
+    "province": "afyonkarahisar",
+    "lat": 38.5242,
+    "lon": 30.735
+  },
+  {
+    "name": "İscehisar",
+    "slug": "i-scehisar",
+    "province": "afyonkarahisar",
+    "lat": 38.6411,
+    "lon": 30.5852
+  },
+  {
+    "name": "Kızılören",
+    "slug": "kiziloren",
+    "province": "afyonkarahisar",
+    "lat": 38.7684,
+    "lon": 30.7052
+  },
+  {
+    "name": "Merkez",
+    "slug": "afyonkarahisar-merkez",
+    "province": "afyonkarahisar",
+    "lat": 38.5136,
+    "lon": 30.4574
+  },
+  {
+    "name": "Sandıklı",
+    "slug": "sandikli",
+    "province": "afyonkarahisar",
+    "lat": 38.8479,
+    "lon": 30.3517
+  },
+  {
+    "name": "Sinanpaşa",
+    "slug": "sinanpasa",
+    "province": "afyonkarahisar",
+    "lat": 38.6146,
+    "lon": 30.5558
+  },
+  {
+    "name": "Şuhut",
+    "slug": "suhut",
+    "province": "afyonkarahisar",
+    "lat": 38.7841,
+    "lon": 30.6027
+  },
+  {
+    "name": "Sultandağı",
+    "slug": "sultandagi",
+    "province": "afyonkarahisar",
+    "lat": 38.5421,
+    "lon": 30.5613
+  },
+  {
+    "name": "Diyadin",
+    "slug": "diyadin",
+    "province": "agri",
+    "lat": 39.8891,
+    "lon": 42.9556
+  },
+  {
+    "name": "Doğubayazıt",
+    "slug": "dogubayazit",
+    "province": "agri",
+    "lat": 39.5833,
+    "lon": 43.1452
+  },
+  {
+    "name": "Eleşkirt",
+    "slug": "eleskirt",
+    "province": "agri",
+    "lat": 39.7084,
+    "lon": 43.0174
+  },
+  {
+    "name": "Hamur",
+    "slug": "hamur",
+    "province": "agri",
+    "lat": 39.7702,
+    "lon": 43.2838
+  },
+  {
+    "name": "Merkez",
+    "slug": "agri-merkez",
+    "province": "agri",
+    "lat": 39.8544,
+    "lon": 43.0416
+  },
+  {
+    "name": "Patnos",
+    "slug": "patnos",
+    "province": "agri",
+    "lat": 39.6153,
+    "lon": 43.0604
+  },
+  {
+    "name": "Taşlıçay",
+    "slug": "taslicay",
+    "province": "agri",
+    "lat": 39.6657,
+    "lon": 43.0223
+  },
+  {
+    "name": "Tutak",
+    "slug": "tutak",
+    "province": "agri",
+    "lat": 39.7589,
+    "lon": 43.2238
+  },
+  {
+    "name": "Ağaçören",
+    "slug": "agacoren",
+    "province": "aksaray",
+    "lat": 38.2382,
+    "lon": 34.2558
+  },
+  {
+    "name": "Eskil",
+    "slug": "eskil",
+    "province": "aksaray",
+    "lat": 38.3788,
+    "lon": 33.8636
+  },
+  {
+    "name": "Gülağaç",
+    "slug": "gulagac",
+    "province": "aksaray",
+    "lat": 38.2776,
+    "lon": 33.8856
+  },
+  {
+    "name": "Güzelyurt",
+    "slug": "guzelyurt",
+    "province": "aksaray",
+    "lat": 38.5336,
+    "lon": 34.1708
+  },
+  {
+    "name": "Merkez",
+    "slug": "aksaray-merkez",
+    "province": "aksaray",
+    "lat": 38.4235,
+    "lon": 34.2504
+  },
+  {
+    "name": "Ortaköy",
+    "slug": "ortakoy-aksaray",
+    "province": "aksaray",
+    "lat": 38.3893,
+    "lon": 34.0719
+  },
+  {
+    "name": "Sarıyahşi",
+    "slug": "sariyahsi",
+    "province": "aksaray",
+    "lat": 38.516,
+    "lon": 33.9883
+  },
+  {
+    "name": "Göynücek",
+    "slug": "goynucek",
+    "province": "amasya",
+    "lat": 40.5949,
+    "lon": 35.8984
+  },
+  {
+    "name": "Gümüşhacıköy",
+    "slug": "gumushacikoy",
+    "province": "amasya",
+    "lat": 40.5124,
+    "lon": 35.6979
+  },
+  {
+    "name": "Hamamözü",
+    "slug": "hamamozu",
+    "province": "amasya",
+    "lat": 40.8305,
+    "lon": 35.5894
+  },
+  {
+    "name": "Merkez",
+    "slug": "amasya-merkez",
+    "province": "amasya",
+    "lat": 40.7012,
+    "lon": 35.9959
+  },
+  {
+    "name": "Merzifon",
+    "slug": "merzifon",
+    "province": "amasya",
+    "lat": 40.7831,
+    "lon": 35.963
+  },
+  {
+    "name": "Suluova",
+    "slug": "suluova",
+    "province": "amasya",
+    "lat": 40.873,
+    "lon": 35.6222
+  },
+  {
+    "name": "Taşova",
+    "slug": "tasova",
+    "province": "amasya",
+    "lat": 40.5986,
+    "lon": 35.8566
+  },
+  {
+    "name": "Akyurt",
+    "slug": "akyurt",
+    "province": "ankara",
+    "lat": 39.9353,
+    "lon": 32.7449
+  },
+  {
+    "name": "Altındağ",
+    "slug": "altindag",
+    "province": "ankara",
+    "lat": 39.7832,
+    "lon": 32.6625
+  },
+  {
+    "name": "Ayaş",
+    "slug": "ayas",
+    "province": "ankara",
+    "lat": 39.9597,
+    "lon": 32.8667
+  },
+  {
+    "name": "Bala",
+    "slug": "bala",
+    "province": "ankara",
+    "lat": 39.7618,
+    "lon": 32.858
+  },
+  {
+    "name": "Beypazarı",
+    "slug": "beypazari",
+    "province": "ankara",
+    "lat": 39.7565,
+    "lon": 32.8014
+  },
+  {
+    "name": "Çamlıdere",
+    "slug": "camlidere",
+    "province": "ankara",
+    "lat": 39.9456,
+    "lon": 32.7885
+  },
+  {
+    "name": "Çankaya",
+    "slug": "cankaya",
+    "province": "ankara",
+    "lat": 40.1817,
+    "lon": 32.9056
+  },
+  {
+    "name": "Çubuk",
+    "slug": "cubuk",
+    "province": "ankara",
+    "lat": 39.877,
+    "lon": 32.8263
+  },
+  {
+    "name": "Elmadağ",
+    "slug": "elmadag",
+    "province": "ankara",
+    "lat": 39.9327,
+    "lon": 32.9282
+  },
+  {
+    "name": "Etimesgut",
+    "slug": "etimesgut",
+    "province": "ankara",
+    "lat": 39.8998,
+    "lon": 32.974
+  },
+  {
+    "name": "Evren",
+    "slug": "evren",
+    "province": "ankara",
+    "lat": 40.1437,
+    "lon": 32.8748
+  },
+  {
+    "name": "Gölbaşı",
+    "slug": "golbasi-ankara",
+    "province": "ankara",
+    "lat": 40.1619,
+    "lon": 32.8583
+  },
+  {
+    "name": "Güdül",
+    "slug": "gudul",
+    "province": "ankara",
+    "lat": 40.1132,
+    "lon": 32.9433
+  },
+  {
+    "name": "Haymana",
+    "slug": "haymana",
+    "province": "ankara",
+    "lat": 39.8321,
+    "lon": 32.9206
+  },
+  {
+    "name": "Kahramankazan",
+    "slug": "kahramankazan",
+    "province": "ankara",
+    "lat": 39.7495,
+    "lon": 32.8645
+  },
+  {
+    "name": "Kalecik",
+    "slug": "kalecik",
+    "province": "ankara",
+    "lat": 39.7997,
+    "lon": 32.8352
+  },
+  {
+    "name": "Keçiören",
+    "slug": "kecioren",
+    "province": "ankara",
+    "lat": 39.7658,
+    "lon": 32.807
+  },
+  {
+    "name": "Kızılcahamam",
+    "slug": "kizilcahamam",
+    "province": "ankara",
+    "lat": 39.7711,
+    "lon": 32.8897
+  },
+  {
+    "name": "Mamak",
+    "slug": "mamak",
+    "province": "ankara",
+    "lat": 39.9203,
+    "lon": 33.0581
+  },
+  {
+    "name": "Nallıhan",
+    "slug": "nallihan",
+    "province": "ankara",
+    "lat": 39.7542,
+    "lon": 32.6594
+  },
+  {
+    "name": "Polatlı",
+    "slug": "polatli",
+    "province": "ankara",
+    "lat": 39.9853,
+    "lon": 33.0576
+  },
+  {
+    "name": "Pursaklar",
+    "slug": "pursaklar",
+    "province": "ankara",
+    "lat": 40.1073,
+    "lon": 33.0265
+  },
+  {
+    "name": "Şereflikoçhisar",
+    "slug": "sereflikochisar",
+    "province": "ankara",
+    "lat": 39.9689,
+    "lon": 33.0045
+  },
+  {
+    "name": "Sincan",
+    "slug": "sincan",
+    "province": "ankara",
+    "lat": 39.9678,
+    "lon": 32.6657
+  },
+  {
+    "name": "Yenimahalle",
+    "slug": "yenimahalle",
+    "province": "ankara",
+    "lat": 39.6995,
+    "lon": 33.0965
+  },
+  {
+    "name": "Akseki",
+    "slug": "akseki",
+    "province": "antalya",
+    "lat": 36.9735,
+    "lon": 30.593
+  },
+  {
+    "name": "Aksu",
+    "slug": "aksu",
+    "province": "antalya",
+    "lat": 36.8573,
+    "lon": 30.6188
+  },
+  {
+    "name": "Alanya",
+    "slug": "alanya",
+    "province": "antalya",
+    "lat": 36.9274,
+    "lon": 30.4939
+  },
+  {
+    "name": "Demre",
+    "slug": "demre",
+    "province": "antalya",
+    "lat": 36.7624,
+    "lon": 30.8372
+  },
+  {
+    "name": "Döşemealtı",
+    "slug": "dosemealti",
+    "province": "antalya",
+    "lat": 36.8743,
+    "lon": 30.4969
+  },
+  {
+    "name": "Elmalı",
+    "slug": "elmali",
+    "province": "antalya",
+    "lat": 36.9694,
+    "lon": 30.6354
+  },
+  {
+    "name": "Finike",
+    "slug": "finike",
+    "province": "antalya",
+    "lat": 37.0797,
+    "lon": 30.8718
+  },
+  {
+    "name": "Gazipaşa",
+    "slug": "gazipasa",
+    "province": "antalya",
+    "lat": 36.9719,
+    "lon": 30.4835
+  },
+  {
+    "name": "Gündoğmuş",
+    "slug": "gundogmus",
+    "province": "antalya",
+    "lat": 37.127,
+    "lon": 30.6713
+  },
+  {
+    "name": "İbradı",
+    "slug": "i-bradi",
+    "province": "antalya",
+    "lat": 36.6678,
+    "lon": 30.6074
+  },
+  {
+    "name": "Kaş",
+    "slug": "kas",
+    "province": "antalya",
+    "lat": 36.6496,
+    "lon": 30.8408
+  },
+  {
+    "name": "Kemer",
+    "slug": "kemer",
+    "province": "antalya",
+    "lat": 36.654,
+    "lon": 30.8466
+  },
+  {
+    "name": "Kepez",
+    "slug": "kepez",
+    "province": "antalya",
+    "lat": 36.707,
+    "lon": 30.6229
+  },
+  {
+    "name": "Konyaaltı",
+    "slug": "konyaalti",
+    "province": "antalya",
+    "lat": 37.0883,
+    "lon": 30.7564
+  },
+  {
+    "name": "Korkuteli",
+    "slug": "korkuteli",
+    "province": "antalya",
+    "lat": 36.7953,
+    "lon": 30.9039
+  },
+  {
+    "name": "Kumluca",
+    "slug": "kumluca",
+    "province": "antalya",
+    "lat": 36.947,
+    "lon": 30.564
+  },
+  {
+    "name": "Manavgat",
+    "slug": "manavgat",
+    "province": "antalya",
+    "lat": 37.1113,
+    "lon": 30.9259
+  },
+  {
+    "name": "Muratpaşa",
+    "slug": "muratpasa",
+    "province": "antalya",
+    "lat": 36.7188,
+    "lon": 30.6227
+  },
+  {
+    "name": "Serik",
+    "slug": "serik",
+    "province": "antalya",
+    "lat": 36.8266,
+    "lon": 30.5566
+  },
+  {
+    "name": "Çıldır",
+    "slug": "cildir",
+    "province": "ardahan",
+    "lat": 40.9481,
+    "lon": 42.8629
+  },
+  {
+    "name": "Damal",
+    "slug": "damal",
+    "province": "ardahan",
+    "lat": 41.3079,
+    "lon": 42.7072
+  },
+  {
+    "name": "Göle",
+    "slug": "gole",
+    "province": "ardahan",
+    "lat": 40.8883,
+    "lon": 42.5831
+  },
+  {
+    "name": "Hanak",
+    "slug": "hanak",
+    "province": "ardahan",
+    "lat": 40.9338,
+    "lon": 42.5228
+  },
+  {
+    "name": "Merkez",
+    "slug": "ardahan-merkez",
+    "province": "ardahan",
+    "lat": 40.9341,
+    "lon": 42.7146
+  },
+  {
+    "name": "Posof",
+    "slug": "posof",
+    "province": "ardahan",
+    "lat": 40.8778,
+    "lon": 42.9352
+  },
+  {
+    "name": "Ardanuç",
+    "slug": "ardanuc",
+    "province": "artvin",
+    "lat": 41.1717,
+    "lon": 41.6526
+  },
+  {
+    "name": "Arhavi",
+    "slug": "arhavi",
+    "province": "artvin",
+    "lat": 40.9569,
+    "lon": 41.9065
+  },
+  {
+    "name": "Borçka",
+    "slug": "borcka",
+    "province": "artvin",
+    "lat": 40.9847,
+    "lon": 41.8552
+  },
+  {
+    "name": "Hopa",
+    "slug": "hopa",
+    "province": "artvin",
+    "lat": 41.2604,
+    "lon": 41.7728
+  },
+  {
+    "name": "Merkez",
+    "slug": "artvin-merkez",
+    "province": "artvin",
+    "lat": 41.1607,
+    "lon": 41.5888
+  },
+  {
+    "name": "Murgul",
+    "slug": "murgul",
+    "province": "artvin",
+    "lat": 41.2022,
+    "lon": 42.0623
+  },
+  {
+    "name": "Şavşat",
+    "slug": "savsat",
+    "province": "artvin",
+    "lat": 41.059,
+    "lon": 41.9498
+  },
+  {
+    "name": "Yusufeli",
+    "slug": "yusufeli",
+    "province": "artvin",
+    "lat": 41.0008,
+    "lon": 41.9518
+  },
+  {
+    "name": "Bozdoğan",
+    "slug": "bozdogan",
+    "province": "aydin",
+    "lat": 37.6714,
+    "lon": 27.6135
+  },
+  {
+    "name": "Buharkent",
+    "slug": "buharkent",
+    "province": "aydin",
+    "lat": 37.7281,
+    "lon": 27.7647
+  },
+  {
+    "name": "Çine",
+    "slug": "cine",
+    "province": "aydin",
+    "lat": 38.1022,
+    "lon": 27.9927
+  },
+  {
+    "name": "Didim",
+    "slug": "didim",
+    "province": "aydin",
+    "lat": 37.9744,
+    "lon": 27.6302
+  },
+  {
+    "name": "Efeler",
+    "slug": "efeler",
+    "province": "aydin",
+    "lat": 37.7547,
+    "lon": 27.7074
+  },
+  {
+    "name": "Germencik",
+    "slug": "germencik",
+    "province": "aydin",
+    "lat": 37.9083,
+    "lon": 27.621
+  },
+  {
+    "name": "İncirliova",
+    "slug": "i-ncirliova",
+    "province": "aydin",
+    "lat": 38.0621,
+    "lon": 27.9429
+  },
+  {
+    "name": "Karacasu",
+    "slug": "karacasu",
+    "province": "aydin",
+    "lat": 37.9187,
+    "lon": 27.9539
+  },
+  {
+    "name": "Koçarlı",
+    "slug": "kocarli",
+    "province": "aydin",
+    "lat": 37.8523,
+    "lon": 28.0657
+  },
+  {
+    "name": "Köşk",
+    "slug": "kosk",
+    "province": "aydin",
+    "lat": 37.6306,
+    "lon": 28.061
+  },
+  {
+    "name": "Kuşadası",
+    "slug": "kusadasi",
+    "province": "aydin",
+    "lat": 38.0331,
+    "lon": 27.9684
+  },
+  {
+    "name": "Kuyucak",
+    "slug": "kuyucak",
+    "province": "aydin",
+    "lat": 38.0683,
+    "lon": 27.8004
+  },
+  {
+    "name": "Nazilli",
+    "slug": "nazilli",
+    "province": "aydin",
+    "lat": 38.0025,
+    "lon": 27.9475
+  },
+  {
+    "name": "Söke",
+    "slug": "soke",
+    "province": "aydin",
+    "lat": 38.0836,
+    "lon": 27.736
+  },
+  {
+    "name": "Sultanhisar",
+    "slug": "sultanhisar",
+    "province": "aydin",
+    "lat": 37.8253,
+    "lon": 27.6679
+  },
+  {
+    "name": "Yenipazar",
+    "slug": "yenipazar",
+    "province": "aydin",
+    "lat": 37.756,
+    "lon": 27.8606
+  },
+  {
+    "name": "Altıeylül",
+    "slug": "altieylul",
+    "province": "balikesir",
+    "lat": 39.4805,
+    "lon": 27.9146
+  },
+  {
+    "name": "Ayvalık",
+    "slug": "ayvalik",
+    "province": "balikesir",
+    "lat": 39.7949,
+    "lon": 27.8152
+  },
+  {
+    "name": "Balya",
+    "slug": "balya",
+    "province": "balikesir",
+    "lat": 39.5271,
+    "lon": 28.0318
+  },
+  {
+    "name": "Bandırma",
+    "slug": "bandirma",
+    "province": "balikesir",
+    "lat": 39.4556,
+    "lon": 27.679
+  },
+  {
+    "name": "Bigadiç",
+    "slug": "bigadic",
+    "province": "balikesir",
+    "lat": 39.7788,
+    "lon": 27.9197
+  },
+  {
+    "name": "Burhaniye",
+    "slug": "burhaniye",
+    "province": "balikesir",
+    "lat": 39.7373,
+    "lon": 27.8501
+  },
+  {
+    "name": "Dursunbey",
+    "slug": "dursunbey",
+    "province": "balikesir",
+    "lat": 39.5125,
+    "lon": 27.7736
+  },
+  {
+    "name": "Edremit",
+    "slug": "edremit",
+    "province": "balikesir",
+    "lat": 39.7734,
+    "lon": 28.0172
+  },
+  {
+    "name": "Erdek",
+    "slug": "erdek",
+    "province": "balikesir",
+    "lat": 39.7759,
+    "lon": 27.8989
+  },
+  {
+    "name": "Gömeç",
+    "slug": "gomec",
+    "province": "balikesir",
+    "lat": 39.5146,
+    "lon": 27.8639
+  },
+  {
+    "name": "Gönen",
+    "slug": "gonen",
+    "province": "balikesir",
+    "lat": 39.8616,
+    "lon": 27.8335
+  },
+  {
+    "name": "Havran",
+    "slug": "havran",
+    "province": "balikesir",
+    "lat": 39.5617,
+    "lon": 28.0489
+  },
+  {
+    "name": "İvrindi",
+    "slug": "i-vrindi",
+    "province": "balikesir",
+    "lat": 39.6254,
+    "lon": 28.022
+  },
+  {
+    "name": "Karesi",
+    "slug": "karesi",
+    "province": "balikesir",
+    "lat": 39.4065,
+    "lon": 28.0646
+  },
+  {
+    "name": "Kepsut",
+    "slug": "kepsut",
+    "province": "balikesir",
+    "lat": 39.3991,
+    "lon": 28.0449
+  },
+  {
+    "name": "Manyas",
+    "slug": "manyas",
+    "province": "balikesir",
+    "lat": 39.7694,
+    "lon": 27.7202
+  },
+  {
+    "name": "Marmara",
+    "slug": "marmara",
+    "province": "balikesir",
+    "lat": 39.6897,
+    "lon": 27.8595
+  },
+  {
+    "name": "Savaştepe",
+    "slug": "savastepe",
+    "province": "balikesir",
+    "lat": 39.895,
+    "lon": 27.781
+  },
+  {
+    "name": "Sındırgı",
+    "slug": "sindirgi",
+    "province": "balikesir",
+    "lat": 39.6328,
+    "lon": 28.0318
+  },
+  {
+    "name": "Susurluk",
+    "slug": "susurluk",
+    "province": "balikesir",
+    "lat": 39.6718,
+    "lon": 27.8501
+  },
+  {
+    "name": "Amasra",
+    "slug": "amasra",
+    "province": "bartin",
+    "lat": 41.5475,
+    "lon": 32.268
+  },
+  {
+    "name": "Kurucaşile",
+    "slug": "kurucasile",
+    "province": "bartin",
+    "lat": 41.755,
+    "lon": 32.4547
+  },
+  {
+    "name": "Merkez",
+    "slug": "bartin-merkez",
+    "province": "bartin",
+    "lat": 41.6986,
+    "lon": 32.1185
+  },
+  {
+    "name": "Ulus",
+    "slug": "ulus",
+    "province": "bartin",
+    "lat": 41.7587,
+    "lon": 32.2584
+  },
+  {
+    "name": "Beşiri",
+    "slug": "besiri",
+    "province": "batman",
+    "lat": 38.0678,
+    "lon": 41.3279
+  },
+  {
+    "name": "Gercüş",
+    "slug": "gercus",
+    "province": "batman",
+    "lat": 37.974,
+    "lon": 41.328
+  },
+  {
+    "name": "Hasankeyf",
+    "slug": "hasankeyf",
+    "province": "batman",
+    "lat": 37.9234,
+    "lon": 41.1917
+  },
+  {
+    "name": "Kozluk",
+    "slug": "kozluk",
+    "province": "batman",
+    "lat": 37.9164,
+    "lon": 41.0001
+  },
+  {
+    "name": "Merkez",
+    "slug": "batman-merkez",
+    "province": "batman",
+    "lat": 38.0703,
+    "lon": 40.9971
+  },
+  {
+    "name": "Sason",
+    "slug": "sason",
+    "province": "batman",
+    "lat": 37.9506,
+    "lon": 40.944
+  },
+  {
+    "name": "Aydıntepe",
+    "slug": "aydintepe",
+    "province": "bayburt",
+    "lat": 40.1169,
+    "lon": 40.0033
+  },
+  {
+    "name": "Demirözü",
+    "slug": "demirozu",
+    "province": "bayburt",
+    "lat": 40.3171,
+    "lon": 39.988
+  },
+  {
+    "name": "Merkez",
+    "slug": "bayburt-merkez",
+    "province": "bayburt",
+    "lat": 40.286,
+    "lon": 40.0466
+  },
+  {
+    "name": "Bozüyük",
+    "slug": "bozuyuk",
+    "province": "bilecik",
+    "lat": 40.0239,
+    "lon": 29.8201
+  },
+  {
+    "name": "Gölpazarı",
+    "slug": "golpazari",
+    "province": "bilecik",
+    "lat": 39.8121,
+    "lon": 30.1562
+  },
+  {
+    "name": "İnhisar",
+    "slug": "i-nhisar",
+    "province": "bilecik",
+    "lat": 40.2942,
+    "lon": 29.9262
+  },
+  {
+    "name": "Merkez",
+    "slug": "bilecik-merkez",
+    "province": "bilecik",
+    "lat": 40.0856,
+    "lon": 29.8744
+  },
+  {
+    "name": "Osmaneli",
+    "slug": "osmaneli",
+    "province": "bilecik",
+    "lat": 40.1658,
+    "lon": 29.9356
+  },
+  {
+    "name": "Pazaryeri",
+    "slug": "pazaryeri",
+    "province": "bilecik",
+    "lat": 40.1636,
+    "lon": 29.9551
+  },
+  {
+    "name": "Söğüt",
+    "slug": "sogut",
+    "province": "bilecik",
+    "lat": 40.3033,
+    "lon": 29.9721
+  },
+  {
+    "name": "Yenipazar",
+    "slug": "yenipazar-bilecik",
+    "province": "bilecik",
+    "lat": 40.1469,
+    "lon": 29.9457
+  },
+  {
+    "name": "Adaklı",
+    "slug": "adakli",
+    "province": "bingol",
+    "lat": 38.944,
+    "lon": 40.4874
+  },
+  {
+    "name": "Genç",
+    "slug": "genc",
+    "province": "bingol",
+    "lat": 38.8138,
+    "lon": 40.5203
+  },
+  {
+    "name": "Karlıova",
+    "slug": "karliova",
+    "province": "bingol",
+    "lat": 38.7279,
+    "lon": 40.4762
+  },
+  {
+    "name": "Kiğı",
+    "slug": "kigi",
+    "province": "bingol",
+    "lat": 38.8468,
+    "lon": 40.6601
+  },
+  {
+    "name": "Merkez",
+    "slug": "bingol-merkez",
+    "province": "bingol",
+    "lat": 38.7916,
+    "lon": 40.3552
+  },
+  {
+    "name": "Solhan",
+    "slug": "solhan",
+    "province": "bingol",
+    "lat": 38.6547,
+    "lon": 40.6621
+  },
+  {
+    "name": "Yayladere",
+    "slug": "yayladere",
+    "province": "bingol",
+    "lat": 38.6438,
+    "lon": 40.4735
+  },
+  {
+    "name": "Yedisu",
+    "slug": "yedisu",
+    "province": "bingol",
+    "lat": 39.1138,
+    "lon": 40.5559
+  },
+  {
+    "name": "Adilcevaz",
+    "slug": "adilcevaz",
+    "province": "bitlis",
+    "lat": 38.4232,
+    "lon": 42.2381
+  },
+  {
+    "name": "Ahlat",
+    "slug": "ahlat",
+    "province": "bitlis",
+    "lat": 38.4406,
+    "lon": 41.9297
+  },
+  {
+    "name": "Güroymak",
+    "slug": "guroymak",
+    "province": "bitlis",
+    "lat": 38.6045,
+    "lon": 42.0798
+  },
+  {
+    "name": "Hizan",
+    "slug": "hizan",
+    "province": "bitlis",
+    "lat": 38.4013,
+    "lon": 42.1876
+  },
+  {
+    "name": "Merkez",
+    "slug": "bitlis-merkez",
+    "province": "bitlis",
+    "lat": 38.5669,
+    "lon": 42.0666
+  },
+  {
+    "name": "Mutki",
+    "slug": "mutki",
+    "province": "bitlis",
+    "lat": 38.6176,
+    "lon": 42.2942
+  },
+  {
+    "name": "Tatvan",
+    "slug": "tatvan",
+    "province": "bitlis",
+    "lat": 38.2492,
+    "lon": 41.9597
+  },
+  {
+    "name": "Dörtdivan",
+    "slug": "dortdivan",
+    "province": "bolu",
+    "lat": 40.7397,
+    "lon": 31.5087
+  },
+  {
+    "name": "Göynük",
+    "slug": "goynuk",
+    "province": "bolu",
+    "lat": 40.6025,
+    "lon": 31.6847
+  },
+  {
+    "name": "Kıbrıscık",
+    "slug": "kibriscik",
+    "province": "bolu",
+    "lat": 40.7302,
+    "lon": 31.3644
+  },
+  {
+    "name": "Mengen",
+    "slug": "mengen",
+    "province": "bolu",
+    "lat": 40.8355,
+    "lon": 31.6027
+  },
+  {
+    "name": "Merkez",
+    "slug": "bolu-merkez",
+    "province": "bolu",
+    "lat": 40.9531,
+    "lon": 31.5153
+  },
+  {
+    "name": "Mudurnu",
+    "slug": "mudurnu",
+    "province": "bolu",
+    "lat": 40.8258,
+    "lon": 31.3847
+  },
+  {
+    "name": "Seben",
+    "slug": "seben",
+    "province": "bolu",
+    "lat": 40.6651,
+    "lon": 31.4826
+  },
+  {
+    "name": "Yeniçağa",
+    "slug": "yenicaga",
+    "province": "bolu",
+    "lat": 40.5206,
+    "lon": 31.6621
+  },
+  {
+    "name": "Ağlasun",
+    "slug": "aglasun",
+    "province": "burdur",
+    "lat": 37.475,
+    "lon": 30.4126
+  },
+  {
+    "name": "Altınyayla",
+    "slug": "altinyayla",
+    "province": "burdur",
+    "lat": 37.8548,
+    "lon": 30.1971
+  },
+  {
+    "name": "Bucak",
+    "slug": "bucak",
+    "province": "burdur",
+    "lat": 37.5838,
+    "lon": 30.4106
+  },
+  {
+    "name": "Çavdır",
+    "slug": "cavdir",
+    "province": "burdur",
+    "lat": 37.7817,
+    "lon": 30.1818
+  },
+  {
+    "name": "Çeltikçi",
+    "slug": "celtikci",
+    "province": "burdur",
+    "lat": 37.6591,
+    "lon": 30.0944
+  },
+  {
+    "name": "Gölhisar",
+    "slug": "golhisar",
+    "province": "burdur",
+    "lat": 37.8706,
+    "lon": 30.4838
+  },
+  {
+    "name": "Karamanlı",
+    "slug": "karamanli",
+    "province": "burdur",
+    "lat": 37.5764,
+    "lon": 30.3984
+  },
+  {
+    "name": "Kemer",
+    "slug": "kemer-burdur",
+    "province": "burdur",
+    "lat": 37.6855,
+    "lon": 30.1829
+  },
+  {
+    "name": "Merkez",
+    "slug": "burdur-merkez",
+    "province": "burdur",
+    "lat": 37.8615,
+    "lon": 30.4656
+  },
+  {
+    "name": "Tefenni",
+    "slug": "tefenni",
+    "province": "burdur",
+    "lat": 37.5399,
+    "lon": 30.5203
+  },
+  {
+    "name": "Yeşilova",
+    "slug": "yesilova",
+    "province": "burdur",
+    "lat": 37.8338,
+    "lon": 30.3166
+  },
+  {
+    "name": "Büyükorhan",
+    "slug": "buyukorhan",
+    "province": "bursa",
+    "lat": 40.0795,
+    "lon": 28.8918
+  },
+  {
+    "name": "Gemlik",
+    "slug": "gemlik",
+    "province": "bursa",
+    "lat": 39.9589,
+    "lon": 28.8827
+  },
+  {
+    "name": "Gürsu",
+    "slug": "gursu",
+    "province": "bursa",
+    "lat": 40.0967,
+    "lon": 29.2225
+  },
+  {
+    "name": "Harmancık",
+    "slug": "harmancik",
+    "province": "bursa",
+    "lat": 40.3523,
+    "lon": 29.2812
+  },
+  {
+    "name": "İnegöl",
+    "slug": "i-negol",
+    "province": "bursa",
+    "lat": 40.2604,
+    "lon": 29.2508
+  },
+  {
+    "name": "İznik",
+    "slug": "i-znik",
+    "province": "bursa",
+    "lat": 40.261,
+    "lon": 28.825
+  },
+  {
+    "name": "Karacabey",
+    "slug": "karacabey",
+    "province": "bursa",
+    "lat": 39.9912,
+    "lon": 29.0763
+  },
+  {
+    "name": "Keles",
+    "slug": "keles",
+    "province": "bursa",
+    "lat": 40.1219,
+    "lon": 28.9283
+  },
+  {
+    "name": "Kestel",
+    "slug": "kestel",
+    "province": "bursa",
+    "lat": 40.2217,
+    "lon": 29.1384
+  },
+  {
+    "name": "Mudanya",
+    "slug": "mudanya",
+    "province": "bursa",
+    "lat": 40.0174,
+    "lon": 28.9045
+  },
+  {
+    "name": "Mustafakemalpaşa",
+    "slug": "mustafakemalpasa",
+    "province": "bursa",
+    "lat": 40.0375,
+    "lon": 29.1213
+  },
+  {
+    "name": "Nilüfer",
+    "slug": "nilufer",
+    "province": "bursa",
+    "lat": 40.4224,
+    "lon": 28.8749
+  },
+  {
+    "name": "Orhaneli",
+    "slug": "orhaneli",
+    "province": "bursa",
+    "lat": 39.9485,
+    "lon": 28.869
+  },
+  {
+    "name": "Orhangazi",
+    "slug": "orhangazi",
+    "province": "bursa",
+    "lat": 39.9564,
+    "lon": 29.1949
+  },
+  {
+    "name": "Osmangazi",
+    "slug": "osmangazi",
+    "province": "bursa",
+    "lat": 40.024,
+    "lon": 28.863
+  },
+  {
+    "name": "Yenişehir",
+    "slug": "yenisehir",
+    "province": "bursa",
+    "lat": 40.2278,
+    "lon": 29.3076
+  },
+  {
+    "name": "Yıldırım",
+    "slug": "yildirim",
+    "province": "bursa",
+    "lat": 40.0763,
+    "lon": 28.9624
+  },
+  {
+    "name": "Ayvacık",
+    "slug": "ayvacik",
+    "province": "canakkale",
+    "lat": 40.3968,
+    "lon": 26.3987
+  },
+  {
+    "name": "Bayramiç",
+    "slug": "bayramic",
+    "province": "canakkale",
+    "lat": 40.3813,
+    "lon": 26.1881
+  },
+  {
+    "name": "Biga",
+    "slug": "biga",
+    "province": "canakkale",
+    "lat": 40.2098,
+    "lon": 26.3405
+  },
+  {
+    "name": "Bozcaada",
+    "slug": "bozcaada",
+    "province": "canakkale",
+    "lat": 40.3246,
+    "lon": 26.5987
+  },
+  {
+    "name": "Çan",
+    "slug": "can",
+    "province": "canakkale",
+    "lat": 40.0341,
+    "lon": 26.5626
+  },
+  {
+    "name": "Eceabat",
+    "slug": "eceabat",
+    "province": "canakkale",
+    "lat": 40.2274,
+    "lon": 26.4106
+  },
+  {
+    "name": "Ezine",
+    "slug": "ezine",
+    "province": "canakkale",
+    "lat": 40.2969,
+    "lon": 26.5192
+  },
+  {
+    "name": "Gelibolu",
+    "slug": "gelibolu",
+    "province": "canakkale",
+    "lat": 40.1328,
+    "lon": 26.4091
+  },
+  {
+    "name": "Gökçeada",
+    "slug": "gokceada",
+    "province": "canakkale",
+    "lat": 39.9912,
+    "lon": 26.5717
+  },
+  {
+    "name": "Lapseki",
+    "slug": "lapseki",
+    "province": "canakkale",
+    "lat": 39.9719,
+    "lon": 26.4335
+  },
+  {
+    "name": "Merkez",
+    "slug": "canakkale-merkez",
+    "province": "canakkale",
+    "lat": 39.9138,
+    "lon": 26.6356
+  },
+  {
+    "name": "Yenice",
+    "slug": "yenice",
+    "province": "canakkale",
+    "lat": 39.9458,
+    "lon": 26.2179
+  },
+  {
+    "name": "Atkaracalar",
+    "slug": "atkaracalar",
+    "province": "cankiri",
+    "lat": 40.3734,
+    "lon": 33.6288
+  },
+  {
+    "name": "Bayramören",
+    "slug": "bayramoren",
+    "province": "cankiri",
+    "lat": 40.4294,
+    "lon": 33.4744
+  },
+  {
+    "name": "Çerkeş",
+    "slug": "cerkes",
+    "province": "cankiri",
+    "lat": 40.3885,
+    "lon": 33.6923
+  },
+  {
+    "name": "Eldivan",
+    "slug": "eldivan",
+    "province": "cankiri",
+    "lat": 40.6654,
+    "lon": 33.7951
+  },
+  {
+    "name": "Ilgaz",
+    "slug": "ilgaz",
+    "province": "cankiri",
+    "lat": 40.5279,
+    "lon": 33.4878
+  },
+  {
+    "name": "Kızılırmak",
+    "slug": "kizilirmak",
+    "province": "cankiri",
+    "lat": 40.4601,
+    "lon": 33.4983
+  },
+  {
+    "name": "Korgun",
+    "slug": "korgun",
+    "province": "cankiri",
+    "lat": 40.6097,
+    "lon": 33.4354
+  },
+  {
+    "name": "Kurşunlu",
+    "slug": "kursunlu",
+    "province": "cankiri",
+    "lat": 40.6057,
+    "lon": 33.5648
+  },
+  {
+    "name": "Merkez",
+    "slug": "cankiri-merkez",
+    "province": "cankiri",
+    "lat": 40.8108,
+    "lon": 33.7143
+  },
+  {
+    "name": "Orta",
+    "slug": "orta",
+    "province": "cankiri",
+    "lat": 40.7572,
+    "lon": 33.8342
+  },
+  {
+    "name": "Şabanözü",
+    "slug": "sabanozu",
+    "province": "cankiri",
+    "lat": 40.4464,
+    "lon": 33.3931
+  },
+  {
+    "name": "Yapraklı",
+    "slug": "yaprakli",
+    "province": "cankiri",
+    "lat": 40.7411,
+    "lon": 33.8356
+  },
+  {
+    "name": "Alaca",
+    "slug": "alaca",
+    "province": "corum",
+    "lat": 40.4696,
+    "lon": 34.7579
+  },
+  {
+    "name": "Bayat",
+    "slug": "bayat-corum",
+    "province": "corum",
+    "lat": 40.3965,
+    "lon": 35.1309
+  },
+  {
+    "name": "Boğazkale",
+    "slug": "bogazkale",
+    "province": "corum",
+    "lat": 40.629,
+    "lon": 34.9025
+  },
+  {
+    "name": "Dodurga",
+    "slug": "dodurga",
+    "province": "corum",
+    "lat": 40.6711,
+    "lon": 35.0919
+  },
+  {
+    "name": "İskilip",
+    "slug": "i-skilip",
+    "province": "corum",
+    "lat": 40.475,
+    "lon": 35.0846
+  },
+  {
+    "name": "Kargı",
+    "slug": "kargi",
+    "province": "corum",
+    "lat": 40.6916,
+    "lon": 34.7159
+  },
+  {
+    "name": "Laçin",
+    "slug": "lacin",
+    "province": "corum",
+    "lat": 40.3296,
+    "lon": 35.1919
+  },
+  {
+    "name": "Mecitözü",
+    "slug": "mecitozu",
+    "province": "corum",
+    "lat": 40.4481,
+    "lon": 34.7771
+  },
+  {
+    "name": "Merkez",
+    "slug": "corum-merkez",
+    "province": "corum",
+    "lat": 40.7657,
+    "lon": 34.9038
+  },
+  {
+    "name": "Oğuzlar",
+    "slug": "oguzlar",
+    "province": "corum",
+    "lat": 40.4841,
+    "lon": 35.1482
+  },
+  {
+    "name": "Ortaköy",
+    "slug": "ortakoy",
+    "province": "corum",
+    "lat": 40.3767,
+    "lon": 34.8719
+  },
+  {
+    "name": "Osmancık",
+    "slug": "osmancik",
+    "province": "corum",
+    "lat": 40.4118,
+    "lon": 35.1545
+  },
+  {
+    "name": "Sungurlu",
+    "slug": "sungurlu",
+    "province": "corum",
+    "lat": 40.751,
+    "lon": 35.0288
+  },
+  {
+    "name": "Uğurludağ",
+    "slug": "ugurludag",
+    "province": "corum",
+    "lat": 40.6378,
+    "lon": 34.7077
+  },
+  {
+    "name": "Acıpayam",
+    "slug": "acipayam",
+    "province": "denizli",
+    "lat": 37.612,
+    "lon": 28.9633
+  },
+  {
+    "name": "Babadağ",
+    "slug": "babadag",
+    "province": "denizli",
+    "lat": 37.7414,
+    "lon": 28.9532
+  },
+  {
+    "name": "Baklan",
+    "slug": "baklan",
+    "province": "denizli",
+    "lat": 37.8128,
+    "lon": 29.1797
+  },
+  {
+    "name": "Bekilli",
+    "slug": "bekilli",
+    "province": "denizli",
+    "lat": 37.7535,
+    "lon": 29.2572
+  },
+  {
+    "name": "Beyağaç",
+    "slug": "beyagac",
+    "province": "denizli",
+    "lat": 38.0135,
+    "lon": 29.1705
+  },
+  {
+    "name": "Bozkurt",
+    "slug": "bozkurt",
+    "province": "denizli",
+    "lat": 37.9482,
+    "lon": 29.0631
+  },
+  {
+    "name": "Buldan",
+    "slug": "buldan",
+    "province": "denizli",
+    "lat": 37.7253,
+    "lon": 29.1936
+  },
+  {
+    "name": "Çal",
+    "slug": "cal",
+    "province": "denizli",
+    "lat": 37.9132,
+    "lon": 29.244
+  },
+  {
+    "name": "Çameli",
+    "slug": "cameli",
+    "province": "denizli",
+    "lat": 37.6918,
+    "lon": 29.1251
+  },
+  {
+    "name": "Çardak",
+    "slug": "cardak",
+    "province": "denizli",
+    "lat": 37.692,
+    "lon": 29.2723
+  },
+  {
+    "name": "Çivril",
+    "slug": "civril",
+    "province": "denizli",
+    "lat": 37.9505,
+    "lon": 29.0288
+  },
+  {
+    "name": "Güney",
+    "slug": "guney",
+    "province": "denizli",
+    "lat": 37.6885,
+    "lon": 29.2189
+  },
+  {
+    "name": "Honaz",
+    "slug": "honaz",
+    "province": "denizli",
+    "lat": 37.9951,
+    "lon": 29.0628
+  },
+  {
+    "name": "Kale",
+    "slug": "kale",
+    "province": "denizli",
+    "lat": 37.9196,
+    "lon": 29.2375
+  },
+  {
+    "name": "Merkezefendi",
+    "slug": "merkezefendi",
+    "province": "denizli",
+    "lat": 37.5542,
+    "lon": 29.2113
+  },
+  {
+    "name": "Pamukkale",
+    "slug": "pamukkale",
+    "province": "denizli",
+    "lat": 37.9599,
+    "lon": 29.059
+  },
+  {
+    "name": "Sarayköy",
+    "slug": "saraykoy",
+    "province": "denizli",
+    "lat": 37.6004,
+    "lon": 28.8853
+  },
+  {
+    "name": "Serinhisar",
+    "slug": "serinhisar",
+    "province": "denizli",
+    "lat": 37.7385,
+    "lon": 28.9274
+  },
+  {
+    "name": "Tavas",
+    "slug": "tavas",
+    "province": "denizli",
+    "lat": 38.0075,
+    "lon": 28.9797
+  },
+  {
+    "name": "Bağlar",
+    "slug": "baglar",
+    "province": "diyarbakir",
+    "lat": 37.8323,
+    "lon": 40.3699
+  },
+  {
+    "name": "Bismil",
+    "slug": "bismil",
+    "province": "diyarbakir",
+    "lat": 37.823,
+    "lon": 40.3723
+  },
+  {
+    "name": "Çermik",
+    "slug": "cermik",
+    "province": "diyarbakir",
+    "lat": 37.9958,
+    "lon": 40.0301
+  },
+  {
+    "name": "Çınar",
+    "slug": "cinar",
+    "province": "diyarbakir",
+    "lat": 37.995,
+    "lon": 40.0368
+  },
+  {
+    "name": "Çüngüş",
+    "slug": "cungus",
+    "province": "diyarbakir",
+    "lat": 38.1616,
+    "lon": 40.4353
+  },
+  {
+    "name": "Dicle",
+    "slug": "dicle",
+    "province": "diyarbakir",
+    "lat": 37.6972,
+    "lon": 40.125
+  },
+  {
+    "name": "Eğil",
+    "slug": "egil",
+    "province": "diyarbakir",
+    "lat": 37.853,
+    "lon": 40.3817
+  },
+  {
+    "name": "Ergani",
+    "slug": "ergani",
+    "province": "diyarbakir",
+    "lat": 38.1429,
+    "lon": 39.9851
+  },
+  {
+    "name": "Hani",
+    "slug": "hani",
+    "province": "diyarbakir",
+    "lat": 38.1171,
+    "lon": 40.4329
+  },
+  {
+    "name": "Hazro",
+    "slug": "hazro",
+    "province": "diyarbakir",
+    "lat": 37.8796,
+    "lon": 40.3577
+  },
+  {
+    "name": "Kayapınar",
+    "slug": "kayapinar",
+    "province": "diyarbakir",
+    "lat": 37.79,
+    "lon": 40.0346
+  },
+  {
+    "name": "Kocaköy",
+    "slug": "kocakoy",
+    "province": "diyarbakir",
+    "lat": 37.8608,
+    "lon": 40.3428
+  },
+  {
+    "name": "Kulp",
+    "slug": "kulp",
+    "province": "diyarbakir",
+    "lat": 37.8422,
+    "lon": 40.3533
+  },
+  {
+    "name": "Lice",
+    "slug": "lice",
+    "province": "diyarbakir",
+    "lat": 37.8671,
+    "lon": 40.288
+  },
+  {
+    "name": "Silvan",
+    "slug": "silvan",
+    "province": "diyarbakir",
+    "lat": 37.9428,
+    "lon": 40.2125
+  },
+  {
+    "name": "Sur",
+    "slug": "sur",
+    "province": "diyarbakir",
+    "lat": 37.8636,
+    "lon": 40.1736
+  },
+  {
+    "name": "Yenişehir",
+    "slug": "yenisehir-diyarbakir",
+    "province": "diyarbakir",
+    "lat": 37.7285,
+    "lon": 40.4277
+  },
+  {
+    "name": "Akçakoca",
+    "slug": "akcakoca",
+    "province": "duzce",
+    "lat": 41.0222,
+    "lon": 31.1925
+  },
+  {
+    "name": "Çilimli",
+    "slug": "cilimli",
+    "province": "duzce",
+    "lat": 40.9112,
+    "lon": 31.1423
+  },
+  {
+    "name": "Cumayeri",
+    "slug": "cumayeri",
+    "province": "duzce",
+    "lat": 41.0362,
+    "lon": 30.96
+  },
+  {
+    "name": "Gölyaka",
+    "slug": "golyaka",
+    "province": "duzce",
+    "lat": 40.7845,
+    "lon": 31.3119
+  },
+  {
+    "name": "Gümüşova",
+    "slug": "gumusova",
+    "province": "duzce",
+    "lat": 40.6078,
+    "lon": 30.9476
+  },
+  {
+    "name": "Kaynaşlı",
+    "slug": "kaynasli",
+    "province": "duzce",
+    "lat": 41.0794,
+    "lon": 31.224
+  },
+  {
+    "name": "Merkez",
+    "slug": "duzce-merkez",
+    "province": "duzce",
+    "lat": 40.7191,
+    "lon": 31.1064
+  },
+  {
+    "name": "Yığılca",
+    "slug": "yigilca",
+    "province": "duzce",
+    "lat": 40.6052,
+    "lon": 31.2104
+  },
+  {
+    "name": "Enez",
+    "slug": "enez",
+    "province": "edirne",
+    "lat": 41.4889,
+    "lon": 26.5972
+  },
+  {
+    "name": "Havsa",
+    "slug": "havsa",
+    "province": "edirne",
+    "lat": 41.5349,
+    "lon": 26.6416
+  },
+  {
+    "name": "İpsala",
+    "slug": "i-psala",
+    "province": "edirne",
+    "lat": 41.5716,
+    "lon": 26.5595
+  },
+  {
+    "name": "Keşan",
+    "slug": "kesan",
+    "province": "edirne",
+    "lat": 41.7317,
+    "lon": 26.6281
+  },
+  {
+    "name": "Lalapaşa",
+    "slug": "lalapasa",
+    "province": "edirne",
+    "lat": 41.4355,
+    "lon": 26.3909
+  },
+  {
+    "name": "Meriç",
+    "slug": "meric",
+    "province": "edirne",
+    "lat": 41.8593,
+    "lon": 26.5672
+  },
+  {
+    "name": "Merkez",
+    "slug": "edirne-merkez",
+    "province": "edirne",
+    "lat": 41.532,
+    "lon": 26.5759
+  },
+  {
+    "name": "Süloğlu",
+    "slug": "suloglu",
+    "province": "edirne",
+    "lat": 41.6344,
+    "lon": 26.7441
+  },
+  {
+    "name": "Uzunköprü",
+    "slug": "uzunkopru",
+    "province": "edirne",
+    "lat": 41.4484,
+    "lon": 26.5439
+  },
+  {
+    "name": "Ağın",
+    "slug": "agin",
+    "province": "elazig",
+    "lat": 38.6827,
+    "lon": 39.4474
+  },
+  {
+    "name": "Alacakaya",
+    "slug": "alacakaya",
+    "province": "elazig",
+    "lat": 38.81,
+    "lon": 39.4111
+  },
+  {
+    "name": "Arıcak",
+    "slug": "aricak",
+    "province": "elazig",
+    "lat": 38.8266,
+    "lon": 39.1805
+  },
+  {
+    "name": "Baskil",
+    "slug": "baskil",
+    "province": "elazig",
+    "lat": 38.6259,
+    "lon": 39.102
+  },
+  {
+    "name": "Karakoçan",
+    "slug": "karakocan",
+    "province": "elazig",
+    "lat": 38.5285,
+    "lon": 38.9844
+  },
+  {
+    "name": "Keban",
+    "slug": "keban",
+    "province": "elazig",
+    "lat": 38.6573,
+    "lon": 39.2464
+  },
+  {
+    "name": "Kovancılar",
+    "slug": "kovancilar",
+    "province": "elazig",
+    "lat": 38.9288,
+    "lon": 39.2031
+  },
+  {
+    "name": "Maden",
+    "slug": "maden",
+    "province": "elazig",
+    "lat": 38.9136,
+    "lon": 39.0844
+  },
+  {
+    "name": "Merkez",
+    "slug": "elazig-merkez",
+    "province": "elazig",
+    "lat": 38.8335,
+    "lon": 39.0497
+  },
+  {
+    "name": "Palu",
+    "slug": "palu",
+    "province": "elazig",
+    "lat": 38.4679,
+    "lon": 39.0438
+  },
+  {
+    "name": "Sivrice",
+    "slug": "sivrice",
+    "province": "elazig",
+    "lat": 38.4769,
+    "lon": 39.173
+  },
+  {
+    "name": "Çayırlı",
+    "slug": "cayirli",
+    "province": "erzincan",
+    "lat": 39.9141,
+    "lon": 39.5773
+  },
+  {
+    "name": "İliç",
+    "slug": "i-lic",
+    "province": "erzincan",
+    "lat": 39.9183,
+    "lon": 39.5325
+  },
+  {
+    "name": "Kemah",
+    "slug": "kemah",
+    "province": "erzincan",
+    "lat": 39.5891,
+    "lon": 39.6304
+  },
+  {
+    "name": "Kemaliye",
+    "slug": "kemaliye",
+    "province": "erzincan",
+    "lat": 39.5524,
+    "lon": 39.6371
+  },
+  {
+    "name": "Merkez",
+    "slug": "erzincan-merkez",
+    "province": "erzincan",
+    "lat": 39.7668,
+    "lon": 39.7172
+  },
+  {
+    "name": "Otlukbeli",
+    "slug": "otlukbeli",
+    "province": "erzincan",
+    "lat": 39.5066,
+    "lon": 39.5162
+  },
+  {
+    "name": "Refahiye",
+    "slug": "refahiye",
+    "province": "erzincan",
+    "lat": 39.5799,
+    "lon": 39.4979
+  },
+  {
+    "name": "Tercan",
+    "slug": "tercan",
+    "province": "erzincan",
+    "lat": 39.5589,
+    "lon": 39.6807
+  },
+  {
+    "name": "Üzümlü",
+    "slug": "uzumlu",
+    "province": "erzincan",
+    "lat": 39.8111,
+    "lon": 39.5678
+  },
+  {
+    "name": "Aşkale",
+    "slug": "askale",
+    "province": "erzurum",
+    "lat": 39.6779,
+    "lon": 41.3357
+  },
+  {
+    "name": "Aziziye",
+    "slug": "aziziye",
+    "province": "erzurum",
+    "lat": 39.9724,
+    "lon": 41.3997
+  },
+  {
+    "name": "Çat",
+    "slug": "cat",
+    "province": "erzurum",
+    "lat": 40.0647,
+    "lon": 41.2748
+  },
+  {
+    "name": "Hınıs",
+    "slug": "hinis",
+    "province": "erzurum",
+    "lat": 39.8599,
+    "lon": 41.2742
+  },
+  {
+    "name": "Horasan",
+    "slug": "horasan",
+    "province": "erzurum",
+    "lat": 40.1199,
+    "lon": 41.1299
+  },
+  {
+    "name": "İspir",
+    "slug": "i-spir",
+    "province": "erzurum",
+    "lat": 40.148,
+    "lon": 41.437
+  },
+  {
+    "name": "Karaçoban",
+    "slug": "karacoban",
+    "province": "erzurum",
+    "lat": 39.8186,
+    "lon": 41.3411
+  },
+  {
+    "name": "Karayazı",
+    "slug": "karayazi",
+    "province": "erzurum",
+    "lat": 40.0338,
+    "lon": 41.0227
+  },
+  {
+    "name": "Köprüköy",
+    "slug": "koprukoy",
+    "province": "erzurum",
+    "lat": 40.1034,
+    "lon": 41.0723
+  },
+  {
+    "name": "Narman",
+    "slug": "narman",
+    "province": "erzurum",
+    "lat": 40.1331,
+    "lon": 41.0865
+  },
+  {
+    "name": "Oltu",
+    "slug": "oltu",
+    "province": "erzurum",
+    "lat": 40.0215,
+    "lon": 41.3109
+  },
+  {
+    "name": "Olur",
+    "slug": "olur",
+    "province": "erzurum",
+    "lat": 39.6731,
+    "lon": 41.0973
+  },
+  {
+    "name": "Palandöken",
+    "slug": "palandoken",
+    "province": "erzurum",
+    "lat": 40.0358,
+    "lon": 41.4967
+  },
+  {
+    "name": "Pasinler",
+    "slug": "pasinler",
+    "province": "erzurum",
+    "lat": 39.9714,
+    "lon": 41.1523
+  },
+  {
+    "name": "Pazaryolu",
+    "slug": "pazaryolu",
+    "province": "erzurum",
+    "lat": 39.7945,
+    "lon": 41.5077
+  },
+  {
+    "name": "Şenkaya",
+    "slug": "senkaya",
+    "province": "erzurum",
+    "lat": 39.7596,
+    "lon": 41.408
+  },
+  {
+    "name": "Tekman",
+    "slug": "tekman",
+    "province": "erzurum",
+    "lat": 39.9774,
+    "lon": 41.2795
+  },
+  {
+    "name": "Tortum",
+    "slug": "tortum",
+    "province": "erzurum",
+    "lat": 40.0081,
+    "lon": 41.2357
+  },
+  {
+    "name": "Uzundere",
+    "slug": "uzundere",
+    "province": "erzurum",
+    "lat": 40.0959,
+    "lon": 41.4423
+  },
+  {
+    "name": "Yakutiye",
+    "slug": "yakutiye",
+    "province": "erzurum",
+    "lat": 40.0613,
+    "lon": 41.2424
+  },
+  {
+    "name": "Alpu",
+    "slug": "alpu",
+    "province": "eskisehir",
+    "lat": 40.0126,
+    "lon": 30.689
+  },
+  {
+    "name": "Beylikova",
+    "slug": "beylikova",
+    "province": "eskisehir",
+    "lat": 39.6836,
+    "lon": 30.6868
+  },
+  {
+    "name": "Çifteler",
+    "slug": "cifteler",
+    "province": "eskisehir",
+    "lat": 40.0088,
+    "lon": 30.7632
+  },
+  {
+    "name": "Günyüzü",
+    "slug": "gunyuzu",
+    "province": "eskisehir",
+    "lat": 39.7628,
+    "lon": 30.6886
+  },
+  {
+    "name": "Han",
+    "slug": "han",
+    "province": "eskisehir",
+    "lat": 39.8371,
+    "lon": 30.4497
+  },
+  {
+    "name": "İnönü",
+    "slug": "i-nonu",
+    "province": "eskisehir",
+    "lat": 39.8607,
+    "lon": 30.5944
+  },
+  {
+    "name": "Mahmudiye",
+    "slug": "mahmudiye",
+    "province": "eskisehir",
+    "lat": 39.8296,
+    "lon": 30.282
+  },
+  {
+    "name": "Mihalgazi",
+    "slug": "mihalgazi",
+    "province": "eskisehir",
+    "lat": 39.5759,
+    "lon": 30.7522
+  },
+  {
+    "name": "Mihalıççık",
+    "slug": "mihaliccik",
+    "province": "eskisehir",
+    "lat": 39.5897,
+    "lon": 30.517
+  },
+  {
+    "name": "Odunpazarı",
+    "slug": "odunpazari",
+    "province": "eskisehir",
+    "lat": 39.6297,
+    "lon": 30.3086
+  },
+  {
+    "name": "Sarıcakaya",
+    "slug": "saricakaya",
+    "province": "eskisehir",
+    "lat": 39.7569,
+    "lon": 30.6834
+  },
+  {
+    "name": "Seyitgazi",
+    "slug": "seyitgazi",
+    "province": "eskisehir",
+    "lat": 39.8759,
+    "lon": 30.434
+  },
+  {
+    "name": "Sivrihisar",
+    "slug": "sivrihisar",
+    "province": "eskisehir",
+    "lat": 39.95,
+    "lon": 30.667
+  },
+  {
+    "name": "Tepebaşı",
+    "slug": "tepebasi",
+    "province": "eskisehir",
+    "lat": 39.9926,
+    "lon": 30.7401
+  },
+  {
+    "name": "Araban",
+    "slug": "araban",
+    "province": "gaziantep",
+    "lat": 36.9836,
+    "lon": 37.3232
+  },
+  {
+    "name": "İslahiye",
+    "slug": "i-slahiye",
+    "province": "gaziantep",
+    "lat": 37.2562,
+    "lon": 37.5904
+  },
+  {
+    "name": "Karkamış",
+    "slug": "karkamis",
+    "province": "gaziantep",
+    "lat": 36.851,
+    "lon": 37.4644
+  },
+  {
+    "name": "Nizip",
+    "slug": "nizip",
+    "province": "gaziantep",
+    "lat": 37.0268,
+    "lon": 37.3889
+  },
+  {
+    "name": "Nurdağı",
+    "slug": "nurdagi",
+    "province": "gaziantep",
+    "lat": 36.8401,
+    "lon": 37.2541
+  },
+  {
+    "name": "Oğuzeli",
+    "slug": "oguzeli",
+    "province": "gaziantep",
+    "lat": 36.8777,
+    "lon": 37.3429
+  },
+  {
+    "name": "Şahinbey",
+    "slug": "sahinbey",
+    "province": "gaziantep",
+    "lat": 37.1484,
+    "lon": 37.4482
+  },
+  {
+    "name": "Şehitkâmil",
+    "slug": "sehitkamil",
+    "province": "gaziantep",
+    "lat": 36.8451,
+    "lon": 37.4659
+  },
+  {
+    "name": "Yavuzeli",
+    "slug": "yavuzeli",
+    "province": "gaziantep",
+    "lat": 37.1405,
+    "lon": 37.5581
+  },
+  {
+    "name": "Alucra",
+    "slug": "alucra",
+    "province": "giresun",
+    "lat": 41.1473,
+    "lon": 38.1419
+  },
+  {
+    "name": "Bulancak",
+    "slug": "bulancak",
+    "province": "giresun",
+    "lat": 41.1415,
+    "lon": 38.3639
+  },
+  {
+    "name": "Çamoluk",
+    "slug": "camoluk",
+    "province": "giresun",
+    "lat": 40.8735,
+    "lon": 38.39
+  },
+  {
+    "name": "Çanakçı",
+    "slug": "canakci",
+    "province": "giresun",
+    "lat": 40.9999,
+    "lon": 38.5519
+  },
+  {
+    "name": "Dereli",
+    "slug": "dereli",
+    "province": "giresun",
+    "lat": 40.7981,
+    "lon": 38.146
+  },
+  {
+    "name": "Doğankent",
+    "slug": "dogankent",
+    "province": "giresun",
+    "lat": 40.9624,
+    "lon": 38.1839
+  },
+  {
+    "name": "Espiye",
+    "slug": "espiye",
+    "province": "giresun",
+    "lat": 40.8637,
+    "lon": 38.3872
+  },
+  {
+    "name": "Eynesil",
+    "slug": "eynesil",
+    "province": "giresun",
+    "lat": 40.8756,
+    "lon": 38.581
+  },
+  {
+    "name": "Görele",
+    "slug": "gorele",
+    "province": "giresun",
+    "lat": 40.9687,
+    "lon": 38.583
+  },
+  {
+    "name": "Güce",
+    "slug": "guce",
+    "province": "giresun",
+    "lat": 41.0177,
+    "lon": 38.5705
+  },
+  {
+    "name": "Keşap",
+    "slug": "kesap",
+    "province": "giresun",
+    "lat": 40.9211,
+    "lon": 38.4824
+  },
+  {
+    "name": "Merkez",
+    "slug": "giresun-merkez",
+    "province": "giresun",
+    "lat": 40.9807,
+    "lon": 38.1607
+  },
+  {
+    "name": "Piraziz",
+    "slug": "piraziz",
+    "province": "giresun",
+    "lat": 40.6922,
+    "lon": 38.1979
+  },
+  {
+    "name": "Şebinkarahisar",
+    "slug": "sebinkarahisar",
+    "province": "giresun",
+    "lat": 41.0328,
+    "lon": 38.395
+  },
+  {
+    "name": "Tirebolu",
+    "slug": "tirebolu",
+    "province": "giresun",
+    "lat": 41.0618,
+    "lon": 38.3819
+  },
+  {
+    "name": "Yağlıdere",
+    "slug": "yaglidere",
+    "province": "giresun",
+    "lat": 40.8765,
+    "lon": 38.5554
+  },
+  {
+    "name": "Kelkit",
+    "slug": "kelkit",
+    "province": "gumushane",
+    "lat": 40.1919,
+    "lon": 39.7513
+  },
+  {
+    "name": "Köse",
+    "slug": "kose",
+    "province": "gumushane",
+    "lat": 40.4378,
+    "lon": 39.7378
+  },
+  {
+    "name": "Kürtün",
+    "slug": "kurtun",
+    "province": "gumushane",
+    "lat": 40.6667,
+    "lon": 39.4713
+  },
+  {
+    "name": "Merkez",
+    "slug": "gumushane-merkez",
+    "province": "gumushane",
+    "lat": 40.29,
+    "lon": 39.7158
+  },
+  {
+    "name": "Şiran",
+    "slug": "siran",
+    "province": "gumushane",
+    "lat": 40.6357,
+    "lon": 39.4237
+  },
+  {
+    "name": "Torul",
+    "slug": "torul",
+    "province": "gumushane",
+    "lat": 40.5701,
+    "lon": 39.3076
+  },
+  {
+    "name": "Çukurca",
+    "slug": "cukurca",
+    "province": "hakkari",
+    "lat": 37.382,
+    "lon": 43.7487
+  },
+  {
+    "name": "Derecik",
+    "slug": "derecik",
+    "province": "hakkari",
+    "lat": 37.8014,
+    "lon": 43.7146
+  },
+  {
+    "name": "Merkez",
+    "slug": "hakkari-merkez",
+    "province": "hakkari",
+    "lat": 37.7359,
+    "lon": 43.8542
+  },
+  {
+    "name": "Şemdinli",
+    "slug": "semdinli",
+    "province": "hakkari",
+    "lat": 37.3718,
+    "lon": 43.8487
+  },
+  {
+    "name": "Yüksekova",
+    "slug": "yuksekova",
+    "province": "hakkari",
+    "lat": 37.8066,
+    "lon": 43.8362
+  },
+  {
+    "name": "Altınözü",
+    "slug": "altinozu",
+    "province": "hatay",
+    "lat": 36.5587,
+    "lon": 36.3115
+  },
+  {
+    "name": "Antakya",
+    "slug": "antakya",
+    "province": "hatay",
+    "lat": 36.2012,
+    "lon": 36.1648
+  },
+  {
+    "name": "Arsuz",
+    "slug": "arsuz",
+    "province": "hatay",
+    "lat": 36.1667,
+    "lon": 36.2752
+  },
+  {
+    "name": "Belen",
+    "slug": "belen",
+    "province": "hatay",
+    "lat": 36.517,
+    "lon": 36.1794
+  },
+  {
+    "name": "Defne",
+    "slug": "defne",
+    "province": "hatay",
+    "lat": 36.3892,
+    "lon": 36.5702
+  },
+  {
+    "name": "Dörtyol",
+    "slug": "dortyol",
+    "province": "hatay",
+    "lat": 36.2116,
+    "lon": 36.4576
+  },
+  {
+    "name": "Erzin",
+    "slug": "erzin",
+    "province": "hatay",
+    "lat": 36.5587,
+    "lon": 36.4539
+  },
+  {
+    "name": "Hassa",
+    "slug": "hassa",
+    "province": "hatay",
+    "lat": 36.2162,
+    "lon": 36.4073
+  },
+  {
+    "name": "İskenderun",
+    "slug": "i-skenderun",
+    "province": "hatay",
+    "lat": 36.1555,
+    "lon": 36.2656
+  },
+  {
+    "name": "Kırıkhan",
+    "slug": "kirikhan",
+    "province": "hatay",
+    "lat": 36.5474,
+    "lon": 36.2178
+  },
+  {
+    "name": "Kumlu",
+    "slug": "kumlu",
+    "province": "hatay",
+    "lat": 36.2948,
+    "lon": 36.5861
+  },
+  {
+    "name": "Payas",
+    "slug": "payas",
+    "province": "hatay",
+    "lat": 36.3492,
+    "lon": 36.2158
+  },
+  {
+    "name": "Reyhanlı",
+    "slug": "reyhanli",
+    "province": "hatay",
+    "lat": 36.1938,
+    "lon": 36.3364
+  },
+  {
+    "name": "Samandağ",
+    "slug": "samandag",
+    "province": "hatay",
+    "lat": 36.4315,
+    "lon": 36.58
+  },
+  {
+    "name": "Yayladağı",
+    "slug": "yayladagi",
+    "province": "hatay",
+    "lat": 36.489,
+    "lon": 36.113
+  },
+  {
+    "name": "Aralık",
+    "slug": "aralik",
+    "province": "igdir",
+    "lat": 40.1295,
+    "lon": 43.803
+  },
+  {
+    "name": "Karakoyunlu",
+    "slug": "karakoyunlu",
+    "province": "igdir",
+    "lat": 39.7131,
+    "lon": 43.9438
+  },
+  {
+    "name": "Merkez",
+    "slug": "igdir-merkez",
+    "province": "igdir",
+    "lat": 40.0326,
+    "lon": 44.0656
+  },
+  {
+    "name": "Tuzluca",
+    "slug": "tuzluca",
+    "province": "igdir",
+    "lat": 39.8372,
+    "lon": 44.2639
+  },
+  {
+    "name": "Aksu",
+    "slug": "aksu-isparta",
+    "province": "isparta",
+    "lat": 37.6773,
+    "lon": 30.5543
+  },
+  {
+    "name": "Atabey",
+    "slug": "atabey",
+    "province": "isparta",
+    "lat": 37.8034,
+    "lon": 30.5112
+  },
+  {
+    "name": "Eğirdir",
+    "slug": "egirdir",
+    "province": "isparta",
+    "lat": 37.7188,
+    "lon": 30.5015
+  },
+  {
+    "name": "Gelendost",
+    "slug": "gelendost",
+    "province": "isparta",
+    "lat": 37.5405,
+    "lon": 30.6129
+  },
+  {
+    "name": "Gönen",
+    "slug": "gonen-isparta",
+    "province": "isparta",
+    "lat": 37.5677,
+    "lon": 30.509
+  },
+  {
+    "name": "Keçiborlu",
+    "slug": "keciborlu",
+    "province": "isparta",
+    "lat": 37.5924,
+    "lon": 30.4888
+  },
+  {
+    "name": "Merkez",
+    "slug": "isparta-merkez",
+    "province": "isparta",
+    "lat": 37.9078,
+    "lon": 30.4818
+  },
+  {
+    "name": "Şarkikaraağaç",
+    "slug": "sarkikaraagac",
+    "province": "isparta",
+    "lat": 37.5217,
+    "lon": 30.5697
+  },
+  {
+    "name": "Senirkent",
+    "slug": "senirkent",
+    "province": "isparta",
+    "lat": 37.9778,
+    "lon": 30.4517
+  },
+  {
+    "name": "Sütçüler",
+    "slug": "sutculer",
+    "province": "isparta",
+    "lat": 37.7751,
+    "lon": 30.3111
+  },
+  {
+    "name": "Uluborlu",
+    "slug": "uluborlu",
+    "province": "isparta",
+    "lat": 37.9851,
+    "lon": 30.7411
+  },
+  {
+    "name": "Yalvaç",
+    "slug": "yalvac",
+    "province": "isparta",
+    "lat": 37.9147,
+    "lon": 30.639
+  },
+  {
+    "name": "Yenişarbademli",
+    "slug": "yenisarbademli",
+    "province": "isparta",
+    "lat": 37.9723,
+    "lon": 30.7979
+  },
+  {
+    "name": "Adalar",
+    "slug": "adalar",
+    "province": "istanbul",
+    "lat": 41.2046,
+    "lon": 29.0713
+  },
+  {
+    "name": "Arnavutköy",
+    "slug": "arnavutkoy",
+    "province": "istanbul",
+    "lat": 41.1518,
+    "lon": 29.0203
+  },
+  {
+    "name": "Ataşehir",
+    "slug": "atasehir",
+    "province": "istanbul",
+    "lat": 41.0021,
+    "lon": 29.197
+  },
+  {
+    "name": "Avcılar",
+    "slug": "avcilar",
+    "province": "istanbul",
+    "lat": 40.8326,
+    "lon": 28.8544
+  },
+  {
+    "name": "Bağcılar",
+    "slug": "bagcilar",
+    "province": "istanbul",
+    "lat": 41.1274,
+    "lon": 28.91
+  },
+  {
+    "name": "Bahçelievler",
+    "slug": "bahcelievler",
+    "province": "istanbul",
+    "lat": 40.9319,
+    "lon": 28.9133
+  },
+  {
+    "name": "Bakırköy",
+    "slug": "bakirkoy",
+    "province": "istanbul",
+    "lat": 40.8562,
+    "lon": 29.0825
+  },
+  {
+    "name": "Başakşehir",
+    "slug": "basaksehir",
+    "province": "istanbul",
+    "lat": 41.0549,
+    "lon": 28.9392
+  },
+  {
+    "name": "Bayrampaşa",
+    "slug": "bayrampasa",
+    "province": "istanbul",
+    "lat": 41.1441,
+    "lon": 29.1166
+  },
+  {
+    "name": "Beşiktaş",
+    "slug": "besiktas",
+    "province": "istanbul",
+    "lat": 41.2046,
+    "lon": 28.9601
+  },
+  {
+    "name": "Beykoz",
+    "slug": "beykoz",
+    "province": "istanbul",
+    "lat": 41.2208,
+    "lon": 29.1023
+  },
+  {
+    "name": "Beylikdüzü",
+    "slug": "beylikduzu",
+    "province": "istanbul",
+    "lat": 40.9804,
+    "lon": 28.9144
+  },
+  {
+    "name": "Beyoğlu",
+    "slug": "beyoglu",
+    "province": "istanbul",
+    "lat": 41.1617,
+    "lon": 28.9123
+  },
+  {
+    "name": "Büyükçekmece",
+    "slug": "buyukcekmece",
+    "province": "istanbul",
+    "lat": 41.1384,
+    "lon": 29.202
+  },
+  {
+    "name": "Çatalca",
+    "slug": "catalca",
+    "province": "istanbul",
+    "lat": 41.1836,
+    "lon": 28.8975
+  },
+  {
+    "name": "Çekmeköy",
+    "slug": "cekmekoy",
+    "province": "istanbul",
+    "lat": 41.1036,
+    "lon": 29.0275
+  },
+  {
+    "name": "Esenler",
+    "slug": "esenler",
+    "province": "istanbul",
+    "lat": 41.2049,
+    "lon": 29.0765
+  },
+  {
+    "name": "Esenyurt",
+    "slug": "esenyurt",
+    "province": "istanbul",
+    "lat": 40.7908,
+    "lon": 28.8812
+  },
+  {
+    "name": "Eyüpsultan",
+    "slug": "eyupsultan",
+    "province": "istanbul",
+    "lat": 41.1726,
+    "lon": 28.7479
+  },
+  {
+    "name": "Fatih",
+    "slug": "fatih",
+    "province": "istanbul",
+    "lat": 40.8795,
+    "lon": 28.8299
+  },
+  {
+    "name": "Gaziosmanpaşa",
+    "slug": "gaziosmanpasa",
+    "province": "istanbul",
+    "lat": 41.1149,
+    "lon": 28.958
+  },
+  {
+    "name": "Güngören",
+    "slug": "gungoren",
+    "province": "istanbul",
+    "lat": 41.0744,
+    "lon": 28.7966
+  },
+  {
+    "name": "Kadıköy",
+    "slug": "kadikoy",
+    "province": "istanbul",
+    "lat": 40.8825,
+    "lon": 29.0063
+  },
+  {
+    "name": "Kağıthane",
+    "slug": "kagithane",
+    "province": "istanbul",
+    "lat": 41.257,
+    "lon": 28.8843
+  },
+  {
+    "name": "Kartal",
+    "slug": "kartal",
+    "province": "istanbul",
+    "lat": 41.0884,
+    "lon": 28.9525
+  },
+  {
+    "name": "Küçükçekmece",
+    "slug": "kucukcekmece",
+    "province": "istanbul",
+    "lat": 40.9015,
+    "lon": 29.0624
+  },
+  {
+    "name": "Maltepe",
+    "slug": "maltepe",
+    "province": "istanbul",
+    "lat": 40.7839,
+    "lon": 29.1219
+  },
+  {
+    "name": "Pendik",
+    "slug": "pendik",
+    "province": "istanbul",
+    "lat": 41.1857,
+    "lon": 29.1842
+  },
+  {
+    "name": "Sancaktepe",
+    "slug": "sancaktepe",
+    "province": "istanbul",
+    "lat": 40.8625,
+    "lon": 28.8832
+  },
+  {
+    "name": "Sarıyer",
+    "slug": "sariyer",
+    "province": "istanbul",
+    "lat": 40.8981,
+    "lon": 28.9155
+  },
+  {
+    "name": "Şile",
+    "slug": "sile",
+    "province": "istanbul",
+    "lat": 40.8936,
+    "lon": 28.8817
+  },
+  {
+    "name": "Silivri",
+    "slug": "silivri",
+    "province": "istanbul",
+    "lat": 40.8967,
+    "lon": 29.07
+  },
+  {
+    "name": "Şişli",
+    "slug": "sisli",
+    "province": "istanbul",
+    "lat": 40.8446,
+    "lon": 29.0409
+  },
+  {
+    "name": "Sultanbeyli",
+    "slug": "sultanbeyli",
+    "province": "istanbul",
+    "lat": 40.816,
+    "lon": 28.9378
+  },
+  {
+    "name": "Sultangazi",
+    "slug": "sultangazi",
+    "province": "istanbul",
+    "lat": 41.0298,
+    "lon": 28.7342
+  },
+  {
+    "name": "Tuzla",
+    "slug": "tuzla",
+    "province": "istanbul",
+    "lat": 41.0224,
+    "lon": 28.8607
+  },
+  {
+    "name": "Ümraniye",
+    "slug": "umraniye",
+    "province": "istanbul",
+    "lat": 41.1969,
+    "lon": 28.8926
+  },
+  {
+    "name": "Üsküdar",
+    "slug": "uskudar",
+    "province": "istanbul",
+    "lat": 41.2484,
+    "lon": 29.0277
+  },
+  {
+    "name": "Zeytinburnu",
+    "slug": "zeytinburnu",
+    "province": "istanbul",
+    "lat": 40.9357,
+    "lon": 29.2105
+  },
+  {
+    "name": "Aliağa",
+    "slug": "aliaga",
+    "province": "izmir",
+    "lat": 38.3234,
+    "lon": 27.2119
+  },
+  {
+    "name": "Balçova",
+    "slug": "balcova",
+    "province": "izmir",
+    "lat": 38.4025,
+    "lon": 27.243
+  },
+  {
+    "name": "Bayındır",
+    "slug": "bayindir",
+    "province": "izmir",
+    "lat": 38.3008,
+    "lon": 27.1833
+  },
+  {
+    "name": "Bayraklı",
+    "slug": "bayrakli",
+    "province": "izmir",
+    "lat": 38.6143,
+    "lon": 27.3533
+  },
+  {
+    "name": "Bergama",
+    "slug": "bergama",
+    "province": "izmir",
+    "lat": 38.5919,
+    "lon": 26.9985
+  },
+  {
+    "name": "Beydağ",
+    "slug": "beydag",
+    "province": "izmir",
+    "lat": 38.6098,
+    "lon": 27.2605
+  },
+  {
+    "name": "Bornova",
+    "slug": "bornova",
+    "province": "izmir",
+    "lat": 38.1873,
+    "lon": 27.1942
+  },
+  {
+    "name": "Buca",
+    "slug": "buca",
+    "province": "izmir",
+    "lat": 38.5238,
+    "lon": 26.9584
+  },
+  {
+    "name": "Çeşme",
+    "slug": "cesme",
+    "province": "izmir",
+    "lat": 38.6357,
+    "lon": 27.0779
+  },
+  {
+    "name": "Çiğli",
+    "slug": "cigli",
+    "province": "izmir",
+    "lat": 38.2959,
+    "lon": 27.1959
+  },
+  {
+    "name": "Dikili",
+    "slug": "dikili",
+    "province": "izmir",
+    "lat": 38.2648,
+    "lon": 27.2586
+  },
+  {
+    "name": "Foça",
+    "slug": "foca",
+    "province": "izmir",
+    "lat": 38.1976,
+    "lon": 27.1267
+  },
+  {
+    "name": "Gaziemir",
+    "slug": "gaziemir",
+    "province": "izmir",
+    "lat": 38.3116,
+    "lon": 27.1493
+  },
+  {
+    "name": "Güzelbahçe",
+    "slug": "guzelbahce",
+    "province": "izmir",
+    "lat": 38.2613,
+    "lon": 26.9015
+  },
+  {
+    "name": "Karabağlar",
+    "slug": "karabaglar",
+    "province": "izmir",
+    "lat": 38.4828,
+    "lon": 27.2213
+  },
+  {
+    "name": "Karaburun",
+    "slug": "karaburun",
+    "province": "izmir",
+    "lat": 38.5099,
+    "lon": 27.3167
+  },
+  {
+    "name": "Karşıyaka",
+    "slug": "karsiyaka",
+    "province": "izmir",
+    "lat": 38.1837,
+    "lon": 26.9539
+  },
+  {
+    "name": "Kemalpaşa",
+    "slug": "kemalpasa",
+    "province": "izmir",
+    "lat": 38.2913,
+    "lon": 27.3575
+  },
+  {
+    "name": "Kiraz",
+    "slug": "kiraz",
+    "province": "izmir",
+    "lat": 38.6156,
+    "lon": 26.9156
+  },
+  {
+    "name": "Kınık",
+    "slug": "kinik",
+    "province": "izmir",
+    "lat": 38.2637,
+    "lon": 27.0474
+  },
+  {
+    "name": "Konak",
+    "slug": "konak",
+    "province": "izmir",
+    "lat": 38.4066,
+    "lon": 27.1817
+  },
+  {
+    "name": "Menderes",
+    "slug": "menderes",
+    "province": "izmir",
+    "lat": 38.299,
+    "lon": 26.9854
+  },
+  {
+    "name": "Menemen",
+    "slug": "menemen",
+    "province": "izmir",
+    "lat": 38.6435,
+    "lon": 26.9907
+  },
+  {
+    "name": "Narlıdere",
+    "slug": "narlidere",
+    "province": "izmir",
+    "lat": 38.3951,
+    "lon": 27.1954
+  },
+  {
+    "name": "Ödemiş",
+    "slug": "odemis",
+    "province": "izmir",
+    "lat": 38.2153,
+    "lon": 27.3264
+  },
+  {
+    "name": "Seferihisar",
+    "slug": "seferihisar",
+    "province": "izmir",
+    "lat": 38.3112,
+    "lon": 27.257
+  },
+  {
+    "name": "Selçuk",
+    "slug": "selcuk",
+    "province": "izmir",
+    "lat": 38.451,
+    "lon": 27.1724
+  },
+  {
+    "name": "Tire",
+    "slug": "tire",
+    "province": "izmir",
+    "lat": 38.4967,
+    "lon": 27.2132
+  },
+  {
+    "name": "Torbalı",
+    "slug": "torbali",
+    "province": "izmir",
+    "lat": 38.5627,
+    "lon": 27.3385
+  },
+  {
+    "name": "Urla",
+    "slug": "urla",
+    "province": "izmir",
+    "lat": 38.6633,
+    "lon": 26.9767
+  },
+  {
+    "name": "Afşin",
+    "slug": "afsin",
+    "province": "kahramanmaras",
+    "lat": 37.8167,
+    "lon": 36.9444
+  },
+  {
+    "name": "Andırın",
+    "slug": "andirin",
+    "province": "kahramanmaras",
+    "lat": 37.756,
+    "lon": 37.1807
+  },
+  {
+    "name": "Çağlayancerit",
+    "slug": "caglayancerit",
+    "province": "kahramanmaras",
+    "lat": 37.591,
+    "lon": 36.9429
+  },
+  {
+    "name": "Dulkadiroğlu",
+    "slug": "dulkadiroglu",
+    "province": "kahramanmaras",
+    "lat": 37.832,
+    "lon": 36.8858
+  },
+  {
+    "name": "Ekinözü",
+    "slug": "ekinozu",
+    "province": "kahramanmaras",
+    "lat": 37.637,
+    "lon": 36.7655
+  },
+  {
+    "name": "Elbistan",
+    "slug": "elbistan",
+    "province": "kahramanmaras",
+    "lat": 37.6004,
+    "lon": 36.991
+  },
+  {
+    "name": "Göksun",
+    "slug": "goksun",
+    "province": "kahramanmaras",
+    "lat": 37.4935,
+    "lon": 37.123
+  },
+  {
+    "name": "Nurhak",
+    "slug": "nurhak",
+    "province": "kahramanmaras",
+    "lat": 37.7968,
+    "lon": 37.0325
+  },
+  {
+    "name": "Onikişubat",
+    "slug": "onikisubat",
+    "province": "kahramanmaras",
+    "lat": 37.4338,
+    "lon": 37.1806
+  },
+  {
+    "name": "Pazarcık",
+    "slug": "pazarcik",
+    "province": "kahramanmaras",
+    "lat": 37.5233,
+    "lon": 36.9002
+  },
+  {
+    "name": "Türkoğlu",
+    "slug": "turkoglu",
+    "province": "kahramanmaras",
+    "lat": 37.3603,
+    "lon": 36.7553
+  },
+  {
+    "name": "Eflani",
+    "slug": "eflani",
+    "province": "karabuk",
+    "lat": 41.1451,
+    "lon": 32.8221
+  },
+  {
+    "name": "Eskipazar",
+    "slug": "eskipazar",
+    "province": "karabuk",
+    "lat": 41.4435,
+    "lon": 32.5759
+  },
+  {
+    "name": "Merkez",
+    "slug": "karabuk-merkez",
+    "province": "karabuk",
+    "lat": 41.0245,
+    "lon": 32.4535
+  },
+  {
+    "name": "Ovacık",
+    "slug": "ovacik-karabuk",
+    "province": "karabuk",
+    "lat": 41.2412,
+    "lon": 32.3876
+  },
+  {
+    "name": "Safranbolu",
+    "slug": "safranbolu",
+    "province": "karabuk",
+    "lat": 41.1979,
+    "lon": 32.3782
+  },
+  {
+    "name": "Yenice",
+    "slug": "yenice-karabuk",
+    "province": "karabuk",
+    "lat": 41.4386,
+    "lon": 32.7395
+  },
+  {
+    "name": "Ayrancı",
+    "slug": "ayranci",
+    "province": "karaman",
+    "lat": 37.1009,
+    "lon": 33.4215
+  },
+  {
+    "name": "Başyayla",
+    "slug": "basyayla",
+    "province": "karaman",
+    "lat": 37.2693,
+    "lon": 33.1942
+  },
+  {
+    "name": "Ermenek",
+    "slug": "ermenek",
+    "province": "karaman",
+    "lat": 36.9486,
+    "lon": 33.1216
+  },
+  {
+    "name": "Kazımkarabekir",
+    "slug": "kazimkarabekir",
+    "province": "karaman",
+    "lat": 37.312,
+    "lon": 33.0874
+  },
+  {
+    "name": "Merkez",
+    "slug": "karaman-merkez",
+    "province": "karaman",
+    "lat": 37.3061,
+    "lon": 33.2283
+  },
+  {
+    "name": "Sarıveliler",
+    "slug": "sariveliler",
+    "province": "karaman",
+    "lat": 37.1988,
+    "lon": 33.108
+  },
+  {
+    "name": "Akyaka",
+    "slug": "akyaka",
+    "province": "kars",
+    "lat": 40.7432,
+    "lon": 43.0696
+  },
+  {
+    "name": "Arpaçay",
+    "slug": "arpacay",
+    "province": "kars",
+    "lat": 40.4953,
+    "lon": 43.3339
+  },
+  {
+    "name": "Digor",
+    "slug": "digor",
+    "province": "kars",
+    "lat": 40.3838,
+    "lon": 43.0282
+  },
+  {
+    "name": "Kağızman",
+    "slug": "kagizman",
+    "province": "kars",
+    "lat": 40.654,
+    "lon": 42.8587
+  },
+  {
+    "name": "Merkez",
+    "slug": "kars-merkez",
+    "province": "kars",
+    "lat": 40.505,
+    "lon": 43.1638
+  },
+  {
+    "name": "Sarıkamış",
+    "slug": "sarikamis",
+    "province": "kars",
+    "lat": 40.5592,
+    "lon": 43.044
+  },
+  {
+    "name": "Selim",
+    "slug": "selim",
+    "province": "kars",
+    "lat": 40.7775,
+    "lon": 42.9245
+  },
+  {
+    "name": "Susuz",
+    "slug": "susuz",
+    "province": "kars",
+    "lat": 40.7648,
+    "lon": 42.963
+  },
+  {
+    "name": "Abana",
+    "slug": "abana",
+    "province": "kastamonu",
+    "lat": 41.1656,
+    "lon": 33.9473
+  },
+  {
+    "name": "Ağlı",
+    "slug": "agli",
+    "province": "kastamonu",
+    "lat": 41.5689,
+    "lon": 33.8432
+  },
+  {
+    "name": "Araç",
+    "slug": "arac",
+    "province": "kastamonu",
+    "lat": 41.2981,
+    "lon": 33.7705
+  },
+  {
+    "name": "Azdavay",
+    "slug": "azdavay",
+    "province": "kastamonu",
+    "lat": 41.3064,
+    "lon": 33.7506
+  },
+  {
+    "name": "Bozkurt",
+    "slug": "bozkurt-kastamonu",
+    "province": "kastamonu",
+    "lat": 41.4265,
+    "lon": 33.6284
+  },
+  {
+    "name": "Çatalzeytin",
+    "slug": "catalzeytin",
+    "province": "kastamonu",
+    "lat": 41.4374,
+    "lon": 33.8603
+  },
+  {
+    "name": "Cide",
+    "slug": "cide",
+    "province": "kastamonu",
+    "lat": 41.2466,
+    "lon": 33.9784
+  },
+  {
+    "name": "Daday",
+    "slug": "daday",
+    "province": "kastamonu",
+    "lat": 41.4434,
+    "lon": 33.9335
+  },
+  {
+    "name": "Devrekani",
+    "slug": "devrekani",
+    "province": "kastamonu",
+    "lat": 41.4116,
+    "lon": 33.7125
+  },
+  {
+    "name": "Doğanyurt",
+    "slug": "doganyurt",
+    "province": "kastamonu",
+    "lat": 41.4477,
+    "lon": 33.6642
+  },
+  {
+    "name": "Hanönü",
+    "slug": "hanonu",
+    "province": "kastamonu",
+    "lat": 41.4532,
+    "lon": 33.8078
+  },
+  {
+    "name": "İhsangazi",
+    "slug": "i-hsangazi",
+    "province": "kastamonu",
+    "lat": 41.4741,
+    "lon": 33.8555
+  },
+  {
+    "name": "İnebolu",
+    "slug": "i-nebolu",
+    "province": "kastamonu",
+    "lat": 41.5895,
+    "lon": 34.0172
+  },
+  {
+    "name": "Küre",
+    "slug": "kure",
+    "province": "kastamonu",
+    "lat": 41.6352,
+    "lon": 33.9845
+  },
+  {
+    "name": "Merkez",
+    "slug": "kastamonu-merkez",
+    "province": "kastamonu",
+    "lat": 41.4302,
+    "lon": 33.7397
+  },
+  {
+    "name": "Pınarbaşı",
+    "slug": "pinarbasi",
+    "province": "kastamonu",
+    "lat": 41.5991,
+    "lon": 33.7609
+  },
+  {
+    "name": "Şenpazar",
+    "slug": "senpazar",
+    "province": "kastamonu",
+    "lat": 41.2708,
+    "lon": 33.6945
+  },
+  {
+    "name": "Seydiler",
+    "slug": "seydiler",
+    "province": "kastamonu",
+    "lat": 41.3197,
+    "lon": 33.8342
+  },
+  {
+    "name": "Taşköprü",
+    "slug": "taskopru",
+    "province": "kastamonu",
+    "lat": 41.3651,
+    "lon": 33.7667
+  },
+  {
+    "name": "Tosya",
+    "slug": "tosya",
+    "province": "kastamonu",
+    "lat": 41.5302,
+    "lon": 33.7675
+  },
+  {
+    "name": "Akkışla",
+    "slug": "akkisla",
+    "province": "kayseri",
+    "lat": 38.8646,
+    "lon": 35.7177
+  },
+  {
+    "name": "Bünyan",
+    "slug": "bunyan",
+    "province": "kayseri",
+    "lat": 38.6985,
+    "lon": 35.6539
+  },
+  {
+    "name": "Develi",
+    "slug": "develi",
+    "province": "kayseri",
+    "lat": 38.8636,
+    "lon": 35.6613
+  },
+  {
+    "name": "Felahiye",
+    "slug": "felahiye",
+    "province": "kayseri",
+    "lat": 38.9022,
+    "lon": 35.4269
+  },
+  {
+    "name": "Hacılar",
+    "slug": "hacilar",
+    "province": "kayseri",
+    "lat": 38.5799,
+    "lon": 35.6377
+  },
+  {
+    "name": "İncesu",
+    "slug": "i-ncesu",
+    "province": "kayseri",
+    "lat": 38.5535,
+    "lon": 35.2294
+  },
+  {
+    "name": "Kocasinan",
+    "slug": "kocasinan",
+    "province": "kayseri",
+    "lat": 38.9178,
+    "lon": 35.2587
+  },
+  {
+    "name": "Melikgazi",
+    "slug": "melikgazi",
+    "province": "kayseri",
+    "lat": 38.576,
+    "lon": 35.2847
+  },
+  {
+    "name": "Özvatan",
+    "slug": "ozvatan",
+    "province": "kayseri",
+    "lat": 38.5026,
+    "lon": 35.5193
+  },
+  {
+    "name": "Pınarbaşı",
+    "slug": "pinarbasi-kayseri",
+    "province": "kayseri",
+    "lat": 38.9413,
+    "lon": 35.4675
+  },
+  {
+    "name": "Sarıoğlan",
+    "slug": "sarioglan",
+    "province": "kayseri",
+    "lat": 38.7267,
+    "lon": 35.3314
+  },
+  {
+    "name": "Sarız",
+    "slug": "sariz",
+    "province": "kayseri",
+    "lat": 38.6942,
+    "lon": 35.6371
+  },
+  {
+    "name": "Talas",
+    "slug": "talas",
+    "province": "kayseri",
+    "lat": 38.6143,
+    "lon": 35.3035
+  },
+  {
+    "name": "Tomarza",
+    "slug": "tomarza",
+    "province": "kayseri",
+    "lat": 38.517,
+    "lon": 35.4021
+  },
+  {
+    "name": "Yahyalı",
+    "slug": "yahyali",
+    "province": "kayseri",
+    "lat": 38.8146,
+    "lon": 35.5235
+  },
+  {
+    "name": "Yeşilhisar",
+    "slug": "yesilhisar",
+    "province": "kayseri",
+    "lat": 38.7928,
+    "lon": 35.5341
+  },
+  {
+    "name": "Elbeyli",
+    "slug": "elbeyli",
+    "province": "kilis",
+    "lat": 36.5725,
+    "lon": 37.0457
+  },
+  {
+    "name": "Merkez",
+    "slug": "kilis-merkez",
+    "province": "kilis",
+    "lat": 36.5381,
+    "lon": 37.146
+  },
+  {
+    "name": "Musabeyli",
+    "slug": "musabeyli",
+    "province": "kilis",
+    "lat": 36.8748,
+    "lon": 37.1899
+  },
+  {
+    "name": "Polateli",
+    "slug": "polateli",
+    "province": "kilis",
+    "lat": 36.7093,
+    "lon": 37.0404
+  },
+  {
+    "name": "Bahşili",
+    "slug": "bahsili",
+    "province": "kirikkale",
+    "lat": 39.8564,
+    "lon": 33.5964
+  },
+  {
+    "name": "Balışeyh",
+    "slug": "baliseyh",
+    "province": "kirikkale",
+    "lat": 39.7798,
+    "lon": 33.7257
+  },
+  {
+    "name": "Çelebi",
+    "slug": "celebi",
+    "province": "kirikkale",
+    "lat": 39.9462,
+    "lon": 33.4033
+  },
+  {
+    "name": "Delice",
+    "slug": "delice",
+    "province": "kirikkale",
+    "lat": 39.8867,
+    "lon": 33.3266
+  },
+  {
+    "name": "Karakeçili",
+    "slug": "karakecili",
+    "province": "kirikkale",
+    "lat": 40.0882,
+    "lon": 33.7066
+  },
+  {
+    "name": "Keskin",
+    "slug": "keskin",
+    "province": "kirikkale",
+    "lat": 39.8585,
+    "lon": 33.6357
+  },
+  {
+    "name": "Merkez",
+    "slug": "kirikkale-merkez",
+    "province": "kirikkale",
+    "lat": 39.8559,
+    "lon": 33.6652
+  },
+  {
+    "name": "Sulakyurt",
+    "slug": "sulakyurt",
+    "province": "kirikkale",
+    "lat": 39.7454,
+    "lon": 33.7537
+  },
+  {
+    "name": "Yahşihan",
+    "slug": "yahsihan",
+    "province": "kirikkale",
+    "lat": 39.6988,
+    "lon": 33.3226
+  },
+  {
+    "name": "Babaeski",
+    "slug": "babaeski",
+    "province": "kirklareli",
+    "lat": 41.87,
+    "lon": 27.2095
+  },
+  {
+    "name": "Demirköy",
+    "slug": "demirkoy",
+    "province": "kirklareli",
+    "lat": 41.9812,
+    "lon": 27.0475
+  },
+  {
+    "name": "Kofçaz",
+    "slug": "kofcaz",
+    "province": "kirklareli",
+    "lat": 41.8936,
+    "lon": 27.0852
+  },
+  {
+    "name": "Lüleburgaz",
+    "slug": "luleburgaz",
+    "province": "kirklareli",
+    "lat": 41.945,
+    "lon": 27.3115
+  },
+  {
+    "name": "Merkez",
+    "slug": "kirklareli-merkez",
+    "province": "kirklareli",
+    "lat": 41.7789,
+    "lon": 27.1968
+  },
+  {
+    "name": "Pehlivanköy",
+    "slug": "pehlivankoy",
+    "province": "kirklareli",
+    "lat": 41.7129,
+    "lon": 27.336
+  },
+  {
+    "name": "Pınarhisar",
+    "slug": "pinarhisar",
+    "province": "kirklareli",
+    "lat": 41.52,
+    "lon": 27.3859
+  },
+  {
+    "name": "Vize",
+    "slug": "vize",
+    "province": "kirklareli",
+    "lat": 41.5056,
+    "lon": 27.0835
+  },
+  {
+    "name": "Akçakent",
+    "slug": "akcakent",
+    "province": "kirsehir",
+    "lat": 39.1894,
+    "lon": 34.3671
+  },
+  {
+    "name": "Akpınar",
+    "slug": "akpinar",
+    "province": "kirsehir",
+    "lat": 39.2741,
+    "lon": 34.3919
+  },
+  {
+    "name": "Boztepe",
+    "slug": "boztepe",
+    "province": "kirsehir",
+    "lat": 39.1293,
+    "lon": 34.3498
+  },
+  {
+    "name": "Çiçekdağı",
+    "slug": "cicekdagi",
+    "province": "kirsehir",
+    "lat": 39.2285,
+    "lon": 34.2106
+  },
+  {
+    "name": "Kaman",
+    "slug": "kaman",
+    "province": "kirsehir",
+    "lat": 39.1195,
+    "lon": 34.3632
+  },
+  {
+    "name": "Merkez",
+    "slug": "kirsehir-merkez",
+    "province": "kirsehir",
+    "lat": 39.114,
+    "lon": 34.0269
+  },
+  {
+    "name": "Mucur",
+    "slug": "mucur",
+    "province": "kirsehir",
+    "lat": 39.2271,
+    "lon": 34.1001
+  },
+  {
+    "name": "Başiskele",
+    "slug": "basiskele",
+    "province": "kocaeli",
+    "lat": 40.8139,
+    "lon": 29.9367
+  },
+  {
+    "name": "Çayırova",
+    "slug": "cayirova",
+    "province": "kocaeli",
+    "lat": 41.0135,
+    "lon": 29.7916
+  },
+  {
+    "name": "Darıca",
+    "slug": "darica",
+    "province": "kocaeli",
+    "lat": 40.7379,
+    "lon": 30.1148
+  },
+  {
+    "name": "Derince",
+    "slug": "derince",
+    "province": "kocaeli",
+    "lat": 41.1008,
+    "lon": 29.7874
+  },
+  {
+    "name": "Dilovası",
+    "slug": "dilovasi",
+    "province": "kocaeli",
+    "lat": 40.7887,
+    "lon": 29.7727
+  },
+  {
+    "name": "Gebze",
+    "slug": "gebze",
+    "province": "kocaeli",
+    "lat": 40.8067,
+    "lon": 29.9181
+  },
+  {
+    "name": "Gölcük",
+    "slug": "golcuk",
+    "province": "kocaeli",
+    "lat": 40.7866,
+    "lon": 30.0127
+  },
+  {
+    "name": "İzmit",
+    "slug": "i-zmit",
+    "province": "kocaeli",
+    "lat": 41.0387,
+    "lon": 30.1009
+  },
+  {
+    "name": "Kandıra",
+    "slug": "kandira",
+    "province": "kocaeli",
+    "lat": 40.933,
+    "lon": 30.1019
+  },
+  {
+    "name": "Karamürsel",
+    "slug": "karamursel",
+    "province": "kocaeli",
+    "lat": 41.0195,
+    "lon": 29.9066
+  },
+  {
+    "name": "Kartepe",
+    "slug": "kartepe",
+    "province": "kocaeli",
+    "lat": 40.6973,
+    "lon": 29.6489
+  },
+  {
+    "name": "Körfez",
+    "slug": "korfez",
+    "province": "kocaeli",
+    "lat": 40.8139,
+    "lon": 29.9926
+  },
+  {
+    "name": "Ahırlı",
+    "slug": "ahirli",
+    "province": "konya",
+    "lat": 37.9671,
+    "lon": 32.2534
+  },
+  {
+    "name": "Akören",
+    "slug": "akoren",
+    "province": "konya",
+    "lat": 37.8395,
+    "lon": 32.5611
+  },
+  {
+    "name": "Akşehir",
+    "slug": "aksehir",
+    "province": "konya",
+    "lat": 38.0767,
+    "lon": 32.3454
+  },
+  {
+    "name": "Altınekin",
+    "slug": "altinekin",
+    "province": "konya",
+    "lat": 37.8183,
+    "lon": 32.5609
+  },
+  {
+    "name": "Beyşehir",
+    "slug": "beysehir",
+    "province": "konya",
+    "lat": 37.6875,
+    "lon": 32.5138
+  },
+  {
+    "name": "Bozkır",
+    "slug": "bozkir",
+    "province": "konya",
+    "lat": 38.0929,
+    "lon": 32.5536
+  },
+  {
+    "name": "Çeltik",
+    "slug": "celtik",
+    "province": "konya",
+    "lat": 37.7286,
+    "lon": 32.5114
+  },
+  {
+    "name": "Cihanbeyli",
+    "slug": "cihanbeyli",
+    "province": "konya",
+    "lat": 37.6581,
+    "lon": 32.4257
+  },
+  {
+    "name": "Çumra",
+    "slug": "cumra",
+    "province": "konya",
+    "lat": 38.0145,
+    "lon": 32.2626
+  },
+  {
+    "name": "Derbent",
+    "slug": "derbent",
+    "province": "konya",
+    "lat": 37.9094,
+    "lon": 32.3033
+  },
+  {
+    "name": "Derebucak",
+    "slug": "derebucak",
+    "province": "konya",
+    "lat": 38.0256,
+    "lon": 32.3982
+  },
+  {
+    "name": "Doğanhisar",
+    "slug": "doganhisar",
+    "province": "konya",
+    "lat": 37.8809,
+    "lon": 32.7314
+  },
+  {
+    "name": "Emirgazi",
+    "slug": "emirgazi",
+    "province": "konya",
+    "lat": 37.7968,
+    "lon": 32.6762
+  },
+  {
+    "name": "Ereğli",
+    "slug": "eregli",
+    "province": "konya",
+    "lat": 37.9086,
+    "lon": 32.5063
+  },
+  {
+    "name": "Güneysınır",
+    "slug": "guneysinir",
+    "province": "konya",
+    "lat": 37.9453,
+    "lon": 32.3598
+  },
+  {
+    "name": "Hadim",
+    "slug": "hadim",
+    "province": "konya",
+    "lat": 37.8217,
+    "lon": 32.256
+  },
+  {
+    "name": "Halkapınar",
+    "slug": "halkapinar",
+    "province": "konya",
+    "lat": 37.9926,
+    "lon": 32.5987
+  },
+  {
+    "name": "Hüyük",
+    "slug": "huyuk",
+    "province": "konya",
+    "lat": 38.0687,
+    "lon": 32.436
+  },
+  {
+    "name": "Ilgın",
+    "slug": "ilgin",
+    "province": "konya",
+    "lat": 37.9093,
+    "lon": 32.6008
+  },
+  {
+    "name": "Kadınhanı",
+    "slug": "kadinhani",
+    "province": "konya",
+    "lat": 37.7313,
+    "lon": 32.6309
+  },
+  {
+    "name": "Karapınar",
+    "slug": "karapinar",
+    "province": "konya",
+    "lat": 38.0196,
+    "lon": 32.4493
+  },
+  {
+    "name": "Karatay",
+    "slug": "karatay",
+    "province": "konya",
+    "lat": 38.0021,
+    "lon": 32.5487
+  },
+  {
+    "name": "Kulu",
+    "slug": "kulu",
+    "province": "konya",
+    "lat": 37.6308,
+    "lon": 32.7212
+  },
+  {
+    "name": "Meram",
+    "slug": "meram",
+    "province": "konya",
+    "lat": 37.8577,
+    "lon": 32.349
+  },
+  {
+    "name": "Sarayönü",
+    "slug": "sarayonu",
+    "province": "konya",
+    "lat": 38.0929,
+    "lon": 32.2459
+  },
+  {
+    "name": "Selçuklu",
+    "slug": "selcuklu",
+    "province": "konya",
+    "lat": 37.694,
+    "lon": 32.4054
+  },
+  {
+    "name": "Seydişehir",
+    "slug": "seydisehir",
+    "province": "konya",
+    "lat": 37.9457,
+    "lon": 32.6503
+  },
+  {
+    "name": "Taşkent",
+    "slug": "taskent",
+    "province": "konya",
+    "lat": 38.048,
+    "lon": 32.4913
+  },
+  {
+    "name": "Tuzlukçu",
+    "slug": "tuzlukcu",
+    "province": "konya",
+    "lat": 38.0743,
+    "lon": 32.3209
+  },
+  {
+    "name": "Yalıhüyük",
+    "slug": "yalihuyuk",
+    "province": "konya",
+    "lat": 37.898,
+    "lon": 32.3397
+  },
+  {
+    "name": "Yunak",
+    "slug": "yunak",
+    "province": "konya",
+    "lat": 37.7703,
+    "lon": 32.4884
+  },
+  {
+    "name": "Altıntaş",
+    "slug": "altintas",
+    "province": "kutahya",
+    "lat": 39.4458,
+    "lon": 30.0007
+  },
+  {
+    "name": "Aslanapa",
+    "slug": "aslanapa",
+    "province": "kutahya",
+    "lat": 39.6147,
+    "lon": 30.1162
+  },
+  {
+    "name": "Çavdarhisar",
+    "slug": "cavdarhisar",
+    "province": "kutahya",
+    "lat": 39.5914,
+    "lon": 29.945
+  },
+  {
+    "name": "Domaniç",
+    "slug": "domanic",
+    "province": "kutahya",
+    "lat": 39.471,
+    "lon": 29.916
+  },
+  {
+    "name": "Dumlupınar",
+    "slug": "dumlupinar",
+    "province": "kutahya",
+    "lat": 39.578,
+    "lon": 30.0875
+  },
+  {
+    "name": "Emet",
+    "slug": "emet",
+    "province": "kutahya",
+    "lat": 39.6266,
+    "lon": 29.8024
+  },
+  {
+    "name": "Gediz",
+    "slug": "gediz",
+    "province": "kutahya",
+    "lat": 39.5163,
+    "lon": 30.0602
+  },
+  {
+    "name": "Hisarcık",
+    "slug": "hisarcik",
+    "province": "kutahya",
+    "lat": 39.3519,
+    "lon": 30.0493
+  },
+  {
+    "name": "Merkez",
+    "slug": "kutahya-merkez",
+    "province": "kutahya",
+    "lat": 39.1805,
+    "lon": 29.9295
+  },
+  {
+    "name": "Pazarlar",
+    "slug": "pazarlar",
+    "province": "kutahya",
+    "lat": 39.3213,
+    "lon": 29.9015
+  },
+  {
+    "name": "Şaphane",
+    "slug": "saphane",
+    "province": "kutahya",
+    "lat": 39.4975,
+    "lon": 30.0094
+  },
+  {
+    "name": "Simav",
+    "slug": "simav",
+    "province": "kutahya",
+    "lat": 39.6199,
+    "lon": 29.8423
+  },
+  {
+    "name": "Tavşanlı",
+    "slug": "tavsanli",
+    "province": "kutahya",
+    "lat": 39.3406,
+    "lon": 29.9336
+  },
+  {
+    "name": "Akçadağ",
+    "slug": "akcadag",
+    "province": "malatya",
+    "lat": 38.4083,
+    "lon": 38.297
+  },
+  {
+    "name": "Arapgir",
+    "slug": "arapgir",
+    "province": "malatya",
+    "lat": 38.1954,
+    "lon": 38.4219
+  },
+  {
+    "name": "Arguvan",
+    "slug": "arguvan",
+    "province": "malatya",
+    "lat": 38.3658,
+    "lon": 38.238
+  },
+  {
+    "name": "Battalgazi",
+    "slug": "battalgazi",
+    "province": "malatya",
+    "lat": 38.4907,
+    "lon": 38.4116
+  },
+  {
+    "name": "Darende",
+    "slug": "darende",
+    "province": "malatya",
+    "lat": 38.588,
+    "lon": 38.125
+  },
+  {
+    "name": "Doğanşehir",
+    "slug": "dogansehir",
+    "province": "malatya",
+    "lat": 38.2465,
+    "lon": 38.3688
+  },
+  {
+    "name": "Doğanyol",
+    "slug": "doganyol",
+    "province": "malatya",
+    "lat": 38.5293,
+    "lon": 38.4341
+  },
+  {
+    "name": "Hekimhan",
+    "slug": "hekimhan",
+    "province": "malatya",
+    "lat": 38.4832,
+    "lon": 38.079
+  },
+  {
+    "name": "Kale",
+    "slug": "kale-malatya",
+    "province": "malatya",
+    "lat": 38.1816,
+    "lon": 38.4694
+  },
+  {
+    "name": "Kuluncak",
+    "slug": "kuluncak",
+    "province": "malatya",
+    "lat": 38.1777,
+    "lon": 38.0972
+  },
+  {
+    "name": "Pütürge",
+    "slug": "puturge",
+    "province": "malatya",
+    "lat": 38.3501,
+    "lon": 38.5124
+  },
+  {
+    "name": "Yazıhan",
+    "slug": "yazihan",
+    "province": "malatya",
+    "lat": 38.4819,
+    "lon": 38.4682
+  },
+  {
+    "name": "Yeşilyurt",
+    "slug": "yesilyurt",
+    "province": "malatya",
+    "lat": 38.5001,
+    "lon": 38.236
+  },
+  {
+    "name": "Ahmetli",
+    "slug": "ahmetli",
+    "province": "manisa",
+    "lat": 38.7423,
+    "lon": 27.4924
+  },
+  {
+    "name": "Akhisar",
+    "slug": "akhisar",
+    "province": "manisa",
+    "lat": 38.3907,
+    "lon": 27.6181
+  },
+  {
+    "name": "Alaşehir",
+    "slug": "alasehir",
+    "province": "manisa",
+    "lat": 38.4413,
+    "lon": 27.2173
+  },
+  {
+    "name": "Demirci",
+    "slug": "demirci",
+    "province": "manisa",
+    "lat": 38.4992,
+    "lon": 27.58
+  },
+  {
+    "name": "Gölmarmara",
+    "slug": "golmarmara",
+    "province": "manisa",
+    "lat": 38.5849,
+    "lon": 27.5052
+  },
+  {
+    "name": "Gördes",
+    "slug": "gordes",
+    "province": "manisa",
+    "lat": 38.5613,
+    "lon": 27.3884
+  },
+  {
+    "name": "Kırkağaç",
+    "slug": "kirkagac",
+    "province": "manisa",
+    "lat": 38.3897,
+    "lon": 27.5865
+  },
+  {
+    "name": "Köprübaşı",
+    "slug": "koprubasi",
+    "province": "manisa",
+    "lat": 38.7912,
+    "lon": 27.3252
+  },
+  {
+    "name": "Kula",
+    "slug": "kula",
+    "province": "manisa",
+    "lat": 38.4782,
+    "lon": 27.2189
+  },
+  {
+    "name": "Salihli",
+    "slug": "salihli",
+    "province": "manisa",
+    "lat": 38.5316,
+    "lon": 27.4654
+  },
+  {
+    "name": "Sarıgöl",
+    "slug": "sarigol",
+    "province": "manisa",
+    "lat": 38.5429,
+    "lon": 27.4595
+  },
+  {
+    "name": "Saruhanlı",
+    "slug": "saruhanli",
+    "province": "manisa",
+    "lat": 38.8676,
+    "lon": 27.669
+  },
+  {
+    "name": "Şehzadeler",
+    "slug": "sehzadeler",
+    "province": "manisa",
+    "lat": 38.6204,
+    "lon": 27.6635
+  },
+  {
+    "name": "Selendi",
+    "slug": "selendi",
+    "province": "manisa",
+    "lat": 38.8018,
+    "lon": 27.211
+  },
+  {
+    "name": "Soma",
+    "slug": "soma",
+    "province": "manisa",
+    "lat": 38.4153,
+    "lon": 27.3555
+  },
+  {
+    "name": "Turgutlu",
+    "slug": "turgutlu",
+    "province": "manisa",
+    "lat": 38.4905,
+    "lon": 27.3409
+  },
+  {
+    "name": "Yunusemre",
+    "slug": "yunusemre",
+    "province": "manisa",
+    "lat": 38.4579,
+    "lon": 27.3912
+  },
+  {
+    "name": "Artuklu",
+    "slug": "artuklu",
+    "province": "mardin",
+    "lat": 37.3329,
+    "lon": 40.5629
+  },
+  {
+    "name": "Dargeçit",
+    "slug": "dargecit",
+    "province": "mardin",
+    "lat": 37.5558,
+    "lon": 40.7831
+  },
+  {
+    "name": "Derik",
+    "slug": "derik",
+    "province": "mardin",
+    "lat": 37.1314,
+    "lon": 40.479
+  },
+  {
+    "name": "Kızıltepe",
+    "slug": "kiziltepe",
+    "province": "mardin",
+    "lat": 37.2732,
+    "lon": 40.5088
+  },
+  {
+    "name": "Mazıdağı",
+    "slug": "mazidagi",
+    "province": "mardin",
+    "lat": 37.5335,
+    "lon": 40.7304
+  },
+  {
+    "name": "Midyat",
+    "slug": "midyat",
+    "province": "mardin",
+    "lat": 37.4468,
+    "lon": 40.721
+  },
+  {
+    "name": "Nusaybin",
+    "slug": "nusaybin",
+    "province": "mardin",
+    "lat": 37.0726,
+    "lon": 40.7571
+  },
+  {
+    "name": "Ömerli",
+    "slug": "omerli",
+    "province": "mardin",
+    "lat": 37.2485,
+    "lon": 40.5984
+  },
+  {
+    "name": "Savur",
+    "slug": "savur",
+    "province": "mardin",
+    "lat": 37.2318,
+    "lon": 40.8516
+  },
+  {
+    "name": "Yeşilli",
+    "slug": "yesilli",
+    "province": "mardin",
+    "lat": 37.2098,
+    "lon": 40.5338
+  },
+  {
+    "name": "Akdeniz",
+    "slug": "akdeniz",
+    "province": "mersin",
+    "lat": 36.9017,
+    "lon": 34.5564
+  },
+  {
+    "name": "Anamur",
+    "slug": "anamur",
+    "province": "mersin",
+    "lat": 36.9221,
+    "lon": 34.8165
+  },
+  {
+    "name": "Aydıncık",
+    "slug": "aydincik",
+    "province": "mersin",
+    "lat": 36.8644,
+    "lon": 34.4914
+  },
+  {
+    "name": "Bozyazı",
+    "slug": "bozyazi",
+    "province": "mersin",
+    "lat": 36.7586,
+    "lon": 34.6394
+  },
+  {
+    "name": "Çamlıyayla",
+    "slug": "camliyayla",
+    "province": "mersin",
+    "lat": 36.9382,
+    "lon": 34.7736
+  },
+  {
+    "name": "Erdemli",
+    "slug": "erdemli",
+    "province": "mersin",
+    "lat": 36.744,
+    "lon": 34.4554
+  },
+  {
+    "name": "Gülnar",
+    "slug": "gulnar",
+    "province": "mersin",
+    "lat": 36.7801,
+    "lon": 34.6827
+  },
+  {
+    "name": "Mezitli",
+    "slug": "mezitli",
+    "province": "mersin",
+    "lat": 36.9299,
+    "lon": 34.4789
+  },
+  {
+    "name": "Mut",
+    "slug": "mut",
+    "province": "mersin",
+    "lat": 36.7961,
+    "lon": 34.8078
+  },
+  {
+    "name": "Silifke",
+    "slug": "silifke",
+    "province": "mersin",
+    "lat": 36.607,
+    "lon": 34.5052
+  },
+  {
+    "name": "Tarsus",
+    "slug": "tarsus",
+    "province": "mersin",
+    "lat": 36.7394,
+    "lon": 34.3928
+  },
+  {
+    "name": "Toroslar",
+    "slug": "toroslar",
+    "province": "mersin",
+    "lat": 36.9024,
+    "lon": 34.8632
+  },
+  {
+    "name": "Yenişehir",
+    "slug": "yenisehir-mersin",
+    "province": "mersin",
+    "lat": 36.6174,
+    "lon": 34.8502
+  },
+  {
+    "name": "Bodrum",
+    "slug": "bodrum",
+    "province": "mugla",
+    "lat": 37.1575,
+    "lon": 28.2235
+  },
+  {
+    "name": "Dalaman",
+    "slug": "dalaman",
+    "province": "mugla",
+    "lat": 37.1854,
+    "lon": 28.2952
+  },
+  {
+    "name": "Datça",
+    "slug": "datca",
+    "province": "mugla",
+    "lat": 37.0417,
+    "lon": 28.4922
+  },
+  {
+    "name": "Fethiye",
+    "slug": "fethiye",
+    "province": "mugla",
+    "lat": 37.1433,
+    "lon": 28.4407
+  },
+  {
+    "name": "Kavaklıdere",
+    "slug": "kavaklidere",
+    "province": "mugla",
+    "lat": 36.9961,
+    "lon": 28.5671
+  },
+  {
+    "name": "Köyceğiz",
+    "slug": "koycegiz",
+    "province": "mugla",
+    "lat": 37.0928,
+    "lon": 28.3696
+  },
+  {
+    "name": "Marmaris",
+    "slug": "marmaris",
+    "province": "mugla",
+    "lat": 37.4273,
+    "lon": 28.5445
+  },
+  {
+    "name": "Menteşe",
+    "slug": "mentese",
+    "province": "mugla",
+    "lat": 37.1348,
+    "lon": 28.5067
+  },
+  {
+    "name": "Milas",
+    "slug": "milas",
+    "province": "mugla",
+    "lat": 37.1335,
+    "lon": 28.415
+  },
+  {
+    "name": "Ortaca",
+    "slug": "ortaca",
+    "province": "mugla",
+    "lat": 37.0473,
+    "lon": 28.4152
+  },
+  {
+    "name": "Seydikemer",
+    "slug": "seydikemer",
+    "province": "mugla",
+    "lat": 37.1544,
+    "lon": 28.5133
+  },
+  {
+    "name": "Ula",
+    "slug": "ula",
+    "province": "mugla",
+    "lat": 37.1843,
+    "lon": 28.35
+  },
+  {
+    "name": "Yatağan",
+    "slug": "yatagan",
+    "province": "mugla",
+    "lat": 37.4123,
+    "lon": 28.2694
+  },
+  {
+    "name": "Bulanık",
+    "slug": "bulanik",
+    "province": "mus",
+    "lat": 38.96,
+    "lon": 41.7583
+  },
+  {
+    "name": "Hasköy",
+    "slug": "haskoy",
+    "province": "mus",
+    "lat": 38.951,
+    "lon": 41.516
+  },
+  {
+    "name": "Korkut",
+    "slug": "korkut",
+    "province": "mus",
+    "lat": 38.9848,
+    "lon": 41.74
+  },
+  {
+    "name": "Malazgirt",
+    "slug": "malazgirt",
+    "province": "mus",
+    "lat": 39.1543,
+    "lon": 41.669
+  },
+  {
+    "name": "Merkez",
+    "slug": "mus-merkez",
+    "province": "mus",
+    "lat": 38.7046,
+    "lon": 41.6848
+  },
+  {
+    "name": "Varto",
+    "slug": "varto",
+    "province": "mus",
+    "lat": 38.894,
+    "lon": 41.9851
+  },
+  {
+    "name": "Acıgöl",
+    "slug": "acigol",
+    "province": "nevsehir",
+    "lat": 38.7655,
+    "lon": 34.4875
+  },
+  {
+    "name": "Avanos",
+    "slug": "avanos",
+    "province": "nevsehir",
+    "lat": 38.5645,
+    "lon": 34.6653
+  },
+  {
+    "name": "Derinkuyu",
+    "slug": "derinkuyu",
+    "province": "nevsehir",
+    "lat": 38.5662,
+    "lon": 34.5684
+  },
+  {
+    "name": "Gülşehir",
+    "slug": "gulsehir",
+    "province": "nevsehir",
+    "lat": 38.6838,
+    "lon": 34.5269
+  },
+  {
+    "name": "Hacıbektaş",
+    "slug": "hacibektas",
+    "province": "nevsehir",
+    "lat": 38.6544,
+    "lon": 34.5436
+  },
+  {
+    "name": "Kozaklı",
+    "slug": "kozakli",
+    "province": "nevsehir",
+    "lat": 38.6006,
+    "lon": 34.6886
+  },
+  {
+    "name": "Merkez",
+    "slug": "nevsehir-merkez",
+    "province": "nevsehir",
+    "lat": 38.7375,
+    "lon": 34.674
+  },
+  {
+    "name": "Ürgüp",
+    "slug": "urgup",
+    "province": "nevsehir",
+    "lat": 38.7633,
+    "lon": 34.8781
+  },
+  {
+    "name": "Altunhisar",
+    "slug": "altunhisar",
+    "province": "nigde",
+    "lat": 37.913,
+    "lon": 34.9069
+  },
+  {
+    "name": "Bor",
+    "slug": "bor",
+    "province": "nigde",
+    "lat": 37.7687,
+    "lon": 34.9084
+  },
+  {
+    "name": "Çamardı",
+    "slug": "camardi",
+    "province": "nigde",
+    "lat": 38.1315,
+    "lon": 34.4655
+  },
+  {
+    "name": "Çiftlik",
+    "slug": "ciftlik",
+    "province": "nigde",
+    "lat": 38.04,
+    "lon": 34.4413
+  },
+  {
+    "name": "Merkez",
+    "slug": "nigde-merkez",
+    "province": "nigde",
+    "lat": 37.8387,
+    "lon": 34.7545
+  },
+  {
+    "name": "Ulukışla",
+    "slug": "ulukisla",
+    "province": "nigde",
+    "lat": 37.9071,
+    "lon": 34.7878
+  },
+  {
+    "name": "Akkuş",
+    "slug": "akkus",
+    "province": "ordu",
+    "lat": 40.8402,
+    "lon": 38.0337
+  },
+  {
+    "name": "Altınordu",
+    "slug": "altinordu",
+    "province": "ordu",
+    "lat": 41.0497,
+    "lon": 37.8628
+  },
+  {
+    "name": "Aybastı",
+    "slug": "aybasti",
+    "province": "ordu",
+    "lat": 40.9635,
+    "lon": 38.0002
+  },
+  {
+    "name": "Çamaş",
+    "slug": "camas",
+    "province": "ordu",
+    "lat": 40.9115,
+    "lon": 37.813
+  },
+  {
+    "name": "Çatalpınar",
+    "slug": "catalpinar",
+    "province": "ordu",
+    "lat": 40.8076,
+    "lon": 38.0596
+  },
+  {
+    "name": "Çaybaşı",
+    "slug": "caybasi",
+    "province": "ordu",
+    "lat": 41.1672,
+    "lon": 37.6987
+  },
+  {
+    "name": "Fatsa",
+    "slug": "fatsa",
+    "province": "ordu",
+    "lat": 41.19,
+    "lon": 37.8764
+  },
+  {
+    "name": "Gölköy",
+    "slug": "golkoy",
+    "province": "ordu",
+    "lat": 40.8386,
+    "lon": 37.6273
+  },
+  {
+    "name": "Gülyalı",
+    "slug": "gulyali",
+    "province": "ordu",
+    "lat": 41.1335,
+    "lon": 37.8454
+  },
+  {
+    "name": "Gürgentepe",
+    "slug": "gurgentepe",
+    "province": "ordu",
+    "lat": 40.8105,
+    "lon": 38.1036
+  },
+  {
+    "name": "İkizce",
+    "slug": "i-kizce",
+    "province": "ordu",
+    "lat": 41.0565,
+    "lon": 37.7151
+  },
+  {
+    "name": "Kabadüz",
+    "slug": "kabaduz",
+    "province": "ordu",
+    "lat": 41.1725,
+    "lon": 37.9211
+  },
+  {
+    "name": "Kabataş",
+    "slug": "kabatas",
+    "province": "ordu",
+    "lat": 40.9009,
+    "lon": 37.7021
+  },
+  {
+    "name": "Korgan",
+    "slug": "korgan",
+    "province": "ordu",
+    "lat": 40.9094,
+    "lon": 37.8849
+  },
+  {
+    "name": "Kumru",
+    "slug": "kumru",
+    "province": "ordu",
+    "lat": 41.1107,
+    "lon": 38.0953
+  },
+  {
+    "name": "Mesudiye",
+    "slug": "mesudiye",
+    "province": "ordu",
+    "lat": 40.9253,
+    "lon": 37.9356
+  },
+  {
+    "name": "Perşembe",
+    "slug": "persembe",
+    "province": "ordu",
+    "lat": 41.1683,
+    "lon": 38.036
+  },
+  {
+    "name": "Ulubey",
+    "slug": "ulubey",
+    "province": "ordu",
+    "lat": 41.0569,
+    "lon": 37.6963
+  },
+  {
+    "name": "Ünye",
+    "slug": "unye",
+    "province": "ordu",
+    "lat": 41.1703,
+    "lon": 38.0336
+  },
+  {
+    "name": "Bahçe",
+    "slug": "bahce",
+    "province": "osmaniye",
+    "lat": 37.1335,
+    "lon": 36.4799
+  },
+  {
+    "name": "Düziçi",
+    "slug": "duzici",
+    "province": "osmaniye",
+    "lat": 37.1511,
+    "lon": 36.1129
+  },
+  {
+    "name": "Hasanbeyli",
+    "slug": "hasanbeyli",
+    "province": "osmaniye",
+    "lat": 37.1618,
+    "lon": 36.3183
+  },
+  {
+    "name": "Kadirli",
+    "slug": "kadirli",
+    "province": "osmaniye",
+    "lat": 36.8875,
+    "lon": 36.1266
+  },
+  {
+    "name": "Merkez",
+    "slug": "osmaniye-merkez",
+    "province": "osmaniye",
+    "lat": 36.9796,
+    "lon": 36.3629
+  },
+  {
+    "name": "Sumbas",
+    "slug": "sumbas",
+    "province": "osmaniye",
+    "lat": 37.3126,
+    "lon": 36.0052
+  },
+  {
+    "name": "Toprakkale",
+    "slug": "toprakkale",
+    "province": "osmaniye",
+    "lat": 37.2661,
+    "lon": 36.3533
+  },
+  {
+    "name": "Ardeşen",
+    "slug": "ardesen",
+    "province": "rize",
+    "lat": 40.8581,
+    "lon": 40.4394
+  },
+  {
+    "name": "Çamlıhemşin",
+    "slug": "camlihemsin",
+    "province": "rize",
+    "lat": 41.0674,
+    "lon": 40.7163
+  },
+  {
+    "name": "Çayeli",
+    "slug": "cayeli",
+    "province": "rize",
+    "lat": 40.7922,
+    "lon": 40.4462
+  },
+  {
+    "name": "Derepazarı",
+    "slug": "derepazari",
+    "province": "rize",
+    "lat": 41.2012,
+    "lon": 40.6235
+  },
+  {
+    "name": "Fındıklı",
+    "slug": "findikli",
+    "province": "rize",
+    "lat": 41.1449,
+    "lon": 40.6467
+  },
+  {
+    "name": "Güneysu",
+    "slug": "guneysu",
+    "province": "rize",
+    "lat": 41.1654,
+    "lon": 40.4669
+  },
+  {
+    "name": "Hemşin",
+    "slug": "hemsin",
+    "province": "rize",
+    "lat": 41.1459,
+    "lon": 40.3076
+  },
+  {
+    "name": "İkizdere",
+    "slug": "i-kizdere",
+    "province": "rize",
+    "lat": 40.8436,
+    "lon": 40.6208
+  },
+  {
+    "name": "İyidere",
+    "slug": "i-yidere",
+    "province": "rize",
+    "lat": 41.0948,
+    "lon": 40.4887
+  },
+  {
+    "name": "Kalkandere",
+    "slug": "kalkandere",
+    "province": "rize",
+    "lat": 40.7894,
+    "lon": 40.4831
+  },
+  {
+    "name": "Merkez",
+    "slug": "rize-merkez",
+    "province": "rize",
+    "lat": 41.0378,
+    "lon": 40.4733
+  },
+  {
+    "name": "Pazar",
+    "slug": "pazar",
+    "province": "rize",
+    "lat": 40.9724,
+    "lon": 40.3424
+  },
+  {
+    "name": "Adapazarı",
+    "slug": "adapazari",
+    "province": "sakarya",
+    "lat": 40.6906,
+    "lon": 30.5486
+  },
+  {
+    "name": "Akyazı",
+    "slug": "akyazi",
+    "province": "sakarya",
+    "lat": 40.808,
+    "lon": 30.5025
+  },
+  {
+    "name": "Arifiye",
+    "slug": "arifiye",
+    "province": "sakarya",
+    "lat": 40.9023,
+    "lon": 30.4403
+  },
+  {
+    "name": "Erenler",
+    "slug": "erenler",
+    "province": "sakarya",
+    "lat": 40.8731,
+    "lon": 30.3206
+  },
+  {
+    "name": "Ferizli",
+    "slug": "ferizli",
+    "province": "sakarya",
+    "lat": 40.7204,
+    "lon": 30.3135
+  },
+  {
+    "name": "Geyve",
+    "slug": "geyve",
+    "province": "sakarya",
+    "lat": 40.6565,
+    "lon": 30.67
+  },
+  {
+    "name": "Hendek",
+    "slug": "hendek",
+    "province": "sakarya",
+    "lat": 40.716,
+    "lon": 30.5473
+  },
+  {
+    "name": "Karapürçek",
+    "slug": "karapurcek",
+    "province": "sakarya",
+    "lat": 40.5074,
+    "lon": 30.1979
+  },
+  {
+    "name": "Karasu",
+    "slug": "karasu",
+    "province": "sakarya",
+    "lat": 40.9075,
+    "lon": 30.3206
+  },
+  {
+    "name": "Kaynarca",
+    "slug": "kaynarca",
+    "province": "sakarya",
+    "lat": 40.8094,
+    "lon": 30.3123
+  },
+  {
+    "name": "Kocaali",
+    "slug": "kocaali",
+    "province": "sakarya",
+    "lat": 40.8243,
+    "lon": 30.4001
+  },
+  {
+    "name": "Pamukova",
+    "slug": "pamukova",
+    "province": "sakarya",
+    "lat": 40.6628,
+    "lon": 30.5293
+  },
+  {
+    "name": "Sapanca",
+    "slug": "sapanca",
+    "province": "sakarya",
+    "lat": 40.7365,
+    "lon": 30.584
+  },
+  {
+    "name": "Serdivan",
+    "slug": "serdivan",
+    "province": "sakarya",
+    "lat": 40.8374,
+    "lon": 30.5565
+  },
+  {
+    "name": "Söğütlü",
+    "slug": "sogutlu",
+    "province": "sakarya",
+    "lat": 40.8853,
+    "lon": 30.6141
+  },
+  {
+    "name": "Taraklı",
+    "slug": "tarakli",
+    "province": "sakarya",
+    "lat": 40.4622,
+    "lon": 30.2277
+  },
+  {
+    "name": "Alaçam",
+    "slug": "alacam",
+    "province": "samsun",
+    "lat": 41.3115,
+    "lon": 36.4255
+  },
+  {
+    "name": "Asarcık",
+    "slug": "asarcik",
+    "province": "samsun",
+    "lat": 41.176,
+    "lon": 36.3927
+  },
+  {
+    "name": "Atakum",
+    "slug": "atakum",
+    "province": "samsun",
+    "lat": 41.1265,
+    "lon": 36.4279
+  },
+  {
+    "name": "Ayvacık",
+    "slug": "ayvacik-samsun",
+    "province": "samsun",
+    "lat": 41.2077,
+    "lon": 36.5159
+  },
+  {
+    "name": "Bafra",
+    "slug": "bafra",
+    "province": "samsun",
+    "lat": 41.1377,
+    "lon": 36.534
+  },
+  {
+    "name": "Canik",
+    "slug": "canik",
+    "province": "samsun",
+    "lat": 41.3362,
+    "lon": 36.1063
+  },
+  {
+    "name": "Çarşamba",
+    "slug": "carsamba",
+    "province": "samsun",
+    "lat": 41.4129,
+    "lon": 36.1173
+  },
+  {
+    "name": "Havza",
+    "slug": "havza",
+    "province": "samsun",
+    "lat": 41.1989,
+    "lon": 36.3606
+  },
+  {
+    "name": "İlkadım",
+    "slug": "i-lkadim",
+    "province": "samsun",
+    "lat": 41.1345,
+    "lon": 36.2483
+  },
+  {
+    "name": "Kavak",
+    "slug": "kavak",
+    "province": "samsun",
+    "lat": 41.1397,
+    "lon": 36.3241
+  },
+  {
+    "name": "Ladik",
+    "slug": "ladik",
+    "province": "samsun",
+    "lat": 41.1458,
+    "lon": 36.3907
+  },
+  {
+    "name": "Ondokuzmayıs",
+    "slug": "ondokuzmayis",
+    "province": "samsun",
+    "lat": 41.182,
+    "lon": 36.4568
+  },
+  {
+    "name": "Salıpazarı",
+    "slug": "salipazari",
+    "province": "samsun",
+    "lat": 41.4713,
+    "lon": 36.4615
+  },
+  {
+    "name": "Tekkeköy",
+    "slug": "tekkekoy",
+    "province": "samsun",
+    "lat": 41.3437,
+    "lon": 36.3887
+  },
+  {
+    "name": "Terme",
+    "slug": "terme",
+    "province": "samsun",
+    "lat": 41.0496,
+    "lon": 36.2033
+  },
+  {
+    "name": "Vezirköprü",
+    "slug": "vezirkopru",
+    "province": "samsun",
+    "lat": 41.1836,
+    "lon": 36.5087
+  },
+  {
+    "name": "Yakakent",
+    "slug": "yakakent",
+    "province": "samsun",
+    "lat": 41.2995,
+    "lon": 36.5312
+  },
+  {
+    "name": "Akçakale",
+    "slug": "akcakale",
+    "province": "sanliurfa",
+    "lat": 37.0835,
+    "lon": 39.0018
+  },
+  {
+    "name": "Birecik",
+    "slug": "birecik",
+    "province": "sanliurfa",
+    "lat": 37.1923,
+    "lon": 38.9891
+  },
+  {
+    "name": "Bozova",
+    "slug": "bozova",
+    "province": "sanliurfa",
+    "lat": 37.2801,
+    "lon": 38.6599
+  },
+  {
+    "name": "Ceylanpınar",
+    "slug": "ceylanpinar",
+    "province": "sanliurfa",
+    "lat": 37.2644,
+    "lon": 39.0318
+  },
+  {
+    "name": "Eyyübiye",
+    "slug": "eyyubiye",
+    "province": "sanliurfa",
+    "lat": 36.984,
+    "lon": 38.8713
+  },
+  {
+    "name": "Halfeti",
+    "slug": "halfeti",
+    "province": "sanliurfa",
+    "lat": 37.0085,
+    "lon": 39.0348
+  },
+  {
+    "name": "Haliliye",
+    "slug": "haliliye",
+    "province": "sanliurfa",
+    "lat": 37.3787,
+    "lon": 38.9403
+  },
+  {
+    "name": "Harran",
+    "slug": "harran",
+    "province": "sanliurfa",
+    "lat": 37.1976,
+    "lon": 38.8675
+  },
+  {
+    "name": "Hilvan",
+    "slug": "hilvan",
+    "province": "sanliurfa",
+    "lat": 37.1811,
+    "lon": 38.7262
+  },
+  {
+    "name": "Karaköprü",
+    "slug": "karakopru",
+    "province": "sanliurfa",
+    "lat": 37.0296,
+    "lon": 38.9391
+  },
+  {
+    "name": "Siverek",
+    "slug": "siverek",
+    "province": "sanliurfa",
+    "lat": 37.3139,
+    "lon": 38.8575
+  },
+  {
+    "name": "Suruç",
+    "slug": "suruc",
+    "province": "sanliurfa",
+    "lat": 37.0546,
+    "lon": 38.7132
+  },
+  {
+    "name": "Viranşehir",
+    "slug": "viransehir",
+    "province": "sanliurfa",
+    "lat": 37.0221,
+    "lon": 38.6323
+  },
+  {
+    "name": "Baykan",
+    "slug": "baykan",
+    "province": "siirt",
+    "lat": 37.8108,
+    "lon": 41.7486
+  },
+  {
+    "name": "Eruh",
+    "slug": "eruh",
+    "province": "siirt",
+    "lat": 38.0002,
+    "lon": 42.1452
+  },
+  {
+    "name": "Kurtalan",
+    "slug": "kurtalan",
+    "province": "siirt",
+    "lat": 37.7897,
+    "lon": 41.8953
+  },
+  {
+    "name": "Merkez",
+    "slug": "siirt-merkez",
+    "province": "siirt",
+    "lat": 37.7819,
+    "lon": 41.9868
+  },
+  {
+    "name": "Pervari",
+    "slug": "pervari",
+    "province": "siirt",
+    "lat": 37.8797,
+    "lon": 42.0492
+  },
+  {
+    "name": "Şirvan",
+    "slug": "sirvan",
+    "province": "siirt",
+    "lat": 38.0256,
+    "lon": 41.8587
+  },
+  {
+    "name": "Tillo",
+    "slug": "tillo",
+    "province": "siirt",
+    "lat": 37.8746,
+    "lon": 41.7475
+  },
+  {
+    "name": "Ayancık",
+    "slug": "ayancik",
+    "province": "sinop",
+    "lat": 42.2243,
+    "lon": 35.1413
+  },
+  {
+    "name": "Boyabat",
+    "slug": "boyabat",
+    "province": "sinop",
+    "lat": 42.2011,
+    "lon": 35.2801
+  },
+  {
+    "name": "Dikmen",
+    "slug": "dikmen",
+    "province": "sinop",
+    "lat": 42.1423,
+    "lon": 35.2103
+  },
+  {
+    "name": "Durağan",
+    "slug": "duragan",
+    "province": "sinop",
+    "lat": 41.9282,
+    "lon": 35.1746
+  },
+  {
+    "name": "Erfelek",
+    "slug": "erfelek",
+    "province": "sinop",
+    "lat": 42.2199,
+    "lon": 35.2739
+  },
+  {
+    "name": "Gerze",
+    "slug": "gerze",
+    "province": "sinop",
+    "lat": 41.9999,
+    "lon": 35.2881
+  },
+  {
+    "name": "Merkez",
+    "slug": "sinop-merkez",
+    "province": "sinop",
+    "lat": 41.814,
+    "lon": 35.016
+  },
+  {
+    "name": "Saraydüzü",
+    "slug": "sarayduzu",
+    "province": "sinop",
+    "lat": 42.0444,
+    "lon": 35.197
+  },
+  {
+    "name": "Türkeli",
+    "slug": "turkeli",
+    "province": "sinop",
+    "lat": 41.9648,
+    "lon": 35.2895
+  },
+  {
+    "name": "Beytüşşebap",
+    "slug": "beytussebap",
+    "province": "sirnak",
+    "lat": 37.2548,
+    "lon": 42.5994
+  },
+  {
+    "name": "Cizre",
+    "slug": "cizre",
+    "province": "sirnak",
+    "lat": 37.4145,
+    "lon": 42.428
+  },
+  {
+    "name": "Güçlükonak",
+    "slug": "guclukonak",
+    "province": "sirnak",
+    "lat": 37.5598,
+    "lon": 42.3851
+  },
+  {
+    "name": "İdil",
+    "slug": "i-dil",
+    "province": "sirnak",
+    "lat": 37.2852,
+    "lon": 42.5766
+  },
+  {
+    "name": "Merkez",
+    "slug": "sirnak-merkez",
+    "province": "sirnak",
+    "lat": 37.5488,
+    "lon": 42.4327
+  },
+  {
+    "name": "Silopi",
+    "slug": "silopi",
+    "province": "sirnak",
+    "lat": 37.6015,
+    "lon": 42.5979
+  },
+  {
+    "name": "Uludere",
+    "slug": "uludere",
+    "province": "sirnak",
+    "lat": 37.526,
+    "lon": 42.4374
+  },
+  {
+    "name": "Akıncılar",
+    "slug": "akincilar",
+    "province": "sivas",
+    "lat": 39.5346,
+    "lon": 36.776
+  },
+  {
+    "name": "Altınyayla",
+    "slug": "altinyayla-sivas",
+    "province": "sivas",
+    "lat": 39.9403,
+    "lon": 37.228
+  },
+  {
+    "name": "Divriği",
+    "slug": "divrigi",
+    "province": "sivas",
+    "lat": 39.8806,
+    "lon": 37.0386
+  },
+  {
+    "name": "Doğanşar",
+    "slug": "dogansar",
+    "province": "sivas",
+    "lat": 39.5222,
+    "lon": 37.1669
+  },
+  {
+    "name": "Gemerek",
+    "slug": "gemerek",
+    "province": "sivas",
+    "lat": 39.8241,
+    "lon": 36.8878
+  },
+  {
+    "name": "Gölova",
+    "slug": "golova",
+    "province": "sivas",
+    "lat": 39.9434,
+    "lon": 36.9629
+  },
+  {
+    "name": "Gürün",
+    "slug": "gurun",
+    "province": "sivas",
+    "lat": 39.8388,
+    "lon": 37.1102
+  },
+  {
+    "name": "Hafik",
+    "slug": "hafik",
+    "province": "sivas",
+    "lat": 39.515,
+    "lon": 37.2452
+  },
+  {
+    "name": "İmranlı",
+    "slug": "i-mranli",
+    "province": "sivas",
+    "lat": 39.9801,
+    "lon": 37.106
+  },
+  {
+    "name": "Kangal",
+    "slug": "kangal",
+    "province": "sivas",
+    "lat": 39.7462,
+    "lon": 36.8672
+  },
+  {
+    "name": "Koyulhisar",
+    "slug": "koyulhisar",
+    "province": "sivas",
+    "lat": 39.9598,
+    "lon": 37.2375
+  },
+  {
+    "name": "Merkez",
+    "slug": "sivas-merkez",
+    "province": "sivas",
+    "lat": 39.8562,
+    "lon": 37.2062
+  },
+  {
+    "name": "Şarkışla",
+    "slug": "sarkisla",
+    "province": "sivas",
+    "lat": 39.9174,
+    "lon": 37.2458
+  },
+  {
+    "name": "Suşehri",
+    "slug": "susehri",
+    "province": "sivas",
+    "lat": 39.9035,
+    "lon": 37.1004
+  },
+  {
+    "name": "Ulaş",
+    "slug": "ulas",
+    "province": "sivas",
+    "lat": 39.5098,
+    "lon": 37.1204
+  },
+  {
+    "name": "Yıldızeli",
+    "slug": "yildizeli",
+    "province": "sivas",
+    "lat": 39.7235,
+    "lon": 37.0636
+  },
+  {
+    "name": "Zara",
+    "slug": "zara",
+    "province": "sivas",
+    "lat": 39.5793,
+    "lon": 37.1714
+  },
+  {
+    "name": "Çerkezköy",
+    "slug": "cerkezkoy",
+    "province": "tekirdag",
+    "lat": 41.1367,
+    "lon": 27.6299
+  },
+  {
+    "name": "Çorlu",
+    "slug": "corlu",
+    "province": "tekirdag",
+    "lat": 40.8383,
+    "lon": 27.626
+  },
+  {
+    "name": "Ergene",
+    "slug": "ergene",
+    "province": "tekirdag",
+    "lat": 40.7765,
+    "lon": 27.3772
+  },
+  {
+    "name": "Hayrabolu",
+    "slug": "hayrabolu",
+    "province": "tekirdag",
+    "lat": 41.1279,
+    "lon": 27.356
+  },
+  {
+    "name": "Kapaklı",
+    "slug": "kapakli",
+    "province": "tekirdag",
+    "lat": 40.9418,
+    "lon": 27.3231
+  },
+  {
+    "name": "Malkara",
+    "slug": "malkara",
+    "province": "tekirdag",
+    "lat": 40.9411,
+    "lon": 27.7297
+  },
+  {
+    "name": "Marmaraereğlisi",
+    "slug": "marmaraereglisi",
+    "province": "tekirdag",
+    "lat": 40.8968,
+    "lon": 27.6287
+  },
+  {
+    "name": "Muratlı",
+    "slug": "muratli",
+    "province": "tekirdag",
+    "lat": 40.9248,
+    "lon": 27.3427
+  },
+  {
+    "name": "Saray",
+    "slug": "saray",
+    "province": "tekirdag",
+    "lat": 41.061,
+    "lon": 27.6127
+  },
+  {
+    "name": "Şarköy",
+    "slug": "sarkoy",
+    "province": "tekirdag",
+    "lat": 40.9749,
+    "lon": 27.542
+  },
+  {
+    "name": "Süleymanpaşa",
+    "slug": "suleymanpasa",
+    "province": "tekirdag",
+    "lat": 40.9419,
+    "lon": 27.2752
+  },
+  {
+    "name": "Almus",
+    "slug": "almus",
+    "province": "tokat",
+    "lat": 40.1694,
+    "lon": 36.5828
+  },
+  {
+    "name": "Artova",
+    "slug": "artova",
+    "province": "tokat",
+    "lat": 40.3385,
+    "lon": 36.7182
+  },
+  {
+    "name": "Başçiftlik",
+    "slug": "basciftlik",
+    "province": "tokat",
+    "lat": 40.2555,
+    "lon": 36.8025
+  },
+  {
+    "name": "Erbaa",
+    "slug": "erbaa",
+    "province": "tokat",
+    "lat": 40.5068,
+    "lon": 36.3593
+  },
+  {
+    "name": "Merkez",
+    "slug": "tokat-merkez",
+    "province": "tokat",
+    "lat": 40.5542,
+    "lon": 36.7111
+  },
+  {
+    "name": "Niksar",
+    "slug": "niksar",
+    "province": "tokat",
+    "lat": 40.5632,
+    "lon": 36.7551
+  },
+  {
+    "name": "Pazar",
+    "slug": "pazar-tokat",
+    "province": "tokat",
+    "lat": 40.3812,
+    "lon": 36.6416
+  },
+  {
+    "name": "Reşadiye",
+    "slug": "resadiye",
+    "province": "tokat",
+    "lat": 40.1821,
+    "lon": 36.5819
+  },
+  {
+    "name": "Sulusaray",
+    "slug": "sulusaray",
+    "province": "tokat",
+    "lat": 40.1613,
+    "lon": 36.7064
+  },
+  {
+    "name": "Turhal",
+    "slug": "turhal",
+    "province": "tokat",
+    "lat": 40.186,
+    "lon": 36.7115
+  },
+  {
+    "name": "Yeşilyurt",
+    "slug": "yesilyurt-tokat",
+    "province": "tokat",
+    "lat": 40.3132,
+    "lon": 36.6422
+  },
+  {
+    "name": "Zile",
+    "slug": "zile",
+    "province": "tokat",
+    "lat": 40.4331,
+    "lon": 36.3185
+  },
+  {
+    "name": "Akçaabat",
+    "slug": "akcaabat",
+    "province": "trabzon",
+    "lat": 40.9194,
+    "lon": 39.6805
+  },
+  {
+    "name": "Araklı",
+    "slug": "arakli",
+    "province": "trabzon",
+    "lat": 40.8373,
+    "lon": 39.7657
+  },
+  {
+    "name": "Arsin",
+    "slug": "arsin",
+    "province": "trabzon",
+    "lat": 40.7812,
+    "lon": 39.6452
+  },
+  {
+    "name": "Beşikdüzü",
+    "slug": "besikduzu",
+    "province": "trabzon",
+    "lat": 40.7612,
+    "lon": 39.8736
+  },
+  {
+    "name": "Çarşıbaşı",
+    "slug": "carsibasi",
+    "province": "trabzon",
+    "lat": 40.9133,
+    "lon": 39.7465
+  },
+  {
+    "name": "Çaykara",
+    "slug": "caykara",
+    "province": "trabzon",
+    "lat": 40.7834,
+    "lon": 39.5253
+  },
+  {
+    "name": "Dernekpazarı",
+    "slug": "dernekpazari",
+    "province": "trabzon",
+    "lat": 40.7832,
+    "lon": 39.4956
+  },
+  {
+    "name": "Düzköy",
+    "slug": "duzkoy",
+    "province": "trabzon",
+    "lat": 40.9109,
+    "lon": 39.8603
+  },
+  {
+    "name": "Hayrat",
+    "slug": "hayrat",
+    "province": "trabzon",
+    "lat": 41.0515,
+    "lon": 39.8978
+  },
+  {
+    "name": "Köprübaşı",
+    "slug": "koprubasi-trabzon",
+    "province": "trabzon",
+    "lat": 41.2312,
+    "lon": 39.5719
+  },
+  {
+    "name": "Maçka",
+    "slug": "macka",
+    "province": "trabzon",
+    "lat": 41.1843,
+    "lon": 39.6256
+  },
+  {
+    "name": "Of",
+    "slug": "of",
+    "province": "trabzon",
+    "lat": 40.8566,
+    "lon": 39.9142
+  },
+  {
+    "name": "Ortahisar",
+    "slug": "ortahisar",
+    "province": "trabzon",
+    "lat": 40.9073,
+    "lon": 39.8104
+  },
+  {
+    "name": "Şalpazarı",
+    "slug": "salpazari",
+    "province": "trabzon",
+    "lat": 40.838,
+    "lon": 39.7394
+  },
+  {
+    "name": "Sürmene",
+    "slug": "surmene",
+    "province": "trabzon",
+    "lat": 41.0028,
+    "lon": 39.9403
+  },
+  {
+    "name": "Tonya",
+    "slug": "tonya",
+    "province": "trabzon",
+    "lat": 40.8636,
+    "lon": 39.7683
+  },
+  {
+    "name": "Vakfıkebir",
+    "slug": "vakfikebir",
+    "province": "trabzon",
+    "lat": 40.9268,
+    "lon": 39.4938
+  },
+  {
+    "name": "Yomra",
+    "slug": "yomra",
+    "province": "trabzon",
+    "lat": 41.1104,
+    "lon": 39.7886
+  },
+  {
+    "name": "Çemişgezek",
+    "slug": "cemisgezek",
+    "province": "tunceli",
+    "lat": 39.1832,
+    "lon": 39.624
+  },
+  {
+    "name": "Hozat",
+    "slug": "hozat",
+    "province": "tunceli",
+    "lat": 38.8888,
+    "lon": 39.5352
+  },
+  {
+    "name": "Mazgirt",
+    "slug": "mazgirt",
+    "province": "tunceli",
+    "lat": 38.8843,
+    "lon": 39.6425
+  },
+  {
+    "name": "Merkez",
+    "slug": "tunceli-merkez",
+    "province": "tunceli",
+    "lat": 39.344,
+    "lon": 39.6082
+  },
+  {
+    "name": "Nazımiye",
+    "slug": "nazimiye",
+    "province": "tunceli",
+    "lat": 39.266,
+    "lon": 39.5339
+  },
+  {
+    "name": "Ovacık",
+    "slug": "ovacik",
+    "province": "tunceli",
+    "lat": 39.3009,
+    "lon": 39.3897
+  },
+  {
+    "name": "Pertek",
+    "slug": "pertek",
+    "province": "tunceli",
+    "lat": 39.0169,
+    "lon": 39.6374
+  },
+  {
+    "name": "Pülümür",
+    "slug": "pulumur",
+    "province": "tunceli",
+    "lat": 39.085,
+    "lon": 39.4721
+  },
+  {
+    "name": "Banaz",
+    "slug": "banaz",
+    "province": "usak",
+    "lat": 38.9129,
+    "lon": 29.6437
+  },
+  {
+    "name": "Eşme",
+    "slug": "esme",
+    "province": "usak",
+    "lat": 38.4867,
+    "lon": 29.5536
+  },
+  {
+    "name": "Karahallı",
+    "slug": "karahalli",
+    "province": "usak",
+    "lat": 38.4689,
+    "lon": 29.2513
+  },
+  {
+    "name": "Merkez",
+    "slug": "usak-merkez",
+    "province": "usak",
+    "lat": 38.7541,
+    "lon": 29.4854
+  },
+  {
+    "name": "Sivaslı",
+    "slug": "sivasli",
+    "province": "usak",
+    "lat": 38.5017,
+    "lon": 29.4164
+  },
+  {
+    "name": "Ulubey",
+    "slug": "ulubey-usak",
+    "province": "usak",
+    "lat": 38.6312,
+    "lon": 29.658
+  },
+  {
+    "name": "Bahçesaray",
+    "slug": "bahcesaray",
+    "province": "van",
+    "lat": 38.3508,
+    "lon": 43.5876
+  },
+  {
+    "name": "Başkale",
+    "slug": "baskale",
+    "province": "van",
+    "lat": 38.7279,
+    "lon": 43.2984
+  },
+  {
+    "name": "Çaldıran",
+    "slug": "caldiran",
+    "province": "van",
+    "lat": 38.3549,
+    "lon": 43.3012
+  },
+  {
+    "name": "Çatak",
+    "slug": "catak",
+    "province": "van",
+    "lat": 38.4495,
+    "lon": 43.4524
+  },
+  {
+    "name": "Edremit",
+    "slug": "edremit-van",
+    "province": "van",
+    "lat": 38.5474,
+    "lon": 43.5769
+  },
+  {
+    "name": "Erciş",
+    "slug": "ercis",
+    "province": "van",
+    "lat": 38.3059,
+    "lon": 43.2458
+  },
+  {
+    "name": "Gevaş",
+    "slug": "gevas",
+    "province": "van",
+    "lat": 38.3564,
+    "lon": 43.6099
+  },
+  {
+    "name": "Gürpınar",
+    "slug": "gurpinar",
+    "province": "van",
+    "lat": 38.5308,
+    "lon": 43.2369
+  },
+  {
+    "name": "İpekyolu",
+    "slug": "i-pekyolu",
+    "province": "van",
+    "lat": 38.4673,
+    "lon": 43.5509
+  },
+  {
+    "name": "Muradiye",
+    "slug": "muradiye",
+    "province": "van",
+    "lat": 38.5477,
+    "lon": 43.498
+  },
+  {
+    "name": "Özalp",
+    "slug": "ozalp",
+    "province": "van",
+    "lat": 38.6777,
+    "lon": 43.208
+  },
+  {
+    "name": "Saray",
+    "slug": "saray-van",
+    "province": "van",
+    "lat": 38.2882,
+    "lon": 43.409
+  },
+  {
+    "name": "Tuşba",
+    "slug": "tusba",
+    "province": "van",
+    "lat": 38.2574,
+    "lon": 43.287
+  },
+  {
+    "name": "Altınova",
+    "slug": "altinova",
+    "province": "yalova",
+    "lat": 40.4299,
+    "lon": 29.2959
+  },
+  {
+    "name": "Armutlu",
+    "slug": "armutlu",
+    "province": "yalova",
+    "lat": 40.6249,
+    "lon": 29.4225
+  },
+  {
+    "name": "Çiftlikköy",
+    "slug": "ciftlikkoy",
+    "province": "yalova",
+    "lat": 40.645,
+    "lon": 29.1573
+  },
+  {
+    "name": "Çınarcık",
+    "slug": "cinarcik",
+    "province": "yalova",
+    "lat": 40.8131,
+    "lon": 29.0738
+  },
+  {
+    "name": "Merkez",
+    "slug": "yalova-merkez",
+    "province": "yalova",
+    "lat": 40.5325,
+    "lon": 29.2467
+  },
+  {
+    "name": "Termal",
+    "slug": "termal",
+    "province": "yalova",
+    "lat": 40.4054,
+    "lon": 29.0413
+  },
+  {
+    "name": "Akdağmadeni",
+    "slug": "akdagmadeni",
+    "province": "yozgat",
+    "lat": 39.6279,
+    "lon": 34.7976
+  },
+  {
+    "name": "Aydıncık",
+    "slug": "aydincik-yozgat",
+    "province": "yozgat",
+    "lat": 39.6887,
+    "lon": 34.8672
+  },
+  {
+    "name": "Boğazlıyan",
+    "slug": "bogazliyan",
+    "province": "yozgat",
+    "lat": 40.0322,
+    "lon": 35.0065
+  },
+  {
+    "name": "Çandır",
+    "slug": "candir",
+    "province": "yozgat",
+    "lat": 39.7556,
+    "lon": 34.8105
+  },
+  {
+    "name": "Çayıralan",
+    "slug": "cayiralan",
+    "province": "yozgat",
+    "lat": 39.8907,
+    "lon": 34.839
+  },
+  {
+    "name": "Çekerek",
+    "slug": "cekerek",
+    "province": "yozgat",
+    "lat": 39.664,
+    "lon": 34.657
+  },
+  {
+    "name": "Kadışehri",
+    "slug": "kadisehri",
+    "province": "yozgat",
+    "lat": 39.8851,
+    "lon": 34.6141
+  },
+  {
+    "name": "Merkez",
+    "slug": "yozgat-merkez",
+    "province": "yozgat",
+    "lat": 39.7745,
+    "lon": 34.6278
+  },
+  {
+    "name": "Saraykent",
+    "slug": "saraykent",
+    "province": "yozgat",
+    "lat": 39.9275,
+    "lon": 34.6687
+  },
+  {
+    "name": "Sarıkaya",
+    "slug": "sarikaya",
+    "province": "yozgat",
+    "lat": 39.8117,
+    "lon": 34.8521
+  },
+  {
+    "name": "Şefaatli",
+    "slug": "sefaatli",
+    "province": "yozgat",
+    "lat": 39.9656,
+    "lon": 34.5957
+  },
+  {
+    "name": "Sorgun",
+    "slug": "sorgun",
+    "province": "yozgat",
+    "lat": 39.8172,
+    "lon": 34.9013
+  },
+  {
+    "name": "Yenifakılı",
+    "slug": "yenifakili",
+    "province": "yozgat",
+    "lat": 40.0193,
+    "lon": 34.7012
+  },
+  {
+    "name": "Yerköy",
+    "slug": "yerkoy",
+    "province": "yozgat",
+    "lat": 39.7575,
+    "lon": 34.6353
+  },
+  {
+    "name": "Alaplı",
+    "slug": "alapli",
+    "province": "zonguldak",
+    "lat": 41.3937,
+    "lon": 31.6612
+  },
+  {
+    "name": "Çaycuma",
+    "slug": "caycuma",
+    "province": "zonguldak",
+    "lat": 41.3453,
+    "lon": 31.5551
+  },
+  {
+    "name": "Devrek",
+    "slug": "devrek",
+    "province": "zonguldak",
+    "lat": 41.6681,
+    "lon": 32.0306
+  },
+  {
+    "name": "Ereğli",
+    "slug": "eregli-zonguldak",
+    "province": "zonguldak",
+    "lat": 41.4498,
+    "lon": 31.8956
+  },
+  {
+    "name": "Gökçebey",
+    "slug": "gokcebey",
+    "province": "zonguldak",
+    "lat": 41.4553,
+    "lon": 31.8856
+  },
+  {
+    "name": "Kilimli",
+    "slug": "kilimli",
+    "province": "zonguldak",
+    "lat": 41.271,
+    "lon": 31.9319
+  },
+  {
+    "name": "Kozlu",
+    "slug": "kozlu",
+    "province": "zonguldak",
+    "lat": 41.4842,
+    "lon": 31.8595
+  },
+  {
+    "name": "Merkez",
+    "slug": "zonguldak-merkez",
+    "province": "zonguldak",
+    "lat": 41.3464,
+    "lon": 31.6309
+  }
 ]
