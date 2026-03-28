@@ -6,6 +6,9 @@ export interface CurrentWeather {
   humidity: number;
   apparentTemperature: number;
   isDay: boolean;
+  pressure: number;
+  cloudCover: number;
+  visibility: number;
 }
 
 export interface HourlyForecast {
@@ -16,6 +19,10 @@ export interface HourlyForecast {
   precipitationProbability: number[];
   windSpeed: number[];
   isDay: number[];
+  dewPoint: number[];
+  visibility: number[];
+  pressure: number[];
+  cloudCover: number[];
 }
 
 export interface DailyForecast {
@@ -100,6 +107,9 @@ function generatePlaceholderData(lat: number): WeatherData {
       humidity: 55,
       apparentTemperature: baseTemp - 1,
       isDay: true,
+      pressure: 1013,
+      cloudCover: 25,
+      visibility: 10000,
     },
     hourly: {
       time: hourlyTimes,
@@ -109,6 +119,10 @@ function generatePlaceholderData(lat: number): WeatherData {
       precipitationProbability: hourlyPrecip,
       windSpeed: hourlyWind,
       isDay: hourlyIsDay,
+      dewPoint: hourlyTemps.map(t => t - 5),
+      visibility: hourlyTemps.map(() => 10000),
+      pressure: hourlyTemps.map(() => 1013),
+      cloudCover: hourlyTemps.map((_, i) => i % 3 === 0 ? 30 : 10),
     },
     daily: {
       time: dailyTimes,
@@ -143,6 +157,9 @@ export async function fetchWeatherData(lat: number, lon: number): Promise<Weathe
         'wind_speed_10m',
         'wind_direction_10m',
         'is_day',
+        'surface_pressure',
+        'cloud_cover',
+        'visibility',
       ].join(','),
       hourly: [
         'temperature_2m',
@@ -151,6 +168,10 @@ export async function fetchWeatherData(lat: number, lon: number): Promise<Weathe
         'precipitation_probability',
         'wind_speed_10m',
         'is_day',
+        'dew_point_2m',
+        'visibility',
+        'surface_pressure',
+        'cloud_cover',
       ].join(','),
       daily: [
         'weather_code',
@@ -188,6 +209,9 @@ export async function fetchWeatherData(lat: number, lon: number): Promise<Weathe
         humidity: data.current.relative_humidity_2m,
         apparentTemperature: data.current.apparent_temperature,
         isDay: data.current.is_day === 1,
+        pressure: data.current.surface_pressure ?? 1013,
+        cloudCover: data.current.cloud_cover ?? 0,
+        visibility: data.current.visibility ?? 10000,
       },
       hourly: {
         time: data.hourly.time,
@@ -197,6 +221,10 @@ export async function fetchWeatherData(lat: number, lon: number): Promise<Weathe
         precipitationProbability: data.hourly.precipitation_probability,
         windSpeed: data.hourly.wind_speed_10m,
         isDay: data.hourly.is_day,
+        dewPoint: data.hourly.dew_point_2m ?? [],
+        visibility: data.hourly.visibility ?? [],
+        pressure: data.hourly.surface_pressure ?? [],
+        cloudCover: data.hourly.cloud_cover ?? [],
       },
       daily: {
         time: data.daily.time,

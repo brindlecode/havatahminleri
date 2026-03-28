@@ -6,6 +6,9 @@ import Breadcrumb from '../../components/Breadcrumb.astro';
 import CurrentWeather from '../../components/CurrentWeather.astro';
 import HourlyForecast from '../../components/HourlyForecast.astro';
 import DailyForecast from '../../components/DailyForecast.astro';
+import ForecastTabs from '../../components/ForecastTabs.astro';
+import WeatherDetails from '../../components/WeatherDetails.astro';
+import WeatherSummary from '../../components/WeatherSummary.astro';
 import AdSlot from '../../components/AdSlot.astro';
 import { getDistrictSEO, generateStructuredData } from '../../lib/seo';
 import { fetchWeatherData } from '../../lib/weather';
@@ -54,10 +57,9 @@ const structuredData = generateStructuredData('district', {
   breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://havatahminleri.com' }, ...breadcrumbs],
 });
 
-// Other districts in same province
 const siblingDistricts = districts
   .filter((d: any) => d.province === province.slug && d.slug !== district.slug)
-  .slice(0, 12);
+  .slice(0, 20);
 ---
 
 <BaseLayout
@@ -76,22 +78,29 @@ const siblingDistricts = districts
     <AdSlot id="district-top" />
 
     <div class="mt-4">
-      <HourlyForecast hourly={weather.hourly} />
+      <ForecastTabs />
     </div>
 
-    <AdSlot id="district-mid" />
+    <div class="mt-4">
+      <HourlyForecast hourly={weather.hourly} />
+    </div>
 
     <div class="mt-4">
       <DailyForecast daily={weather.daily} />
     </div>
 
-    <AdSlot id="district-bottom" />
+    <AdSlot id="district-mid" />
 
-    <!-- Sibling districts -->
+    <div class="mt-4">
+      <WeatherDetails current={weather.current} daily={weather.daily} />
+    </div>
+
+    <AdSlot id="district-details" />
+
     {siblingDistricts.length > 0 && (
       <section class="weather-card mt-6">
         <h2 class="text-lg font-semibold mb-4">{province.name} Diğer İlçeler</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           {siblingDistricts.map((d: any) => (
             <a
               href={`/${province.slug}/${d.slug}-hava-durumu`}
@@ -113,17 +122,9 @@ const siblingDistricts = districts
       </section>
     )}
 
-    <!-- SEO Text -->
-    <section class="mt-8 text-sm text-[var(--color-text-secondary)] leading-relaxed">
-      <h2 class="text-base font-semibold text-[var(--color-text)] mb-2">
-        {district.name} ({province.name}) Hava Durumu
-      </h2>
-      <p>
-        {district.name}, {province.name} için güncel hava durumu ve 15 günlük hava tahmini.
-        Saatlik sıcaklık değişimleri, yağış olasılığı, rüzgar hızı ve nem oranı bilgilerine
-        bu sayfadan ulaşabilirsiniz.
-      </p>
-    </section>
+    <WeatherSummary cityName={district.name} weather={weather} isDistrict={true} provinceName={province.name} />
+
+    <AdSlot id="district-bottom" />
   </div>
 
   <Footer slot="footer" />
@@ -147,8 +148,8 @@ const siblingDistricts = districts
       try {
         const p = new URLSearchParams({
           latitude: String(lat), longitude: String(lon),
-          current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,is_day',
-          hourly: 'temperature_2m,weather_code,relative_humidity_2m,precipitation_probability,wind_speed_10m,is_day',
+          current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,is_day,surface_pressure,cloud_cover,visibility',
+          hourly: 'temperature_2m,weather_code,relative_humidity_2m,precipitation_probability,wind_speed_10m,is_day,dew_point_2m,visibility,surface_pressure,cloud_cover',
           daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset',
           timezone: 'Europe/Istanbul', forecast_days: '16', forecast_hours: '48'
         });

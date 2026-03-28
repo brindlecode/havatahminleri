@@ -1,0 +1,136 @@
+---
+interface Props {
+  defaultTab?: string;
+}
+
+const { defaultTab = '15gun' } = Astro.props;
+---
+
+<div class="weather-card mb-4">
+  <div class="flex gap-1 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1" id="forecast-tabs">
+    <button
+      data-tab="bugun"
+      class="tab-btn px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all"
+    >
+      Bugün
+    </button>
+    <button
+      data-tab="yarin"
+      class="tab-btn px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all"
+    >
+      Yarın
+    </button>
+    <button
+      data-tab="7gun"
+      class="tab-btn px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all"
+    >
+      7 Günlük
+    </button>
+    <button
+      data-tab="10gun"
+      class="tab-btn px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all"
+    >
+      10 Günlük
+    </button>
+    <button
+      data-tab="15gun"
+      class="tab-btn px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all active"
+    >
+      15 Günlük
+    </button>
+    <button
+      data-tab="saatlik"
+      class="tab-btn px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all"
+    >
+      Saatlik
+    </button>
+  </div>
+</div>
+
+<style>
+  .tab-btn {
+    background: var(--color-bg);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+  }
+  .tab-btn:hover {
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+  .tab-btn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tab-btn');
+    const dailySection = document.getElementById('daily-forecast');
+    const hourlySection = document.getElementById('hourly-forecast');
+    const dailyItems = dailySection ? dailySection.querySelectorAll('[data-day-index]') : [];
+    const hourlyItems = hourlySection ? hourlySection.querySelectorAll('[data-hour-index]') : [];
+    const dailyTitle = dailySection ? dailySection.querySelector('h2') : null;
+    const hourlyTitle = hourlySection ? hourlySection.querySelector('h2') : null;
+
+    function setActiveTab(tabId) {
+      tabs.forEach(t => t.classList.remove('active'));
+      document.querySelector(`[data-tab="${tabId}"]`)?.classList.add('active');
+
+      // Show/hide sections
+      const showDaily = tabId !== 'saatlik';
+      const showHourly = tabId === 'bugun' || tabId === 'yarin' || tabId === 'saatlik';
+
+      if (dailySection) dailySection.style.display = showDaily ? '' : 'none';
+      if (hourlySection) hourlySection.style.display = showHourly ? '' : 'none';
+
+      // Filter daily items
+      if (dailySection) {
+        const maxDays = tabId === 'bugun' ? 1 : tabId === 'yarin' ? 2 : tabId === '7gun' ? 7 : tabId === '10gun' ? 10 : 16;
+        const startDay = tabId === 'yarin' ? 1 : 0;
+        dailyItems.forEach(item => {
+          const idx = parseInt(item.getAttribute('data-day-index') || '0');
+          item.style.display = (idx >= startDay && idx < maxDays) ? '' : 'none';
+        });
+
+        // Update title
+        const titles = {
+          'bugun': 'Bugünkü Hava Durumu',
+          'yarin': 'Yarınki Hava Durumu',
+          '7gun': '7 Günlük Hava Tahmini',
+          '10gun': '10 Günlük Hava Tahmini',
+          '15gun': '15 Günlük Hava Tahmini',
+          'saatlik': 'Saatlik Hava Tahmini',
+        };
+        if (dailyTitle) dailyTitle.textContent = titles[tabId] || '15 Günlük Hava Tahmini';
+      }
+
+      // Filter hourly items for today/tomorrow
+      if (hourlySection && hourlyItems.length > 0) {
+        if (tabId === 'bugun') {
+          hourlyItems.forEach(item => {
+            const idx = parseInt(item.getAttribute('data-hour-index') || '0');
+            item.style.display = idx < 24 ? '' : 'none';
+          });
+          if (hourlyTitle) hourlyTitle.textContent = 'Bugün Saatlik Tahmin';
+        } else if (tabId === 'yarin') {
+          hourlyItems.forEach(item => {
+            const idx = parseInt(item.getAttribute('data-hour-index') || '0');
+            item.style.display = (idx >= 24 && idx < 48) ? '' : 'none';
+          });
+          if (hourlyTitle) hourlyTitle.textContent = 'Yarın Saatlik Tahmin';
+        } else {
+          hourlyItems.forEach(item => { item.style.display = ''; });
+          if (hourlyTitle) hourlyTitle.textContent = 'Saatlik Tahmin';
+        }
+      }
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        setActiveTab(tab.getAttribute('data-tab') || '15gun');
+      });
+    });
+  });
+</script>

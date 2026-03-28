@@ -30,15 +30,15 @@ const globalMax = Math.max(...days.map((d) => d.max));
 const range = globalMax - globalMin || 1;
 ---
 
-<section class="weather-card">
-  <h2 class="text-lg font-semibold mb-4 px-2">15 Günlük Tahmin</h2>
+<section class="weather-card" id="daily-forecast">
+  <h2 class="text-lg font-semibold mb-4 px-2">15 Günlük Hava Tahmini</h2>
   <div class="divide-y divide-[var(--color-border)]">
-    {days.map((day) => {
+    {days.map((day, index) => {
       const leftPct = ((day.min - globalMin) / range) * 100;
       const widthPct = ((day.max - day.min) / range) * 100;
 
       return (
-        <div class="flex items-center gap-2 py-3 px-2 hover:bg-[var(--color-bg)] rounded-lg transition-colors group">
+        <div data-day-index={index} class="flex items-center gap-2 py-3 px-2 hover:bg-[var(--color-bg)] rounded-lg transition-colors group">
           {/* Day name */}
           <div class="w-20 shrink-0">
             <p class="text-sm font-medium">{day.dayName}</p>

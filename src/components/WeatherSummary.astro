@@ -1,0 +1,114 @@
+---
+import { getWeatherDescription } from '../lib/weatherCodes';
+import { getDayName } from '../lib/utils';
+import type { WeatherData } from '../lib/weather';
+
+interface Props {
+  cityName: string;
+  weather: WeatherData;
+  isDistrict?: boolean;
+  provinceName?: string;
+}
+
+const { cityName, weather, isDistrict = false, provinceName } = Astro.props;
+const { current, daily } = weather;
+
+const todayDesc = getWeatherDescription(daily.weatherCode[0]);
+const tomorrowDesc = getWeatherDescription(daily.weatherCode[1]);
+const todayMax = Math.round(daily.temperatureMax[0]);
+const todayMin = Math.round(daily.temperatureMin[0]);
+const tomorrowMax = Math.round(daily.temperatureMax[1]);
+const tomorrowMin = Math.round(daily.temperatureMin[1]);
+
+// Week summary
+const weekDays = daily.time.slice(0, 7).map((t, i) => ({
+  name: getDayName(t),
+  desc: getWeatherDescription(daily.weatherCode[i]),
+  max: Math.round(daily.temperatureMax[i]),
+  min: Math.round(daily.temperatureMin[i]),
+  precip: daily.precipitationSum[i],
+}));
+
+const weekMaxTemp = Math.max(...weekDays.map(d => d.max));
+const weekMinTemp = Math.min(...weekDays.map(d => d.min));
+const weekRainDays = weekDays.filter(d => d.precip > 0);
+
+// Weekend (Sat-Sun)
+const today = new Date();
+const dayOfWeek = today.getDay(); // 0=Sun, 6=Sat
+const daysUntilSat = (6 - dayOfWeek + 7) % 7;
+const satIdx = daysUntilSat;
+const sunIdx = daysUntilSat + 1;
+const hasSatData = satIdx < daily.time.length;
+const hasSunData = sunIdx < daily.time.length;
+
+const fullName = isDistrict && provinceName ? `${cityName}, ${provinceName}` : cityName;
+---
+
+<div class="space-y-6 mt-6">
+  <!-- Main SEO Text -->
+  <section class="weather-card">
+    <h2 class="text-lg font-semibold mb-3">{cityName} Hava Durumu</h2>
+    <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+      {fullName} için güncel hava durumu bilgilerine göre bugün hava {todayDesc.toLowerCase()} olarak
+      gözlemlenmektedir. Sıcaklık en yüksek {todayMax}°C, en düşük {todayMin}°C olarak tahmin
+      edilmektedir. Nem oranı %{current.humidity} seviyesinde olup, rüzgar {Math.round(current.windSpeed)} km/s
+      hızla esmektedir. {fullName} ve çevresi için 15 günlük detaylı hava tahmini, saatlik sıcaklık
+      değişimleri ve yağış olasılıklarını bu sayfadan takip edebilirsiniz.
+    </p>
+  </section>
+
+  <!-- Tomorrow -->
+  <section class="weather-card">
+    <h2 class="text-lg font-semibold mb-3">{cityName}'de Yarın Hava Nasıl Olacak?</h2>
+    <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+      {cityName} için yarınki hava durumu tahminlerine göre hava {tomorrowDesc.toLowerCase()} olması
+      beklenmektedir. En yüksek sıcaklık {tomorrowMax}°C, en düşük sıcaklık ise {tomorrowMin}°C olarak
+      öngörülmektedir.
+      {daily.precipitationProbabilityMax[1] > 30
+        ? ` Yağış olasılığı %${daily.precipitationProbabilityMax[1]} seviyesindedir, şemsiyenizi yanınıza almanızı öneririz.`
+        : ' Yağış beklenmemektedir.'}
+    </p>
+  </section>
+
+  <!-- Weekly Summary -->
+  <section class="weather-card">
+    <h2 class="text-lg font-semibold mb-3">Haftalık Hava Durumu Değerlendirmesi</h2>
+    <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+      {cityName} için önümüzdeki 7 günlük hava tahminine göre sıcaklıklar {weekMinTemp}°C ile
+      {weekMaxTemp}°C arasında seyredecektir.
+      {weekRainDays.length > 0
+        ? ` Hafta boyunca ${weekRainDays.length} gün yağış beklenirken, yağış beklenen günler: ${weekRainDays.map(d => d.name).join(', ')}.`
+        : ' Hafta boyunca yağış beklenmemektedir.'}
+      {' '}Yağış beklenen günler öncesinde planlarınızı hava durumuna göre ayarlamanızı tavsiye ederiz.
+    </p>
+    <div class="mt-3 text-sm text-[var(--color-text-secondary)]">
+      <p class="font-medium text-[var(--color-text)] mb-2">Günlük Özet:</p>
+      <ul class="space-y-1">
+        {weekDays.map(d => (
+          <li class="flex justify-between">
+            <span>{d.name}: {d.desc}</span>
+            <span class="font-medium">{d.max}° / {d.min}°</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Weekend -->
+  {hasSatData && hasSunData && (
+    <section class="weather-card">
+      <h2 class="text-lg font-semibold mb-3">Hafta Sonu Hava Durumu</h2>
+      <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+        {cityName} hafta sonu hava durumu tahminleri:
+        <strong class="text-[var(--color-text)]"> Cumartesi</strong> günü {getWeatherDescription(daily.weatherCode[satIdx]).toLowerCase()},
+        sıcaklık {Math.round(daily.temperatureMax[satIdx])}°C / {Math.round(daily.temperatureMin[satIdx])}°C.
+        <strong class="text-[var(--color-text)]"> Pazar</strong> günü {getWeatherDescription(daily.weatherCode[sunIdx]).toLowerCase()},
+        sıcaklık {Math.round(daily.temperatureMax[sunIdx])}°C / {Math.round(daily.temperatureMin[sunIdx])}°C.
+        {daily.precipitationSum[satIdx] > 0 || daily.precipitationSum[sunIdx] > 0
+          ? ' Hafta sonunda yağış olasılığı bulunmaktadır, dış mekan aktivitelerinizi planlarken dikkatli olunuz.'
+          : ' Hafta sonu açık hava aktiviteleri için uygun görünmektedir.'}
+      </p>
+    </section>
+  )}
+</div>
