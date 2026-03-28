@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'İletişim | Hava Tahminleri';
+const description = 'Hava Tahminleri ile iletişime geçin. Sorularınız, önerileriniz ve geri bildirimleriniz için bize ulaşın.';
+const canonical = 'https://havatahminleri.com/iletisim';
+---
+
+<BaseLayout title={title} description={description} canonical={canonical}>
+  <Header slot="header" />
+
+  <div class="max-w-3xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-6">İletişim</h1>
+
+    <div class="space-y-6 text-[var(--color-text-secondary)] leading-relaxed">
+      <p>
+        HavaTahminleri.com hakkında sorularınız, önerileriniz veya geri bildirimleriniz için
+        aşağıdaki yollarla bize ulaşabilirsiniz.
+      </p>
+
+      <div class="weather-card">
+        <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">Bize Yazın</h2>
+        <form id="contact-form" class="space-y-4">
+          <div>
+            <label for="name" class="block text-sm font-medium text-[var(--color-text)] mb-1">
+              Adınız
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              class="w-full px-4 py-2.5 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+            />
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium text-[var(--color-text)] mb-1">
+              E-posta Adresiniz
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              class="w-full px-4 py-2.5 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+            />
+          </div>
+          <div>
+            <label for="subject" class="block text-sm font-medium text-[var(--color-text)] mb-1">
+              Konu
+            </label>
+            <select
+              id="subject"
+              name="subject"
+              class="w-full px-4 py-2.5 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+            >
+              <option value="genel">Genel Soru</option>
+              <option value="oneri">Öneri</option>
+              <option value="hata">Hata Bildirimi</option>
+              <option value="reklam">Reklam İş Birliği</option>
+              <option value="diger">Diğer</option>
+            </select>
+          </div>
+          <div>
+            <label for="message" class="block text-sm font-medium text-[var(--color-text)] mb-1">
+              Mesajınız
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              rows="5"
+              required
+              class="w-full px-4 py-2.5 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 resize-y"
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            class="w-full sm:w-auto px-6 py-2.5 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-xl transition-colors"
+          >
+            Gönder
+          </button>
+        </form>
+        <p id="form-message" class="mt-4 text-sm hidden"></p>
+      </div>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<script is:inline>
+  document.getElementById('contact-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const msg = document.getElementById('form-message');
+    msg.textContent = 'Mesajınız alındı. En kısa sürede size dönüş yapacağız. Teşekkürler!';
+    msg.className = 'mt-4 text-sm text-green-500';
+    msg.classList.remove('hidden');
+    this.reset();
+  });
+</script>

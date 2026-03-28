@@ -1,0 +1,20 @@
+---
+interface Props {
+  id: string;
+  className?: string;
+}
+
+const { id, className = '' } = Astro.props;
+---
+
+<!-- Reklam Alanı -->
+<div
+  id={`ad-${id}`}
+  class:list={[
+    'flex items-center justify-center min-h-[90px] rounded-xl bg-[var(--color-surface)] border border-dashed border-[var(--color-border)] my-6',
+    className,
+  ]}
+  data-ad-slot={id}
+>
+  <span class="text-xs text-[var(--color-text-secondary)] opacity-50">Reklam</span>
+</div>

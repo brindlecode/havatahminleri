@@ -1,0 +1,72 @@
+---
+import WeatherIcon from './WeatherIcon.astro';
+import { getWeatherDescription } from '../lib/weatherCodes';
+import { getTempColorClass, getWindDirection } from '../lib/utils';
+import type { CurrentWeather as CW, DailyForecast } from '../lib/weather';
+
+interface Props {
+  cityName: string;
+  current: CW;
+  daily: DailyForecast;
+}
+
+const { cityName, current, daily } = Astro.props;
+const description = getWeatherDescription(current.weatherCode);
+const tempClass = getTempColorClass(current.temperature);
+const windDir = getWindDirection(current.windDirection);
+const todayMax = daily.temperatureMax[0];
+const todayMin = daily.temperatureMin[0];
+---
+
+<section class="weather-card overflow-hidden">
+  <div class="relative p-6 md:p-8">
+    <!-- Background gradient -->
+    <div class="absolute inset-0 opacity-5 dark:opacity-10 bg-gradient-to-br from-primary-500 to-primary-300 rounded-2xl"></div>
+
+    <div class="relative flex flex-col md:flex-row items-center md:items-start gap-6">
+      <!-- Left: City + temp -->
+      <div class="text-center md:text-left flex-1">
+        <h1 class="text-2xl md:text-3xl font-bold mb-1">{cityName} Hava Durumu</h1>
+        <p class="text-[var(--color-text-secondary)] text-sm mb-4">{description}</p>
+
+        <div class="flex items-center justify-center md:justify-start gap-4">
+          <WeatherIcon code={current.weatherCode} isDay={current.isDay} size="w-20 h-20 md:w-24 md:h-24" />
+          <div>
+            <p class:list={['text-6xl md:text-7xl font-bold tracking-tight', tempClass]}>
+              {Math.round(current.temperature)}°
+            </p>
+            <p class="text-sm text-[var(--color-text-secondary)] mt-1">
+              Hissedilen: {Math.round(current.apparentTemperature)}°C
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center md:justify-start gap-4 mt-3 text-sm text-[var(--color-text-secondary)]">
+          <span>↑ {Math.round(todayMax)}°</span>
+          <span>↓ {Math.round(todayMin)}°</span>
+        </div>
+      </div>
+
+      <!-- Right: Details grid -->
+      <div class="grid grid-cols-2 gap-3 w-full md:w-auto md:min-w-[200px]">
+        <div class="bg-[var(--color-bg)] rounded-xl p-3 text-center">
+          <p class="text-xs text-[var(--color-text-secondary)] mb-1">Nem</p>
+          <p class="text-lg font-semibold">%{current.humidity}</p>
+        </div>
+        <div class="bg-[var(--color-bg)] rounded-xl p-3 text-center">
+          <p class="text-xs text-[var(--color-text-secondary)] mb-1">Rüzgar</p>
+          <p class="text-lg font-semibold">{Math.round(current.windSpeed)} <span class="text-xs">km/s</span></p>
+          <p class="text-xs text-[var(--color-text-secondary)]">{windDir}</p>
+        </div>
+        <div class="bg-[var(--color-bg)] rounded-xl p-3 text-center">
+          <p class="text-xs text-[var(--color-text-secondary)] mb-1">UV İndeks</p>
+          <p class="text-lg font-semibold">{Math.round(daily.uvIndexMax[0])}</p>
+        </div>
+        <div class="bg-[var(--color-bg)] rounded-xl p-3 text-center">
+          <p class="text-xs text-[var(--color-text-secondary)] mb-1">Yağış</p>
+          <p class="text-lg font-semibold">{daily.precipitationSum[0]} <span class="text-xs">mm</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

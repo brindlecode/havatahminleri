@@ -1,0 +1,9 @@
+[
+  { "id": "marmara", "name": "Marmara Bölgesi" },
+  { "id": "ege", "name": "Ege Bölgesi" },
+  { "id": "akdeniz", "name": "Akdeniz Bölgesi" },
+  { "id": "ic-anadolu", "name": "İç Anadolu Bölgesi" },
+  { "id": "karadeniz", "name": "Karadeniz Bölgesi" },
+  { "id": "dogu-anadolu", "name": "Doğu Anadolu Bölgesi" },
+  { "id": "guneydogu-anadolu", "name": "Güneydoğu Anadolu Bölgesi" }
+]

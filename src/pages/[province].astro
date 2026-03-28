@@ -1,0 +1,178 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import CurrentWeather from '../components/CurrentWeather.astro';
+import HourlyForecast from '../components/HourlyForecast.astro';
+import DailyForecast from '../components/DailyForecast.astro';
+import AdSlot from '../components/AdSlot.astro';
+import { getProvinceSEO, generateStructuredData } from '../lib/seo';
+import { fetchWeatherData, getClientFetchScript } from '../lib/weather';
+import provinces from '../data/provinces.json';
+import districts from '../data/districts.json';
+import regions from '../data/regions.json';
+
+export function getStaticPaths() {
+  return provinces.map((p: any) => ({
+    params: { province: `${p.slug}-hava-durumu` },
+    props: { province: p },
+  }));
+}
+
+const { province } = Astro.props;
+const weather = await fetchWeatherData(province.lat, province.lon);
+
+const seo = getProvinceSEO(
+  province.name,
+  province.slug,
+  weather.current.temperature,
+  weather.current.weatherCode,
+);
+
+const region = regions.find((r: any) => r.id === province.region);
+const breadcrumbs = [
+  { name: region?.name || '', url: '/' },
+  { name: `${province.name} Hava Durumu`, url: seo.canonical },
+];
+
+const structuredData = generateStructuredData('province', {
+  name: `${province.name} Hava Durumu`,
+  description: seo.description,
+  url: seo.canonical,
+  lat: province.lat,
+  lon: province.lon,
+  breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://havatahminleri.com' }, ...breadcrumbs],
+});
+
+// Districts for this province
+const provinceDistricts = districts.filter((d: any) => d.province === province.slug);
+
+// Nearby provinces (same region, exclude self)
+const nearbyProvinces = provinces
+  .filter((p: any) => p.region === province.region && p.slug !== province.slug)
+  .slice(0, 6);
+---
+
+<BaseLayout
+  title={seo.title}
+  description={seo.description}
+  canonical={seo.canonical}
+  structuredData={structuredData}
+>
+  <Header slot="header" />
+
+  <div class="max-w-4xl mx-auto px-4 py-6">
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- Current Weather -->
+    <CurrentWeather cityName={province.name} current={weather.current} daily={weather.daily} />
+
+    <AdSlot id="city-top" />
+
+    <!-- Hourly Forecast -->
+    <div class="mt-4">
+      <HourlyForecast hourly={weather.hourly} />
+    </div>
+
+    <AdSlot id="city-mid" />
+
+    <!-- Daily Forecast -->
+    <div class="mt-4">
+      <DailyForecast daily={weather.daily} />
+    </div>
+
+    <AdSlot id="city-bottom" />
+
+    <!-- Districts -->
+    {provinceDistricts.length > 0 && (
+      <section class="weather-card mt-6">
+        <h2 class="text-lg font-semibold mb-4">{province.name} İlçeleri Hava Durumu</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {provinceDistricts.map((d: any) => (
+            <a
+              href={`/${province.slug}/${d.slug}-hava-durumu`}
+              class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors"
+            >
+              <svg class="w-3.5 h-3.5 text-[var(--color-text-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              </svg>
+              <span class="text-sm">{d.name}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Nearby Provinces -->
+    {nearbyProvinces.length > 0 && (
+      <section class="weather-card mt-6">
+        <h2 class="text-lg font-semibold mb-4">Yakın İller</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {nearbyProvinces.map((p: any) => (
+            <a
+              href={`/${p.slug}-hava-durumu`}
+              class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors"
+            >
+              <svg class="w-3.5 h-3.5 text-[var(--color-text-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              </svg>
+              <span class="text-sm">{p.name}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- SEO Text -->
+    <section class="mt-8 text-sm text-[var(--color-text-secondary)] leading-relaxed">
+      <h2 class="text-base font-semibold text-[var(--color-text)] mb-2">
+        {province.name} Hava Durumu ve 15 Günlük Hava Tahmini
+      </h2>
+      <p>
+        {province.name} için güncel hava durumu, saatlik ve 15 günlük detaylı hava tahmini bilgilerine
+        bu sayfadan ulaşabilirsiniz. Sıcaklık, yağış olasılığı, rüzgar hızı, nem oranı ve UV indeksi
+        gibi meteorolojik verileri takip ederek günlük planlarınızı daha iyi yapabilirsiniz.
+        {provinceDistricts.length > 0 && ` ${province.name} ilinin ${provinceDistricts.length} ilçesi için de detaylı hava durumu tahminlerimize göz atabilirsiniz.`}
+      </p>
+    </section>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<script is:inline define:vars={{ lat: province.lat, lon: province.lon }}>
+  // Client-side weather refresh
+  (function() {
+    const CACHE_KEY = `weather_${lat}_${lon}`;
+    const CACHE_MS = 30 * 60 * 1000;
+
+    function getCached() {
+      try {
+        const c = localStorage.getItem(CACHE_KEY);
+        if (!c) return null;
+        const { ts } = JSON.parse(c);
+        if (Date.now() - ts > CACHE_MS) return null;
+        return JSON.parse(c).d;
+      } catch { return null; }
+    }
+
+    async function refresh() {
+      if (getCached()) return;
+      try {
+        const p = new URLSearchParams({
+          latitude: String(lat), longitude: String(lon),
+          current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,is_day',
+          hourly: 'temperature_2m,weather_code,relative_humidity_2m,precipitation_probability,wind_speed_10m,is_day',
+          daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset',
+          timezone: 'Europe/Istanbul', forecast_days: '16', forecast_hours: '48'
+        });
+        const r = await fetch('https://api.open-meteo.com/v1/forecast?' + p);
+        const d = await r.json();
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ d, ts: Date.now() }));
+      } catch {}
+    }
+
+    refresh();
+  })();
+</script>

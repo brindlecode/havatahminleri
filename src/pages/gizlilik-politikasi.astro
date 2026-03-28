@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Gizlilik Politikası | Hava Tahminleri';
+const description = 'Hava Tahminleri gizlilik politikası. Kişisel verilerinizin nasıl toplandığı, kullanıldığı ve korunduğu hakkında bilgi.';
+const canonical = 'https://havatahminleri.com/gizlilik-politikasi';
+---
+
+<BaseLayout title={title} description={description} canonical={canonical}>
+  <Header slot="header" />
+
+  <div class="max-w-3xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-6">Gizlilik Politikası</h1>
+    <p class="text-sm text-[var(--color-text-secondary)] mb-8">Son güncelleme: {new Date().toLocaleDateString('tr-TR')}</p>
+
+    <div class="space-y-6 text-[var(--color-text-secondary)] leading-relaxed">
+      <p>
+        HavaTahminleri.com olarak gizliliğinize önem veriyoruz. Bu gizlilik politikası, sitemizi
+        kullanırken toplanan bilgileri ve bu bilgilerin nasıl kullanıldığını açıklamaktadır.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Toplanan Bilgiler</h2>
+      <p>Sitemizi ziyaret ettiğinizde aşağıdaki bilgiler otomatik olarak toplanabilir:</p>
+      <ul class="list-disc pl-6 space-y-2">
+        <li>IP adresi</li>
+        <li>Tarayıcı türü ve sürümü</li>
+        <li>İşletim sistemi</li>
+        <li>Ziyaret edilen sayfalar ve tarih/saat bilgileri</li>
+        <li>Konum bilgisi (yalnızca izin verildiğinde, hava durumu tahmini için)</li>
+      </ul>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Çerezler (Cookies)</h2>
+      <p>
+        Sitemiz, kullanıcı deneyimini iyileştirmek ve reklam hizmetleri sunmak amacıyla çerezler
+        kullanmaktadır. Çerezler, tarayıcınız tarafından bilgisayarınızda saklanan küçük metin
+        dosyalarıdır.
+      </p>
+      <p>Kullandığımız çerez türleri:</p>
+      <ul class="list-disc pl-6 space-y-2">
+        <li><strong>Zorunlu çerezler:</strong> Site işlevselliği için gerekli (tema tercihi vb.)</li>
+        <li><strong>Analiz çerezleri:</strong> Site kullanımını anlamamıza yardımcı olur</li>
+        <li><strong>Reklam çerezleri:</strong> Üçüncü taraf reklam hizmetleri tarafından kullanılır</li>
+      </ul>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Üçüncü Taraf Hizmetler</h2>
+      <p>Sitemizde aşağıdaki üçüncü taraf hizmetler kullanılabilir:</p>
+      <ul class="list-disc pl-6 space-y-2">
+        <li><strong>Google AdSense / Ezoic:</strong> Reklam gösterimi için</li>
+        <li><strong>Google Analytics:</strong> Site trafiği analizi için</li>
+        <li><strong>Open-Meteo:</strong> Hava durumu verileri için</li>
+      </ul>
+      <p>
+        Bu hizmetlerin kendi gizlilik politikaları bulunmaktadır ve kişisel verilerinizi kendi
+        politikalarına uygun olarak işleyebilirler.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Veri Güvenliği</h2>
+      <p>
+        Kişisel verilerinizin güvenliğini sağlamak için makul teknik ve idari önlemler alıyoruz.
+        Ancak internet üzerinden hiçbir veri iletimi veya elektronik depolama yöntemi %100 güvenli
+        değildir.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">KVKK Hakları</h2>
+      <p>
+        6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında aşağıdaki haklara sahipsiniz:
+      </p>
+      <ul class="list-disc pl-6 space-y-2">
+        <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
+        <li>İşlenmiş ise bilgi talep etme</li>
+        <li>İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme</li>
+        <li>Yurt içinde/dışında aktarıldığı üçüncü kişileri bilme</li>
+        <li>Eksik veya yanlış işlenmişse düzeltilmesini isteme</li>
+        <li>Silinmesini veya yok edilmesini isteme</li>
+      </ul>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Değişiklikler</h2>
+      <p>
+        Bu gizlilik politikasını zaman zaman güncelleyebiliriz. Değişiklikler bu sayfada
+        yayınlanacaktır. Sitemizi düzenli olarak ziyaret ederek güncellemelerden haberdar
+        olmanızı öneririz.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">İletişim</h2>
+      <p>
+        Gizlilik politikamız hakkında sorularınız için
+        <a href="/iletisim" class="text-primary-500 hover:text-primary-600 underline">iletişim sayfamızdan</a>
+        bize ulaşabilirsiniz.
+      </p>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>

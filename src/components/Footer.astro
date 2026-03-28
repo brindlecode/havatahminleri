@@ -1,0 +1,53 @@
+---
+import provinces from '../data/provinces.json';
+import regions from '../data/regions.json';
+
+const regionGroups = regions.map((r: any) => ({
+  ...r,
+  provinces: provinces.filter((p: any) => p.region === r.id),
+}));
+---
+
+<footer class="bg-[var(--color-surface)] border-t border-[var(--color-border)] mt-12">
+  <!-- All cities by region -->
+  <div class="max-w-7xl mx-auto px-4 py-10">
+    <h2 class="text-lg font-bold mb-6 text-[var(--color-text)]">Türkiye Hava Durumu</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {regionGroups.map((region: any) => (
+        <div>
+          <h3 class="text-sm font-semibold text-primary-600 dark:text-primary-400 mb-2">{region.name}</h3>
+          <div class="flex flex-wrap gap-x-3 gap-y-1">
+            {region.provinces.map((p: any) => (
+              <a
+                href={`/${p.slug}-hava-durumu`}
+                class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors"
+              >
+                {p.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="border-t border-[var(--color-border)]">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p class="text-xs text-[var(--color-text-secondary)]">
+        © {new Date().getFullYear()} Hava Tahminleri. Tüm hakları saklıdır.
+      </p>
+      <nav class="flex items-center gap-4">
+        <a href="/hakkimizda" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+          Hakkımızda
+        </a>
+        <a href="/gizlilik-politikasi" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+          Gizlilik Politikası
+        </a>
+        <a href="/iletisim" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+          İletişim
+        </a>
+      </nav>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,40 @@
+---
+import WeatherIcon from './WeatherIcon.astro';
+import { getTempColorClass, formatHour } from '../lib/utils';
+import type { HourlyForecast as HF } from '../lib/weather';
+
+interface Props {
+  hourly: HF;
+}
+
+const { hourly } = Astro.props;
+
+// Show first 24 hours
+const hours = hourly.time.slice(0, 24).map((time, i) => ({
+  time: formatHour(time),
+  temp: Math.round(hourly.temperature[i]),
+  code: hourly.weatherCode[i],
+  precip: hourly.precipitationProbability[i],
+  isDay: hourly.isDay[i] === 1,
+}));
+---
+
+<section class="weather-card">
+  <h2 class="text-lg font-semibold mb-4 px-2">Saatlik Tahmin</h2>
+  <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+    {hours.map((h, i) => (
+      <div class="flex flex-col items-center gap-1.5 min-w-[70px] shrink-0 py-2 px-1">
+        <span class="text-xs text-[var(--color-text-secondary)]">
+          {i === 0 ? 'Şimdi' : h.time}
+        </span>
+        <WeatherIcon code={h.code} isDay={h.isDay} size="w-8 h-8" />
+        <span class:list={['text-sm font-semibold', getTempColorClass(h.temp)]}>
+          {h.temp}°
+        </span>
+        {h.precip > 0 && (
+          <span class="text-xs text-blue-400">%{h.precip}</span>
+        )}
+      </div>
+    ))}
+  </div>
+</section>

@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Hakkımızda | Hava Tahminleri';
+const description = 'Hava Tahminleri hakkında bilgi. Türkiye genelinde 81 il ve tüm ilçeler için güvenilir hava durumu tahminleri sunuyoruz.';
+const canonical = 'https://havatahminleri.com/hakkimizda';
+---
+
+<BaseLayout title={title} description={description} canonical={canonical}>
+  <Header slot="header" />
+
+  <div class="max-w-3xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-6">Hakkımızda</h1>
+
+    <div class="space-y-6 text-[var(--color-text-secondary)] leading-relaxed">
+      <p>
+        <strong class="text-[var(--color-text)]">HavaTahminleri.com</strong>, Türkiye'nin 81 ili ve
+        yüzlerce ilçesi için doğru ve güncel hava durumu bilgilerini sunan bağımsız bir hava durumu
+        platformudur.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Misyonumuz</h2>
+      <p>
+        Kullanıcılarımıza en doğru, en güncel ve en anlaşılır hava durumu tahminlerini sunarak
+        günlük yaşamlarını kolaylaştırmak. Tatil planlamadan günlük giysi seçimine, tarımsal
+        faaliyetlerden ulaşım planlamasına kadar herkesin hava durumu bilgisine kolay erişimini
+        sağlamak.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Verilerimiz</h2>
+      <p>
+        Hava durumu verilerimiz, küresel olarak güvenilir meteorolojik kaynaklardan temin edilmektedir.
+        NOAA GFS, DWD ICON, ECMWF IFS gibi dünya çapında kabul görmüş hava tahmin modellerini
+        kullanarak size en doğru tahminleri sunuyoruz.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Özelliklerimiz</h2>
+      <ul class="list-disc pl-6 space-y-2">
+        <li>81 il ve yüzlerce ilçe için hava durumu</li>
+        <li>15 günlük detaylı hava tahmini</li>
+        <li>Saatlik sıcaklık ve yağış tahminleri</li>
+        <li>Rüzgar hızı ve yönü bilgileri</li>
+        <li>UV indeksi ve nem oranı verileri</li>
+        <li>Mobil uyumlu, hızlı ve modern arayüz</li>
+        <li>Karanlık/aydınlık tema desteği</li>
+      </ul>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">İletişim</h2>
+      <p>
+        Sorularınız, önerileriniz veya geri bildirimleriniz için
+        <a href="/iletisim" class="text-primary-500 hover:text-primary-600 underline">iletişim sayfamızı</a>
+        ziyaret edebilirsiniz.
+      </p>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>

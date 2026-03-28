@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Sitemap: https://havatahminleri.com/sitemap-index.xml
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Yandex
+Allow: /
