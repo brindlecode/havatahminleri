@@ -53,7 +53,7 @@ function delay(ms: number): Promise<void> {
 
 // Rate limiter - ensure we don't exceed 600 calls/minute
 let lastCallTime = 0;
-const MIN_INTERVAL = 120; // 120ms between calls = ~500 calls/min (under 600 limit)
+const MIN_INTERVAL = 150; // 150ms between calls = ~400 calls/min (well under 600 limit)
 
 async function rateLimitedFetch(url: string): Promise<Response> {
   const now = Date.now();
@@ -104,11 +104,6 @@ function devPlaceholder(lat: number): WeatherData {
 }
 
 export async function fetchWeatherData(lat: number, lon: number): Promise<WeatherData> {
-  // OFFLINE_BUILD: only for local development, NEVER set on Netlify
-  if (typeof process !== 'undefined' && process.env?.OFFLINE_BUILD === 'true') {
-    return devPlaceholder(lat);
-  }
-
   // Check build-time cache (same location = same data for all period pages)
   const cacheKey = `${lat.toFixed(2)}_${lon.toFixed(2)}`;
   const cached = buildCache.get(cacheKey);
@@ -208,6 +203,8 @@ export async function fetchWeatherData(lat: number, lon: number): Promise<Weathe
     return result;
   } catch (err) {
     console.error(`[WEATHER API ERROR] lat=${lat}, lon=${lon}:`, err);
-    throw err;
+    // Return dev placeholder instead of crashing the build
+    // Client-side JavaScript will fetch real data when user visits
+    return devPlaceholder(lat);
   }
 }
