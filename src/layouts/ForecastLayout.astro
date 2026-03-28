@@ -120,25 +120,48 @@ const periodDaily = {
 
 <script is:inline define:vars={{ lat, lon }}>
   (function() {
-    const CACHE_KEY = 'weather_' + lat + '_' + lon;
-    const CACHE_MS = 30 * 60 * 1000;
+    var CACHE_KEY = 'weather_' + lat + '_' + lon;
+    var CACHE_MS = 30 * 60 * 1000;
+    var WIND_DIRS = ['K','KD','D','GD','G','GB','B','KB'];
+    var WMO = {0:'Açık',1:'Az Bulutlu',2:'Parçalı Bulutlu',3:'Bulutlu',45:'Sisli',48:'Kırağılı Sis',51:'Hafif Çisenti',53:'Çisenti',55:'Yoğun Çisenti',61:'Hafif Yağmur',63:'Yağmurlu',65:'Şiddetli Yağmur',71:'Hafif Kar',73:'Kar Yağışlı',75:'Yoğun Kar',77:'Kar Taneleri',80:'Hafif Sağanak',81:'Sağanak Yağış',82:'Şiddetli Sağanak',85:'Hafif Kar Sağanağı',86:'Kar Sağanağı',95:'Gök Gürültülü Fırtına',96:'Dolu ile Fırtına',99:'Şiddetli Dolu Fırtınası'};
+
     function getCached() {
-      try { const c = localStorage.getItem(CACHE_KEY); if (!c) return null; const { ts } = JSON.parse(c); return Date.now() - ts <= CACHE_MS; } catch { return null; }
+      try { var c = localStorage.getItem(CACHE_KEY); if (!c) return null; var p = JSON.parse(c); if (Date.now() - p.ts > CACHE_MS) return null; return p.d; } catch(e) { return null; }
     }
-    async function refresh() {
-      if (getCached()) return;
+
+    function updateDOM(d) {
       try {
-        const p = new URLSearchParams({
-          latitude: String(lat), longitude: String(lon),
-          current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,is_day,surface_pressure,cloud_cover,visibility',
-          hourly: 'temperature_2m,weather_code,relative_humidity_2m,precipitation_probability,wind_speed_10m,is_day,dew_point_2m,visibility,surface_pressure,cloud_cover',
-          daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset',
-          timezone: 'Europe/Istanbul', forecast_days: '16', forecast_hours: '48'
-        });
-        const r = await fetch('https://api.open-meteo.com/v1/forecast?' + p);
-        const d = await r.json();
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ d, ts: Date.now() }));
-      } catch {}
+        var el;
+        el = document.getElementById('weather-temp'); if (el) el.textContent = Math.round(d.current.temperature_2m) + '°';
+        el = document.getElementById('weather-desc'); if (el) el.textContent = WMO[d.current.weather_code] || '';
+        el = document.getElementById('weather-feels'); if (el) el.textContent = Math.round(d.current.apparent_temperature);
+        el = document.getElementById('weather-humidity'); if (el) el.textContent = d.current.relative_humidity_2m;
+        el = document.getElementById('weather-wind'); if (el) el.textContent = Math.round(d.current.wind_speed_10m);
+        el = document.getElementById('weather-winddir'); if (el) el.textContent = WIND_DIRS[Math.round(d.current.wind_direction_10m / 45) % 8];
+        el = document.getElementById('weather-high'); if (el) el.textContent = Math.round(d.daily.temperature_2m_max[0]);
+        el = document.getElementById('weather-low'); if (el) el.textContent = Math.round(d.daily.temperature_2m_min[0]);
+        el = document.getElementById('weather-uv'); if (el) el.textContent = Math.round(d.daily.uv_index_max[0]);
+        el = document.getElementById('weather-precip'); if (el) el.textContent = d.daily.precipitation_sum[0];
+      } catch(e) {}
+    }
+
+    function refresh() {
+      var cached = getCached();
+      if (cached) { updateDOM(cached); return; }
+      var p = new URLSearchParams({
+        latitude: String(lat), longitude: String(lon),
+        current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,is_day,surface_pressure,cloud_cover,visibility',
+        hourly: 'temperature_2m,weather_code,relative_humidity_2m,precipitation_probability,wind_speed_10m,is_day,dew_point_2m,visibility,surface_pressure,cloud_cover',
+        daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset',
+        timezone: 'Europe/Istanbul', forecast_days: '16', forecast_hours: '48'
+      });
+      fetch('https://api.open-meteo.com/v1/forecast?' + p)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ d: d, ts: Date.now() }));
+          updateDOM(d);
+        })
+        .catch(function() {});
     }
     refresh();
   })();

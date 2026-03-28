@@ -7,3 +7,4 @@ dist/
 .netlify/
 *.log
 .DS_Store
+src/data/weather-cache.json
