@@ -46,161 +46,124 @@ export interface WeatherData {
 
 const BASE_URL = 'https://api.open-meteo.com/v1/forecast';
 
-function generatePlaceholderData(lat: number): WeatherData {
+// Simple delay helper
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Rate limiter - ensure we don't exceed 600 calls/minute
+let lastCallTime = 0;
+const MIN_INTERVAL = 120; // 120ms between calls = ~500 calls/min (under 600 limit)
+
+async function rateLimitedFetch(url: string): Promise<Response> {
+  const now = Date.now();
+  const elapsed = now - lastCallTime;
+  if (elapsed < MIN_INTERVAL) {
+    await delay(MIN_INTERVAL - elapsed);
+  }
+  lastCallTime = Date.now();
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
+
+      if (res.ok) return res;
+
+      if (res.status === 429 && attempt < 3) {
+        console.warn(`[WEATHER] Rate limited, waiting ${attempt * 3}s...`);
+        await delay(3000 * attempt);
+        continue;
+      }
+
+      throw new Error(`API error: ${res.status}`);
+    } catch (err: any) {
+      if (attempt === 3) throw err;
+      await delay(1000 * attempt);
+    }
+  }
+  throw new Error('All retries exhausted');
+}
+
+// In-memory cache to avoid fetching same location multiple times during build
+const buildCache = new Map<string, WeatherData>();
+
+// Minimal placeholder for OFFLINE local dev builds only - never shown on production
+function devPlaceholder(lat: number): WeatherData {
   const now = new Date();
-  const baseTempByLat = 35 - (Math.abs(lat - 36) * 1.5);
-  const baseTemp = Math.round(baseTempByLat + (Math.random() * 6 - 3));
-
-  const hourlyTimes: string[] = [];
-  const hourlyTemps: number[] = [];
-  const hourlyCodes: number[] = [];
-  const hourlyHumidity: number[] = [];
-  const hourlyPrecip: number[] = [];
-  const hourlyWind: number[] = [];
-  const hourlyIsDay: number[] = [];
-
-  for (let i = 0; i < 48; i++) {
-    const d = new Date(now.getTime() + i * 3600000);
-    hourlyTimes.push(d.toISOString().slice(0, 16));
-    const h = d.getHours();
-    const dayNight = h >= 6 && h <= 20 ? 1 : 0;
-    const variation = Math.sin((h - 6) * Math.PI / 12) * 5;
-    hourlyTemps.push(Math.round((baseTemp + variation) * 10) / 10);
-    hourlyCodes.push(h % 7 === 0 ? 2 : 0);
-    hourlyHumidity.push(50 + Math.round(Math.random() * 20));
-    hourlyPrecip.push(0);
-    hourlyWind.push(5 + Math.round(Math.random() * 10));
-    hourlyIsDay.push(dayNight);
-  }
-
-  const dailyTimes: string[] = [];
-  const dailyCodes: number[] = [];
-  const dailyMax: number[] = [];
-  const dailyMin: number[] = [];
-  const dailyPrecip: number[] = [];
-  const dailyPrecipProb: number[] = [];
-  const dailyWind: number[] = [];
-  const dailyUV: number[] = [];
-  const dailySunrise: string[] = [];
-  const dailySunset: string[] = [];
-
-  for (let i = 0; i < 16; i++) {
-    const d = new Date(now.getTime() + i * 86400000);
-    dailyTimes.push(d.toISOString().slice(0, 10));
-    dailyCodes.push(i % 5 === 0 ? 2 : i % 7 === 0 ? 61 : 0);
-    dailyMax.push(baseTemp + 3 + Math.round(Math.random() * 4));
-    dailyMin.push(baseTemp - 3 - Math.round(Math.random() * 4));
-    dailyPrecip.push(i % 7 === 0 ? 2.5 : 0);
-    dailyPrecipProb.push(i % 7 === 0 ? 40 : i % 5 === 0 ? 20 : 0);
-    dailyWind.push(8 + Math.round(Math.random() * 15));
-    dailyUV.push(3 + Math.round(Math.random() * 5));
-    dailySunrise.push(`${d.toISOString().slice(0, 10)}T06:30`);
-    dailySunset.push(`${d.toISOString().slice(0, 10)}T19:30`);
-  }
-
+  const times48 = Array.from({length: 48}, (_, i) => new Date(now.getTime() + i * 3600000).toISOString().slice(0, 16));
+  const times16 = Array.from({length: 16}, (_, i) => { const d = new Date(now.getTime() + i * 86400000); return d.toISOString().slice(0, 10); });
+  const t = 15; // generic spring temp
   return {
-    current: {
-      temperature: baseTemp,
-      weatherCode: 0,
-      windSpeed: 8,
-      windDirection: 180,
-      humidity: 55,
-      apparentTemperature: baseTemp - 1,
-      isDay: true,
-      pressure: 1013,
-      cloudCover: 25,
-      visibility: 10000,
-    },
-    hourly: {
-      time: hourlyTimes,
-      temperature: hourlyTemps,
-      weatherCode: hourlyCodes,
-      humidity: hourlyHumidity,
-      precipitationProbability: hourlyPrecip,
-      windSpeed: hourlyWind,
-      isDay: hourlyIsDay,
-      dewPoint: hourlyTemps.map(t => t - 5),
-      visibility: hourlyTemps.map(() => 10000),
-      pressure: hourlyTemps.map(() => 1013),
-      cloudCover: hourlyTemps.map((_, i) => i % 3 === 0 ? 30 : 10),
-    },
-    daily: {
-      time: dailyTimes,
-      weatherCode: dailyCodes,
-      temperatureMax: dailyMax,
-      temperatureMin: dailyMin,
-      precipitationSum: dailyPrecip,
-      precipitationProbabilityMax: dailyPrecipProb,
-      windSpeedMax: dailyWind,
-      uvIndexMax: dailyUV,
-      sunrise: dailySunrise,
-      sunset: dailySunset,
-    },
+    current: { temperature: t, weatherCode: 2, windSpeed: 10, windDirection: 180, humidity: 60, apparentTemperature: t-2, isDay: true, pressure: 1013, cloudCover: 40, visibility: 10000 },
+    hourly: { time: times48, temperature: times48.map(() => t), weatherCode: times48.map(() => 2), humidity: times48.map(() => 60), precipitationProbability: times48.map(() => 10), windSpeed: times48.map(() => 10), isDay: times48.map((_, i) => (i % 24) >= 6 && (i % 24) <= 20 ? 1 : 0), dewPoint: times48.map(() => 8), visibility: times48.map(() => 10000), pressure: times48.map(() => 1013), cloudCover: times48.map(() => 40) },
+    daily: { time: times16, weatherCode: times16.map(() => 2), temperatureMax: times16.map(() => t+5), temperatureMin: times16.map(() => t-3), precipitationSum: times16.map(() => 0), precipitationProbabilityMax: times16.map(() => 10), windSpeedMax: times16.map(() => 15), uvIndexMax: times16.map(() => 4), sunrise: times16.map(d => d+'T06:30'), sunset: times16.map(d => d+'T19:00') },
   };
 }
 
 export async function fetchWeatherData(lat: number, lon: number): Promise<WeatherData> {
-  // Skip API calls if environment variable is set (for offline builds)
+  // OFFLINE_BUILD: only for local development, NEVER set on Netlify
   if (typeof process !== 'undefined' && process.env?.OFFLINE_BUILD === 'true') {
-    return generatePlaceholderData(lat);
+    return devPlaceholder(lat);
   }
 
+  // Check build-time cache (same location = same data for all period pages)
+  const cacheKey = `${lat.toFixed(2)}_${lon.toFixed(2)}`;
+  const cached = buildCache.get(cacheKey);
+  if (cached) return cached;
+
+  const params = new URLSearchParams({
+    latitude: lat.toString(),
+    longitude: lon.toString(),
+    current: [
+      'temperature_2m',
+      'relative_humidity_2m',
+      'apparent_temperature',
+      'weather_code',
+      'wind_speed_10m',
+      'wind_direction_10m',
+      'is_day',
+      'surface_pressure',
+      'cloud_cover',
+      'visibility',
+    ].join(','),
+    hourly: [
+      'temperature_2m',
+      'weather_code',
+      'relative_humidity_2m',
+      'precipitation_probability',
+      'wind_speed_10m',
+      'is_day',
+      'dew_point_2m',
+      'visibility',
+      'surface_pressure',
+      'cloud_cover',
+    ].join(','),
+    daily: [
+      'weather_code',
+      'temperature_2m_max',
+      'temperature_2m_min',
+      'precipitation_sum',
+      'precipitation_probability_max',
+      'wind_speed_10m_max',
+      'uv_index_max',
+      'sunrise',
+      'sunset',
+    ].join(','),
+    timezone: 'Europe/Istanbul',
+    forecast_days: '16',
+    forecast_hours: '48',
+  });
+
+  const url = `${BASE_URL}?${params}`;
+
   try {
-    const params = new URLSearchParams({
-      latitude: lat.toString(),
-      longitude: lon.toString(),
-      current: [
-        'temperature_2m',
-        'relative_humidity_2m',
-        'apparent_temperature',
-        'weather_code',
-        'wind_speed_10m',
-        'wind_direction_10m',
-        'is_day',
-        'surface_pressure',
-        'cloud_cover',
-        'visibility',
-      ].join(','),
-      hourly: [
-        'temperature_2m',
-        'weather_code',
-        'relative_humidity_2m',
-        'precipitation_probability',
-        'wind_speed_10m',
-        'is_day',
-        'dew_point_2m',
-        'visibility',
-        'surface_pressure',
-        'cloud_cover',
-      ].join(','),
-      daily: [
-        'weather_code',
-        'temperature_2m_max',
-        'temperature_2m_min',
-        'precipitation_sum',
-        'precipitation_probability_max',
-        'wind_speed_10m_max',
-        'uv_index_max',
-        'sunrise',
-        'sunset',
-      ].join(','),
-      timezone: 'Europe/Istanbul',
-      forecast_days: '16',
-      forecast_hours: '48',
-    });
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
-    const res = await fetch(`${BASE_URL}?${params}`, { signal: controller.signal });
-    clearTimeout(timeout);
-
-    if (!res.ok) {
-      return generatePlaceholderData(lat);
-    }
-
+    const res = await rateLimitedFetch(url);
     const data = await res.json();
 
-    return {
+    const result: WeatherData = {
       current: {
         temperature: data.current.temperature_2m,
         weatherCode: data.current.weather_code,
@@ -239,67 +202,12 @@ export async function fetchWeatherData(lat: number, lon: number): Promise<Weathe
         sunset: data.daily.sunset,
       },
     };
-  } catch {
-    return generatePlaceholderData(lat);
+
+    // Cache for reuse by other period pages of same location
+    buildCache.set(cacheKey, result);
+    return result;
+  } catch (err) {
+    console.error(`[WEATHER API ERROR] lat=${lat}, lon=${lon}:`, err);
+    throw err;
   }
-}
-
-export function getClientFetchScript(lat: number, lon: number): string {
-  return `
-    (function() {
-      const CACHE_KEY = 'weather_${lat}_${lon}';
-      const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
-
-      function getCached() {
-        try {
-          const cached = localStorage.getItem(CACHE_KEY);
-          if (!cached) return null;
-          const { data, timestamp } = JSON.parse(cached);
-          if (Date.now() - timestamp > CACHE_DURATION) return null;
-          return data;
-        } catch { return null; }
-      }
-
-      function setCache(data) {
-        try {
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
-        } catch {}
-      }
-
-      async function refresh() {
-        const cached = getCached();
-        if (cached) { updateUI(cached); return; }
-
-        try {
-          const params = new URLSearchParams({
-            latitude: '${lat}',
-            longitude: '${lon}',
-            current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,is_day',
-            hourly: 'temperature_2m,weather_code,relative_humidity_2m,precipitation_probability,wind_speed_10m,is_day',
-            daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset',
-            timezone: 'Europe/Istanbul',
-            forecast_days: '16',
-            forecast_hours: '48'
-          });
-          const res = await fetch('https://api.open-meteo.com/v1/forecast?' + params);
-          const data = await res.json();
-          setCache(data);
-          updateUI(data);
-        } catch (e) {
-          console.error('Weather refresh failed:', e);
-        }
-      }
-
-      function updateUI(data) {
-        const event = new CustomEvent('weatherUpdate', { detail: data });
-        document.dispatchEvent(event);
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', refresh);
-      } else {
-        refresh();
-      }
-    })();
-  `;
 }
