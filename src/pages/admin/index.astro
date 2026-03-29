@@ -69,12 +69,34 @@
       const ADMIN_USERS = ['ilkukaya'];
       const TOKEN_KEY = 'admin_gh_token';
 
+      // Sanitize text to prevent XSS
+      function sanitizeText(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      // Validate URL is a legitimate Netlify build hook
+      function isValidBuildHookUrl(url) {
+        try {
+          const parsed = new URL(url);
+          return parsed.protocol === 'https:' && parsed.hostname === 'api.netlify.com' && parsed.pathname.startsWith('/build_hooks/');
+        } catch {
+          return false;
+        }
+      }
+
       function checkAuth() {
-        const token = localStorage.getItem(TOKEN_KEY);
+        const token = sessionStorage.getItem(TOKEN_KEY);
         if (token) validateToken(token);
       }
 
       async function validateToken(token) {
+        // Basic token format validation
+        if (!token || token.length < 10) {
+          sessionStorage.removeItem(TOKEN_KEY);
+          return;
+        }
         try {
           const res = await fetch('https://api.github.com/user', {
             headers: { 'Authorization': 'token ' + token }
@@ -87,10 +109,24 @@
             }
             alert('Bu GitHub hesabının admin yetkisi bulunmamaktadır.');
           }
-          localStorage.removeItem(TOKEN_KEY);
+          sessionStorage.removeItem(TOKEN_KEY);
         } catch {
-          localStorage.removeItem(TOKEN_KEY);
+          sessionStorage.removeItem(TOKEN_KEY);
         }
+      }
+
+      function createStatCard(label, value) {
+        const card = document.createElement('div');
+        card.className = 'stat-card';
+        const labelEl = document.createElement('div');
+        labelEl.className = 'label';
+        labelEl.textContent = label;
+        const valueEl = document.createElement('div');
+        valueEl.className = 'value';
+        valueEl.textContent = value;
+        card.appendChild(labelEl);
+        card.appendChild(valueEl);
+        return card;
       }
 
       function showAdmin(user) {
@@ -98,52 +134,122 @@
         const content = document.getElementById('admin-content');
         content.classList.remove('hidden');
 
-        content.innerHTML = `
-          <div class="section" style="display:flex;align-items:center;justify-content:space-between;">
-            <div class="user-info">
-              <img src="${user.avatar_url}" alt="${user.login}" />
-              <span>${user.login}</span>
-              <span class="status status-ok">Admin</span>
-            </div>
-            <button class="logout-btn" id="logout-btn">Çıkış Yap</button>
-          </div>
+        // Build DOM safely without innerHTML
+        // User info section
+        const userSection = document.createElement('div');
+        userSection.className = 'section';
+        userSection.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
 
-          <div class="stats" id="stats-grid">
-            <div class="stat-card"><div class="label">Yükleniyor...</div><div class="value">-</div></div>
-          </div>
+        const userInfo = document.createElement('div');
+        userInfo.className = 'user-info';
 
-          <div class="section">
-            <h2>API Durumu</h2>
-            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-              <span>Open-Meteo API:</span>
-              <span id="api-status" class="status status-warn">Kontrol ediliyor...</span>
-              <button class="btn btn-primary" id="check-api-btn" style="margin-left:auto;">Kontrol Et</button>
-            </div>
-          </div>
+        const avatar = document.createElement('img');
+        avatar.src = user.avatar_url;
+        avatar.alt = sanitizeText(user.login);
+        avatar.width = 32;
+        avatar.height = 32;
 
-          <div class="section">
-            <h2>Build Yönetimi</h2>
-            <p style="font-size:0.875rem;color:#94a3b8;margin-bottom:1rem;">Netlify build hook URL'si ile manuel build tetikleyebilirsiniz.</p>
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-              <input type="text" id="build-hook-input" placeholder="Netlify Build Hook URL"
-                style="flex:1;min-width:200px;padding:0.5rem 0.75rem;border-radius:0.5rem;border:1px solid #334155;background:#0f172a;color:white;font-size:0.875rem;" />
-              <button class="btn btn-primary" id="trigger-build-btn">Build Tetikle</button>
-            </div>
-            <p id="build-status" style="font-size:0.75rem;color:#94a3b8;margin-top:0.5rem;"></p>
-          </div>
-        `;
+        const username = document.createElement('span');
+        username.textContent = user.login;
 
-        // Load stats via search index
-        loadStats();
+        const badge = document.createElement('span');
+        badge.className = 'status status-ok';
+        badge.textContent = 'Admin';
 
-        document.getElementById('logout-btn').addEventListener('click', () => {
-          localStorage.removeItem(TOKEN_KEY);
+        userInfo.appendChild(avatar);
+        userInfo.appendChild(username);
+        userInfo.appendChild(badge);
+
+        const logoutBtn = document.createElement('button');
+        logoutBtn.className = 'logout-btn';
+        logoutBtn.textContent = 'Çıkış Yap';
+        logoutBtn.addEventListener('click', () => {
+          sessionStorage.removeItem(TOKEN_KEY);
           location.reload();
         });
 
-        document.getElementById('check-api-btn').addEventListener('click', checkAPI);
-        document.getElementById('trigger-build-btn').addEventListener('click', triggerBuild);
+        userSection.appendChild(userInfo);
+        userSection.appendChild(logoutBtn);
 
+        // Stats grid
+        const statsGrid = document.createElement('div');
+        statsGrid.className = 'stats';
+        statsGrid.id = 'stats-grid';
+        statsGrid.appendChild(createStatCard('Yükleniyor...', '-'));
+
+        // API status section
+        const apiSection = document.createElement('div');
+        apiSection.className = 'section';
+
+        const apiTitle = document.createElement('h2');
+        apiTitle.textContent = 'API Durumu';
+
+        const apiRow = document.createElement('div');
+        apiRow.style.cssText = 'display:flex;align-items:center;gap:1rem;flex-wrap:wrap;';
+
+        const apiLabel = document.createElement('span');
+        apiLabel.textContent = 'Open-Meteo API:';
+
+        const apiStatus = document.createElement('span');
+        apiStatus.id = 'api-status';
+        apiStatus.className = 'status status-warn';
+        apiStatus.textContent = 'Kontrol ediliyor...';
+
+        const checkApiBtn = document.createElement('button');
+        checkApiBtn.className = 'btn btn-primary';
+        checkApiBtn.style.marginLeft = 'auto';
+        checkApiBtn.textContent = 'Kontrol Et';
+        checkApiBtn.addEventListener('click', checkAPI);
+
+        apiRow.appendChild(apiLabel);
+        apiRow.appendChild(apiStatus);
+        apiRow.appendChild(checkApiBtn);
+        apiSection.appendChild(apiTitle);
+        apiSection.appendChild(apiRow);
+
+        // Build section
+        const buildSection = document.createElement('div');
+        buildSection.className = 'section';
+
+        const buildTitle = document.createElement('h2');
+        buildTitle.textContent = 'Build Yönetimi';
+
+        const buildDesc = document.createElement('p');
+        buildDesc.style.cssText = 'font-size:0.875rem;color:#94a3b8;margin-bottom:1rem;';
+        buildDesc.textContent = 'Netlify build hook URL\'si ile manuel build tetikleyebilirsiniz.';
+
+        const buildRow = document.createElement('div');
+        buildRow.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;';
+
+        const buildInput = document.createElement('input');
+        buildInput.type = 'text';
+        buildInput.id = 'build-hook-input';
+        buildInput.placeholder = 'https://api.netlify.com/build_hooks/...';
+        buildInput.style.cssText = 'flex:1;min-width:200px;padding:0.5rem 0.75rem;border-radius:0.5rem;border:1px solid #334155;background:#0f172a;color:white;font-size:0.875rem;';
+
+        const triggerBtn = document.createElement('button');
+        triggerBtn.className = 'btn btn-primary';
+        triggerBtn.textContent = 'Build Tetikle';
+        triggerBtn.addEventListener('click', triggerBuild);
+
+        const buildStatus = document.createElement('p');
+        buildStatus.id = 'build-status';
+        buildStatus.style.cssText = 'font-size:0.75rem;color:#94a3b8;margin-top:0.5rem;';
+
+        buildRow.appendChild(buildInput);
+        buildRow.appendChild(triggerBtn);
+        buildSection.appendChild(buildTitle);
+        buildSection.appendChild(buildDesc);
+        buildSection.appendChild(buildRow);
+        buildSection.appendChild(buildStatus);
+
+        // Assemble
+        content.appendChild(userSection);
+        content.appendChild(statsGrid);
+        content.appendChild(apiSection);
+        content.appendChild(buildSection);
+
+        loadStats();
         checkAPI();
       }
 
@@ -159,12 +265,12 @@
             return parts[1];
           })).size;
 
-          document.getElementById('stats-grid').innerHTML = `
-            <div class="stat-card"><div class="label">Toplam Sayfa</div><div class="value">${totalPages}</div></div>
-            <div class="stat-card"><div class="label">İl Sayısı</div><div class="value">${provinceCount}</div></div>
-            <div class="stat-card"><div class="label">İlçe Sayısı</div><div class="value">${districtCount}</div></div>
-            <div class="stat-card"><div class="label">İlçe Kapsam</div><div class="value">${coveredProvinces}/81</div></div>
-          `;
+          const grid = document.getElementById('stats-grid');
+          grid.replaceChildren();
+          grid.appendChild(createStatCard('Toplam Sayfa', totalPages));
+          grid.appendChild(createStatCard('İl Sayısı', provinceCount));
+          grid.appendChild(createStatCard('İlçe Sayısı', districtCount));
+          grid.appendChild(createStatCard('İlçe Kapsam', coveredProvinces + '/81'));
         } catch {}
       }
 
@@ -191,6 +297,10 @@
         const url = document.getElementById('build-hook-input').value.trim();
         const el = document.getElementById('build-status');
         if (!url) { el.textContent = 'URL giriniz.'; return; }
+        if (!isValidBuildHookUrl(url)) {
+          el.textContent = 'Geçersiz URL. Sadece Netlify build hook URL\'leri kabul edilir (https://api.netlify.com/build_hooks/...).';
+          return;
+        }
         try {
           el.textContent = 'Tetikleniyor...';
           await fetch(url, { method: 'POST', body: '{}' });
@@ -200,14 +310,66 @@
         }
       }
 
-      // GitHub login - using personal access token
+      // GitHub login - using personal access token with masked input
       document.getElementById('github-login-btn').addEventListener('click', (e) => {
         e.preventDefault();
-        const token = prompt('GitHub Personal Access Token girin:\\n\\nGitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token\\n\\nSadece "read:user" scope yeterli.');
-        if (token && token.trim()) {
-          localStorage.setItem(TOKEN_KEY, token.trim());
-          validateToken(token.trim());
-        }
+
+        // Create a modal with a password-type input instead of prompt()
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;';
+
+        const modal = document.createElement('div');
+        modal.style.cssText = 'background:#1e293b;border:1px solid #334155;border-radius:1rem;padding:2rem;max-width:480px;width:90%;';
+
+        const title = document.createElement('h3');
+        title.style.cssText = 'margin-bottom:0.75rem;font-size:1rem;';
+        title.textContent = 'GitHub Personal Access Token';
+
+        const desc = document.createElement('p');
+        desc.style.cssText = 'font-size:0.8rem;color:#94a3b8;margin-bottom:1rem;line-height:1.5;';
+        desc.textContent = 'GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token. Sadece "read:user" scope yeterli.';
+
+        const input = document.createElement('input');
+        input.type = 'password';
+        input.placeholder = 'ghp_...';
+        input.autocomplete = 'off';
+        input.style.cssText = 'width:100%;padding:0.5rem 0.75rem;border-radius:0.5rem;border:1px solid #334155;background:#0f172a;color:white;font-size:0.875rem;margin-bottom:1rem;';
+
+        const btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:0.5rem;justify-content:flex-end;';
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn';
+        cancelBtn.style.cssText = 'background:#334155;color:white;';
+        cancelBtn.textContent = 'İptal';
+        cancelBtn.addEventListener('click', () => overlay.remove());
+
+        const okBtn = document.createElement('button');
+        okBtn.className = 'btn btn-primary';
+        okBtn.textContent = 'Giriş Yap';
+        okBtn.addEventListener('click', () => {
+          const token = input.value.trim();
+          if (token) {
+            sessionStorage.setItem(TOKEN_KEY, token);
+            validateToken(token);
+          }
+          overlay.remove();
+        });
+
+        input.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter') okBtn.click();
+          if (ev.key === 'Escape') overlay.remove();
+        });
+
+        btnRow.appendChild(cancelBtn);
+        btnRow.appendChild(okBtn);
+        modal.appendChild(title);
+        modal.appendChild(desc);
+        modal.appendChild(input);
+        modal.appendChild(btnRow);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        input.focus();
       });
 
       checkAuth();
