@@ -1,11 +1,11 @@
 {
-  "name": "Hava Tahminleri",
-  "short_name": "HavaTahminleri",
+  "name": "Yarın Hava",
+  "short_name": "YarınHava",
   "description": "Türkiye hava durumu ve 15 günlük tahmin",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f0f4ff",
-  "theme_color": "#2563eb",
+  "theme_color": "#3B82F6",
   "lang": "tr",
   "icons": [
     {

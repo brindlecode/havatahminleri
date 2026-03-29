@@ -19,9 +19,9 @@ export function getProvinceSEO(name: string, slug: string, temp?: number, weathe
   }
 
   return {
-    title: `${name} Hava Durumu - 15 Günlük Tahmin | Hava Tahminleri`,
+    title: `${name} Hava Durumu - 15 Günlük Tahmin | Yarın Hava`,
     description,
-    canonical: `https://havatahminleri.com/${slug}-hava-durumu`,
+    canonical: `https://yarinhava.com/${slug}-hava-durumu`,
   };
 }
 
@@ -42,18 +42,18 @@ export function getDistrictSEO(
   }
 
   return {
-    title: `${districtName} (${provinceName}) Hava Durumu | Hava Tahminleri`,
+    title: `${districtName} (${provinceName}) Hava Durumu | Yarın Hava`,
     description,
-    canonical: `https://havatahminleri.com/${provinceSlug}/${districtSlug}-hava-durumu`,
+    canonical: `https://yarinhava.com/${provinceSlug}/${districtSlug}-hava-durumu`,
   };
 }
 
 export function getHomeSEO(): SEOData {
   return {
-    title: 'Hava Tahminleri - Türkiye Hava Durumu ve 15 Günlük Tahmin',
+    title: 'Yarın Hava - Türkiye Hava Durumu ve 15 Günlük Tahmin',
     description:
       'Türkiye geneli hava durumu ve 15 günlük hava tahmini. 81 il ve tüm ilçeler için saatlik ve günlük detaylı hava tahminleri, sıcaklık, yağış ve rüzgar bilgileri.',
-    canonical: 'https://havatahminleri.com',
+    canonical: 'https://yarinhava.com',
   };
 }
 
@@ -80,8 +80,8 @@ export function generateStructuredData(
     inLanguage: 'tr-TR',
     publisher: {
       '@type': 'Organization',
-      name: 'Hava Tahminleri',
-      url: 'https://havatahminleri.com',
+      name: 'Yarın Hava',
+      url: 'https://yarinhava.com',
     },
   };
 
@@ -118,11 +118,11 @@ export function generateStructuredData(
     jsonLd.push({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      name: 'Hava Tahminleri',
-      url: 'https://havatahminleri.com',
+      name: 'Yarın Hava',
+      url: 'https://yarinhava.com',
       potentialAction: {
         '@type': 'SearchAction',
-        target: 'https://havatahminleri.com/?q={search_term_string}',
+        target: 'https://yarinhava.com/?q={search_term_string}',
         'query-input': 'required name=search_term_string',
       },
     });
