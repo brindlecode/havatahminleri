@@ -25,6 +25,8 @@ const popularCitiesWeather = await Promise.all(
       return {
         name: p.name,
         slug: p.slug,
+        lat: p.lat,
+        lon: p.lon,
         temperature: weather.current.temperature,
         weatherCode: weather.current.weatherCode,
         max: weather.daily.temperatureMax[0],
@@ -34,6 +36,8 @@ const popularCitiesWeather = await Promise.all(
       return {
         name: p.name,
         slug: p.slug,
+        lat: p.lat,
+        lon: p.lon,
         temperature: 0,
         weatherCode: 0,
         max: 0,
@@ -197,4 +201,111 @@ const regionGroups = regions.map((r: any) => ({
       heroResults.classList.add('hidden');
     }
   });
+</script>
+
+<script is:inline>
+  // Client-side weather refresh for popular cities
+  (function() {
+    var CACHE_KEY = 'popular_cities_weather';
+    var CACHE_MS = 30 * 60 * 1000; // 30 minutes
+    var WMO = {0:'Açık',1:'Az Bulutlu',2:'Parçalı Bulutlu',3:'Bulutlu',45:'Sisli',48:'Kırağılı Sis',51:'Hafif Çisenti',53:'Çisenti',55:'Yoğun Çisenti',61:'Hafif Yağmur',63:'Yağmurlu',65:'Şiddetli Yağmur',71:'Hafif Kar',73:'Kar Yağışlı',75:'Yoğun Kar',77:'Kar Taneleri',80:'Hafif Sağanak',81:'Sağanak Yağış',82:'Şiddetli Sağanak',85:'Hafif Kar Sağanağı',86:'Kar Sağanağı',95:'Gök Gürültülü Fırtına',96:'Dolu ile Fırtına',99:'Şiddetli Dolu Fırtınası'};
+
+    function getTempClass(t) {
+      if (t >= 35) return 'temp-hot';
+      if (t >= 25) return 'temp-warm';
+      if (t >= 15) return 'temp-mild';
+      if (t >= 5) return 'temp-cool';
+      if (t >= -5) return 'temp-cold';
+      return 'temp-freezing';
+    }
+
+    function showUpdated(ts) {
+      var el = document.getElementById('popular-updated');
+      if (!el) return;
+      var d = new Date(ts);
+      var h = String(d.getHours()).padStart(2, '0');
+      var m = String(d.getMinutes()).padStart(2, '0');
+      el.textContent = 'Son güncelleme: ' + h + ':' + m;
+    }
+
+    function updateCity(slug, data) {
+      var temp = Math.round(data.current.temperature_2m);
+      var code = data.current.weather_code;
+      var max = Math.round(data.daily.temperature_2m_max[0]);
+      var min = Math.round(data.daily.temperature_2m_min[0]);
+
+      var tempEl = document.querySelector('[data-city-temp="' + slug + '"]');
+      if (tempEl) {
+        tempEl.textContent = temp + '°';
+        tempEl.className = 'text-2xl font-bold mt-1 ' + getTempClass(temp);
+      }
+      var descEl = document.querySelector('[data-city-desc="' + slug + '"]');
+      if (descEl) descEl.textContent = WMO[code] || '';
+      var maxEl = document.querySelector('[data-city-max="' + slug + '"]');
+      if (maxEl) maxEl.textContent = '↑' + max + '°';
+      var minEl = document.querySelector('[data-city-min="' + slug + '"]');
+      if (minEl) minEl.textContent = '↓' + min + '°';
+    }
+
+    function getCached() {
+      try {
+        var c = localStorage.getItem(CACHE_KEY);
+        if (!c) return null;
+        var p = JSON.parse(c);
+        if (Date.now() - p.ts > CACHE_MS) return null;
+        return p;
+      } catch(e) { return null; }
+    }
+
+    function refresh() {
+      var cached = getCached();
+      if (cached) {
+        Object.keys(cached.d).forEach(function(slug) { updateCity(slug, cached.d[slug]); });
+        showUpdated(cached.ts);
+        return;
+      }
+
+      var cards = document.querySelectorAll('[data-city-slug]');
+      var cities = [];
+      cards.forEach(function(card) {
+        cities.push({ slug: card.getAttribute('data-city-slug'), lat: card.getAttribute('data-lat'), lon: card.getAttribute('data-lon') });
+      });
+
+      if (cities.length === 0) return;
+
+      var lats = cities.map(function(c) { return c.lat; }).join(',');
+      var lons = cities.map(function(c) { return c.lon; }).join(',');
+
+      var params = new URLSearchParams({
+        latitude: lats,
+        longitude: lons,
+        current: 'temperature_2m,weather_code',
+        daily: 'temperature_2m_max,temperature_2m_min',
+        timezone: 'Europe/Istanbul',
+        forecast_days: '1'
+      });
+
+      fetch('https://api.open-meteo.com/v1/forecast?' + params)
+        .then(function(r) { return r.json(); })
+        .then(function(results) {
+          var dataMap = {};
+          if (Array.isArray(results)) {
+            results.forEach(function(r, i) {
+              if (cities[i] && r.current) dataMap[cities[i].slug] = r;
+            });
+          } else if (results && results.current) {
+            // Single location response
+            dataMap[cities[0].slug] = results;
+          }
+
+          var now = Date.now();
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ d: dataMap, ts: now }));
+          Object.keys(dataMap).forEach(function(slug) { updateCity(slug, dataMap[slug]); });
+          showUpdated(now);
+        })
+        .catch(function() {});
+    }
+
+    refresh();
+  })();
 </script>
