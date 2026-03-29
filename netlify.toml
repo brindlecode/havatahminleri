@@ -11,6 +11,7 @@
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Cache-Control = "public, max-age=1800, must-revalidate"
 
 [[headers]]
   for = "/_astro/*"

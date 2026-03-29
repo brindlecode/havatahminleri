@@ -10,6 +10,8 @@ interface CityWeather {
   weatherCode: number;
   max: number;
   min: number;
+  lat?: number;
+  lon?: number;
 }
 
 interface Props {
@@ -20,26 +22,34 @@ const { cities } = Astro.props;
 ---
 
 <section>
-  <h2 class="text-xl font-bold mb-4">Popüler Şehirler</h2>
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-bold">Popüler Şehirler</h2>
+    <span id="popular-updated" class="text-xs text-[var(--color-text-secondary)]"></span>
+  </div>
+  <div id="popular-cities-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
     {cities.map((city) => (
       <a
         href={`/${city.slug}-hava-durumu`}
         class="weather-card group cursor-pointer flex flex-col items-center text-center p-4 hover:scale-[1.02] transition-transform"
+        data-city-slug={city.slug}
+        data-lat={city.lat}
+        data-lon={city.lon}
       >
         <h3 class="text-sm font-semibold mb-2 group-hover:text-primary-500 transition-colors">
           {city.name}
         </h3>
-        <WeatherIcon code={city.weatherCode} size="w-12 h-12" />
-        <p class:list={['text-2xl font-bold mt-1', getTempColorClass(city.temperature)]}>
+        <div data-city-icon={city.slug}>
+          <WeatherIcon code={city.weatherCode} size="w-12 h-12" />
+        </div>
+        <p data-city-temp={city.slug} class:list={['text-2xl font-bold mt-1', getTempColorClass(city.temperature)]}>
           {Math.round(city.temperature)}°
         </p>
-        <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">
+        <p data-city-desc={city.slug} class="text-xs text-[var(--color-text-secondary)] mt-0.5">
           {getWeatherDescription(city.weatherCode)}
         </p>
         <div class="flex gap-2 text-xs text-[var(--color-text-secondary)] mt-1">
-          <span>↑{Math.round(city.max)}°</span>
-          <span>↓{Math.round(city.min)}°</span>
+          <span data-city-max={city.slug}>↑{Math.round(city.max)}°</span>
+          <span data-city-min={city.slug}>↓{Math.round(city.min)}°</span>
         </div>
       </a>
     ))}
