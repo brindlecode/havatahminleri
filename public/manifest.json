@@ -1,6 +1,6 @@
 {
-  "name": "Hava Tahminleri",
-  "short_name": "HavaTahminleri",
+  "name": "Yarın Hava",
+  "short_name": "YarınHava",
   "description": "Türkiye hava durumu ve 15 günlük tahmin",
   "start_url": "/",
   "display": "standalone",

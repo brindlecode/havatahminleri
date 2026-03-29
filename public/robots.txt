@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Sitemap: https://havatahminleri.com/sitemap-index.xml
+Sitemap: https://yarinhava.com/sitemap-index.xml
 
 User-agent: Googlebot
 Allow: /
