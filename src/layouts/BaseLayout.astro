@@ -20,6 +20,10 @@ const { title, description, canonical, structuredData } = Astro.props;
     <meta name="robots" content="index, follow" />
     <meta name="language" content="Turkish" />
     <meta name="author" content="Yarın Hava" />
+    <!-- Search Engine Verification -->
+    <meta name="google-site-verification" content="GOOGLE_VERIFICATION_CODE" />
+    <meta name="yandex-verification" content="YANDEX_VERIFICATION_CODE" />
+    <meta name="msvalidate.01" content="BING_VERIFICATION_CODE" />
     <link rel="canonical" href={canonical} />
 
     <!-- Open Graph -->
@@ -29,11 +33,15 @@ const { title, description, canonical, structuredData } = Astro.props;
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="Yarın Hava" />
     <meta property="og:locale" content="tr_TR" />
+    <meta property="og:image" content="https://yarinhava.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://yarinhava.com/og-image.png" />
 
     <!-- hreflang -->
     <link rel="alternate" hreflang="tr" href={canonical} />
@@ -42,15 +50,29 @@ const { title, description, canonical, structuredData } = Astro.props;
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#3B82F6" />
 
-    <!-- Font -->
+    <!-- Preconnect & DNS Prefetch -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://api.open-meteo.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+
+    <!-- Font -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Google Analytics 4 -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
 
     <title>{title}</title>
 
@@ -75,5 +97,21 @@ const { title, description, canonical, structuredData } = Astro.props;
 
     <!-- Ad placeholder - Ezoic/AdSense -->
     <!-- Reklam scriptleri buraya eklenecek -->
+
+    <!-- Yandex.Metrica -->
+    <script is:inline>
+      (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+      m[i].l=1*new Date();
+      for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r)return;}
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+      (window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
+      ym(YANDEX_METRICA_ID, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+      });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/YANDEX_METRICA_ID" style="position:absolute;left:-9999px;" alt="" /></div></noscript>
   </body>
 </html>

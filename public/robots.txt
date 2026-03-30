@@ -1,9 +1,42 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
 Sitemap: https://yarinhava.com/sitemap-index.xml
 
 User-agent: Googlebot
 Allow: /
+Disallow: /admin/
 
 User-agent: Yandex
 Allow: /
+Disallow: /admin/
+Crawl-delay: 2
+
+# AI Search Engine Crawlers - Allow for visibility in AI search results
+User-agent: GPTBot
+Allow: /
+Disallow: /admin/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /admin/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin/
+
+User-agent: Bytespider
+Allow: /
+Disallow: /admin/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin/
