@@ -78,10 +78,15 @@ export function generateStructuredData(
     description: data.description,
     url: data.url,
     inLanguage: 'tr-TR',
+    dateModified: new Date().toISOString().split('T')[0],
     publisher: {
       '@type': 'Organization',
       name: 'Yarın Hava',
       url: 'https://yarinhava.com',
+    },
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['.weather-card h2', '.weather-card p'],
     },
   };
 
