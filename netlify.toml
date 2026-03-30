@@ -1,9 +1,10 @@
-[build]
-  command = "npm run build"
-  publish = "dist"
-
-[build.environment]
-  NODE_VERSION = "22"
+# Build is handled by GitHub Actions — see .github/workflows/scheduled-build.yml
+# [build]
+#   command = "npm run build"
+#   publish = "dist"
+#
+# [build.environment]
+#   NODE_VERSION = "22"
 
 [[headers]]
   for = "/*"
