@@ -38,12 +38,43 @@
       .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
       .btn-primary { background: #3b82f6; color: white; }
       .btn-primary:hover { background: #2563eb; }
+      .btn-success { background: #059669; color: white; }
+      .btn-success:hover { background: #047857; }
+      .btn-danger { background: #dc2626; color: white; }
+      .btn-danger:hover { background: #b91c1c; }
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; }
       .status { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; }
       .status-ok { background: #064e3b; color: #34d399; }
       .status-warn { background: #78350f; color: #fbbf24; }
+      .status-error { background: #7f1d1d; color: #fca5a5; }
       .user-info { display: flex; align-items: center; gap: 0.75rem; }
       .user-info img { width: 32px; height: 32px; border-radius: 50%; }
       .logout-btn { font-size: 0.75rem; color: #ef4444; cursor: pointer; background: none; border: none; }
+      .form-group { margin-bottom: 1rem; }
+      .form-group label { display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem; }
+      .form-group input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.875rem; }
+      .form-group input:focus { outline: none; border-color: #3b82f6; }
+      .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .form-group .hint { font-size: 0.65rem; color: #64748b; margin-top: 0.25rem; }
+      .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+      .toggle { position: relative; width: 44px; height: 24px; }
+      .toggle input { opacity: 0; width: 0; height: 0; }
+      .toggle .slider { position: absolute; inset: 0; background: #334155; border-radius: 24px; cursor: pointer; transition: 0.2s; }
+      .toggle .slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+      .toggle input:checked + .slider { background: #3b82f6; }
+      .toggle input:checked + .slider:before { transform: translateX(20px); }
+      .build-runs { margin-top: 1rem; }
+      .build-run { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #334155; font-size: 0.75rem; }
+      .build-run:last-child { border-bottom: none; }
+      .build-run .run-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+      .build-run .run-status.success { background: #34d399; }
+      .build-run .run-status.failure { background: #ef4444; }
+      .build-run .run-status.in_progress { background: #fbbf24; animation: pulse 1s infinite; }
+      .build-run .run-status.queued { background: #64748b; }
+      .build-run .run-info { flex: 1; }
+      .build-run .run-time { color: #64748b; }
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+      @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
@@ -71,26 +102,21 @@
     </div>
 
     <script is:inline>
+      const REPO_OWNER = 'ilkukaya';
+      const REPO_NAME = 'havatahminleri';
+      const CONFIG_PATH = 'src/data/site-config.json';
+      const WORKFLOW_FILE = 'scheduled-build.yml';
       const ADMIN_USERS = ['ilkukaya'];
       const TOKEN_KEY = 'admin_gh_token';
-      const BUILD_HOOK_KEY = 'admin_build_hook';
-      const BUILD_LOG_KEY = 'admin_build_log';
 
-      // Sanitize text to prevent XSS
+      let currentToken = null;
+      let currentConfig = null;
+      let currentConfigSha = null;
+
       function sanitizeText(str) {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
-      }
-
-      // Validate URL is a legitimate Netlify build hook
-      function isValidBuildHookUrl(url) {
-        try {
-          const parsed = new URL(url);
-          return parsed.protocol === 'https:' && parsed.hostname === 'api.netlify.com' && parsed.pathname.startsWith('/build_hooks/');
-        } catch {
-          return false;
-        }
       }
 
       function checkAuth() {
@@ -99,7 +125,6 @@
       }
 
       async function validateToken(token) {
-        // Basic token format validation
         if (!token || token.length < 10) {
           sessionStorage.removeItem(TOKEN_KEY);
           return;
@@ -111,6 +136,7 @@
           if (res.ok) {
             const user = await res.json();
             if (ADMIN_USERS.includes(user.login)) {
+              currentToken = token;
               showAdmin(user);
               return;
             }
@@ -120,6 +146,20 @@
         } catch {
           sessionStorage.removeItem(TOKEN_KEY);
         }
+      }
+
+      async function ghApi(path, options = {}) {
+        const res = await fetch(`https://api.github.com${path}`, {
+          ...options,
+          headers: {
+            'Authorization': 'token ' + currentToken,
+            'Accept': 'application/vnd.github.v3+json',
+            ...(options.headers || {}),
+            ...(options.body ? { 'Content-Type': 'application/json' } : {})
+          }
+        });
+        if (!res.ok) throw new Error(`GitHub API ${res.status}: ${await res.text()}`);
+        return res.status === 204 ? null : res.json();
       }
 
       function createStatCard(label, value, sub) {
@@ -142,44 +182,34 @@
         return card;
       }
 
-      function addBuildLog(action, status) {
-        const logs = JSON.parse(localStorage.getItem(BUILD_LOG_KEY) || '[]');
-        logs.unshift({ action, status, time: new Date().toISOString() });
-        if (logs.length > 10) logs.length = 10;
-        localStorage.setItem(BUILD_LOG_KEY, JSON.stringify(logs));
-      }
-
-      function renderBuildLog(container) {
-        const logs = JSON.parse(localStorage.getItem(BUILD_LOG_KEY) || '[]');
-        container.replaceChildren();
-        if (logs.length === 0) {
-          const empty = document.createElement('p');
-          empty.style.cssText = 'font-size:0.75rem;color:#64748b;';
-          empty.textContent = 'Henüz build kaydı yok.';
-          container.appendChild(empty);
-          return;
+      function createFormGroup(label, id, value, hint) {
+        const group = document.createElement('div');
+        group.className = 'form-group';
+        const lbl = document.createElement('label');
+        lbl.setAttribute('for', id);
+        lbl.textContent = label;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = id;
+        input.value = value || '';
+        input.autocomplete = 'off';
+        group.appendChild(lbl);
+        group.appendChild(input);
+        if (hint) {
+          const h = document.createElement('div');
+          h.className = 'hint';
+          h.textContent = hint;
+          group.appendChild(h);
         }
-        logs.forEach(log => {
-          const item = document.createElement('div');
-          item.className = 'log-item';
-          const action = document.createElement('span');
-          action.className = 'action';
-          action.textContent = log.action + ' — ' + log.status;
-          const time = document.createElement('span');
-          time.className = 'time';
-          time.textContent = new Date(log.time).toLocaleString('tr-TR');
-          item.appendChild(action);
-          item.appendChild(time);
-          container.appendChild(item);
-        });
+        return group;
       }
 
       function showAdmin(user) {
         document.getElementById('login-section').classList.add('hidden');
         const content = document.getElementById('admin-content');
         content.classList.remove('hidden');
+        content.replaceChildren();
 
-        // Build DOM safely without innerHTML
         // User info section
         const userSection = document.createElement('div');
         userSection.className = 'section';
@@ -187,20 +217,16 @@
 
         const userInfo = document.createElement('div');
         userInfo.className = 'user-info';
-
         const avatar = document.createElement('img');
         avatar.src = user.avatar_url;
         avatar.alt = sanitizeText(user.login);
         avatar.width = 32;
         avatar.height = 32;
-
         const username = document.createElement('span');
         username.textContent = user.login;
-
         const badge = document.createElement('span');
         badge.className = 'status status-ok';
         badge.textContent = 'Admin';
-
         userInfo.appendChild(avatar);
         userInfo.appendChild(username);
         userInfo.appendChild(badge);
@@ -225,91 +251,102 @@
         // API status section
         const apiSection = document.createElement('div');
         apiSection.className = 'section';
-
         const apiTitle = document.createElement('h2');
         apiTitle.textContent = 'API Durumu';
-
         const apiRow = document.createElement('div');
         apiRow.style.cssText = 'display:flex;align-items:center;gap:1rem;flex-wrap:wrap;';
-
         const apiLabel = document.createElement('span');
         apiLabel.textContent = 'Open-Meteo API:';
-
         const apiStatus = document.createElement('span');
         apiStatus.id = 'api-status';
         apiStatus.className = 'status status-warn';
         apiStatus.textContent = 'Kontrol ediliyor...';
-
         const checkApiBtn = document.createElement('button');
         checkApiBtn.className = 'btn btn-primary';
         checkApiBtn.style.marginLeft = 'auto';
         checkApiBtn.textContent = 'Kontrol Et';
         checkApiBtn.addEventListener('click', checkAPI);
-
         apiRow.appendChild(apiLabel);
         apiRow.appendChild(apiStatus);
         apiRow.appendChild(checkApiBtn);
         apiSection.appendChild(apiTitle);
         apiSection.appendChild(apiRow);
 
-        // Build section
+        // Build section (GitHub Actions)
         const buildSection = document.createElement('div');
         buildSection.className = 'section';
-
         const buildTitle = document.createElement('h2');
-        buildTitle.textContent = 'Build Yönetimi';
-
+        buildTitle.textContent = 'Build Yönetimi (GitHub Actions)';
         const buildDesc = document.createElement('p');
         buildDesc.style.cssText = 'font-size:0.875rem;color:#94a3b8;margin-bottom:1rem;';
-        buildDesc.textContent = 'Netlify build hook URL\'si ile manuel build tetikleyebilirsiniz.';
-
-        const buildRow = document.createElement('div');
-        buildRow.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;';
-
-        const buildInput = document.createElement('input');
-        buildInput.type = 'text';
-        buildInput.id = 'build-hook-input';
-        buildInput.placeholder = 'https://api.netlify.com/build_hooks/...';
-        buildInput.style.cssText = 'flex:1;min-width:200px;padding:0.5rem 0.75rem;border-radius:0.5rem;border:1px solid #334155;background:#0f172a;color:white;font-size:0.875rem;';
-
+        buildDesc.textContent = 'Otomatik: Her gün 06:00 ve 20:00 (TR). Manuel tetikleme için aşağıdaki butonu kullanın.';
+        const buildBtnRow = document.createElement('div');
+        buildBtnRow.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;';
         const triggerBtn = document.createElement('button');
         triggerBtn.className = 'btn btn-primary';
+        triggerBtn.id = 'trigger-build-btn';
         triggerBtn.textContent = 'Build Tetikle';
         triggerBtn.addEventListener('click', triggerBuild);
-
-        const buildStatus = document.createElement('p');
+        const buildStatus = document.createElement('span');
         buildStatus.id = 'build-status';
-        buildStatus.style.cssText = 'font-size:0.75rem;color:#94a3b8;margin-top:0.5rem;';
-
-        // Load saved build hook URL
-        const savedHook = localStorage.getItem(BUILD_HOOK_KEY);
-        if (savedHook) buildInput.value = savedHook;
-
-        buildRow.appendChild(buildInput);
-        buildRow.appendChild(triggerBtn);
+        buildStatus.style.cssText = 'font-size:0.75rem;color:#94a3b8;';
+        buildBtnRow.appendChild(triggerBtn);
+        buildBtnRow.appendChild(buildStatus);
         buildSection.appendChild(buildTitle);
         buildSection.appendChild(buildDesc);
-        buildSection.appendChild(buildRow);
-        buildSection.appendChild(buildStatus);
+        buildSection.appendChild(buildBtnRow);
 
-        // Build log section
-        const logTitle = document.createElement('h3');
-        logTitle.style.cssText = 'font-size:0.875rem;font-weight:600;margin-top:1.25rem;margin-bottom:0.75rem;';
-        logTitle.textContent = 'Son Build Kayıtları';
-        const logContainer = document.createElement('div');
-        logContainer.id = 'build-log';
-        buildSection.appendChild(logTitle);
-        buildSection.appendChild(logContainer);
-        renderBuildLog(logContainer);
+        // Recent runs
+        const runsTitle = document.createElement('h3');
+        runsTitle.style.cssText = 'font-size:0.875rem;font-weight:600;margin-top:1.25rem;margin-bottom:0.75rem;';
+        runsTitle.textContent = 'Son Build\'ler';
+        const runsContainer = document.createElement('div');
+        runsContainer.className = 'build-runs';
+        runsContainer.id = 'build-runs';
+        runsContainer.textContent = 'Yükleniyor...';
+        buildSection.appendChild(runsTitle);
+        buildSection.appendChild(runsContainer);
+
+        // Config section
+        const configSection = document.createElement('div');
+        configSection.className = 'section';
+        configSection.id = 'config-section';
+        const configTitle = document.createElement('h2');
+        configTitle.textContent = 'Site Ayarları';
+        const configDesc = document.createElement('p');
+        configDesc.style.cssText = 'font-size:0.875rem;color:#94a3b8;margin-bottom:1rem;';
+        configDesc.textContent = 'Değişiklikler GitHub\'a kaydedilir. Yeni build sonrası aktif olur.';
+        const configForm = document.createElement('div');
+        configForm.id = 'config-form';
+        configForm.textContent = 'Ayarlar yükleniyor...';
+        const configBtnRow = document.createElement('div');
+        configBtnRow.style.cssText = 'display:flex;gap:0.5rem;align-items:center;margin-top:1rem;';
+        const saveConfigBtn = document.createElement('button');
+        saveConfigBtn.className = 'btn btn-success';
+        saveConfigBtn.id = 'save-config-btn';
+        saveConfigBtn.textContent = 'Kaydet & Build Tetikle';
+        saveConfigBtn.addEventListener('click', saveConfig);
+        const configStatus = document.createElement('span');
+        configStatus.id = 'config-status';
+        configStatus.style.cssText = 'font-size:0.75rem;color:#94a3b8;';
+        configBtnRow.appendChild(saveConfigBtn);
+        configBtnRow.appendChild(configStatus);
+        configSection.appendChild(configTitle);
+        configSection.appendChild(configDesc);
+        configSection.appendChild(configForm);
+        configSection.appendChild(configBtnRow);
 
         // Assemble
         content.appendChild(userSection);
         content.appendChild(statsGrid);
         content.appendChild(apiSection);
         content.appendChild(buildSection);
+        content.appendChild(configSection);
 
         loadStats();
         checkAPI();
+        loadBuildRuns();
+        loadConfig();
       }
 
       async function loadStats() {
@@ -318,8 +355,8 @@
           const districts = res.ok ? await res.json() : [];
           const provinceCount = 81;
           const districtCount = districts.length;
-          const periodCount = 6; // bugun, yarin, 7gun, 10gun, 15gun, saatlik
-          const staticPages = 4; // anasayfa, hakkimizda, gizlilik, iletisim
+          const periodCount = 6;
+          const staticPages = 4;
           const provincePeriodPages = provinceCount * periodCount;
           const districtPeriodPages = districtCount * periodCount;
           const totalPages = provinceCount + districtCount + provincePeriodPages + districtPeriodPages + staticPages;
@@ -350,40 +387,243 @@
             el.className = 'status status-ok';
           } else {
             el.textContent = 'Hata: ' + res.status;
+            el.className = 'status status-error';
           }
         } catch {
           el.textContent = 'Bağlantı hatası';
+          el.className = 'status status-error';
         }
       }
 
       async function triggerBuild() {
-        const url = document.getElementById('build-hook-input').value.trim();
+        const btn = document.getElementById('trigger-build-btn');
         const el = document.getElementById('build-status');
-        if (!url) { el.textContent = 'URL giriniz.'; return; }
-        if (!isValidBuildHookUrl(url)) {
-          el.textContent = 'Geçersiz URL. Sadece Netlify build hook URL\'leri kabul edilir (https://api.netlify.com/build_hooks/...).';
-          return;
-        }
-        // Save build hook URL for next time
-        localStorage.setItem(BUILD_HOOK_KEY, url);
+        btn.disabled = true;
+        el.textContent = 'Tetikleniyor...';
         try {
-          el.textContent = 'Tetikleniyor...';
-          await fetch(url, { method: 'POST', body: '{}' });
+          await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
+            method: 'POST',
+            body: JSON.stringify({ ref: 'main' })
+          });
           el.textContent = 'Build başarıyla tetiklendi!';
-          addBuildLog('Manuel build', 'Başarılı');
-        } catch {
-          el.textContent = 'Tetiklenemedi. URL kontrol edin.';
-          addBuildLog('Manuel build', 'Başarısız');
+          el.style.color = '#34d399';
+          setTimeout(() => loadBuildRuns(), 3000);
+        } catch (err) {
+          el.textContent = 'Tetiklenemedi: ' + err.message;
+          el.style.color = '#fca5a5';
         }
-        const logContainer = document.getElementById('build-log');
-        if (logContainer) renderBuildLog(logContainer);
+        btn.disabled = false;
+      }
+
+      async function loadBuildRuns() {
+        const container = document.getElementById('build-runs');
+        try {
+          const data = await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=5`);
+          container.replaceChildren();
+          if (!data.workflow_runs || data.workflow_runs.length === 0) {
+            container.textContent = 'Henüz build kaydı yok.';
+            return;
+          }
+          data.workflow_runs.forEach(run => {
+            const item = document.createElement('div');
+            item.className = 'build-run';
+
+            const dot = document.createElement('div');
+            dot.className = 'run-status ' + (run.conclusion || run.status);
+
+            const info = document.createElement('div');
+            info.className = 'run-info';
+
+            const link = document.createElement('a');
+            link.href = run.html_url;
+            link.target = '_blank';
+            link.rel = 'noopener';
+            link.style.cssText = 'color:#60a5fa;text-decoration:none;';
+            link.textContent = '#' + run.run_number;
+
+            const statusText = document.createElement('span');
+            statusText.style.cssText = 'margin-left:0.5rem;color:#94a3b8;';
+            const statusMap = {
+              success: 'Başarılı',
+              failure: 'Başarısız',
+              cancelled: 'İptal',
+              in_progress: 'Devam ediyor',
+              queued: 'Kuyrukta'
+            };
+            statusText.textContent = statusMap[run.conclusion || run.status] || run.status;
+
+            const trigger = document.createElement('span');
+            trigger.style.cssText = 'margin-left:0.5rem;color:#64748b;';
+            const triggerMap = { schedule: 'Otomatik', workflow_dispatch: 'Manuel', push: 'Push' };
+            trigger.textContent = '(' + (triggerMap[run.event] || run.event) + ')';
+
+            info.appendChild(link);
+            info.appendChild(statusText);
+            info.appendChild(trigger);
+
+            const time = document.createElement('span');
+            time.className = 'run-time';
+            time.textContent = new Date(run.created_at).toLocaleString('tr-TR');
+
+            item.appendChild(dot);
+            item.appendChild(info);
+            item.appendChild(time);
+            container.appendChild(item);
+          });
+        } catch (err) {
+          container.textContent = 'Build geçmişi yüklenemedi.';
+        }
+      }
+
+      async function loadConfig() {
+        const form = document.getElementById('config-form');
+        try {
+          const data = await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}`);
+          currentConfig = JSON.parse(atob(data.content));
+          currentConfigSha = data.sha;
+          renderConfigForm(form, currentConfig);
+        } catch (err) {
+          form.textContent = 'Ayarlar yüklenemedi: ' + err.message;
+        }
+      }
+
+      function renderConfigForm(container, config) {
+        container.replaceChildren();
+
+        // Analytics
+        const analyticsTitle = document.createElement('h3');
+        analyticsTitle.style.cssText = 'font-size:0.875rem;font-weight:600;margin-bottom:0.75rem;color:#60a5fa;';
+        analyticsTitle.textContent = 'Analitik';
+        container.appendChild(analyticsTitle);
+
+        const analyticsRow = document.createElement('div');
+        analyticsRow.className = 'form-row';
+        analyticsRow.appendChild(createFormGroup('Google Analytics ID', 'cfg-ga', config.analytics.googleAnalyticsId, 'Örn: G-XXXXXXXXXX'));
+        analyticsRow.appendChild(createFormGroup('Yandex Metrica ID', 'cfg-ym', config.analytics.yandexMetricaId, 'Örn: 12345678'));
+        container.appendChild(analyticsRow);
+
+        // Verification
+        const verTitle = document.createElement('h3');
+        verTitle.style.cssText = 'font-size:0.875rem;font-weight:600;margin-top:1.25rem;margin-bottom:0.75rem;color:#60a5fa;';
+        verTitle.textContent = 'Arama Motoru Doğrulama';
+        container.appendChild(verTitle);
+
+        container.appendChild(createFormGroup('Google Search Console', 'cfg-vg', config.verification.google, 'meta tag content değeri'));
+        const verRow = document.createElement('div');
+        verRow.className = 'form-row';
+        verRow.appendChild(createFormGroup('Yandex Webmaster', 'cfg-vy', config.verification.yandex, 'meta tag content değeri'));
+        verRow.appendChild(createFormGroup('Bing Webmaster', 'cfg-vb', config.verification.bing, 'meta tag content değeri'));
+        container.appendChild(verRow);
+
+        // Ads
+        const adsTitle = document.createElement('h3');
+        adsTitle.style.cssText = 'font-size:0.875rem;font-weight:600;margin-top:1.25rem;margin-bottom:0.75rem;color:#60a5fa;';
+        adsTitle.textContent = 'Reklamlar';
+        container.appendChild(adsTitle);
+
+        const toggleRow = document.createElement('div');
+        toggleRow.className = 'toggle-row';
+        const toggleLabel = document.createElement('span');
+        toggleLabel.style.cssText = 'font-size:0.875rem;';
+        toggleLabel.textContent = 'Reklamlar aktif';
+        const toggle = document.createElement('label');
+        toggle.className = 'toggle';
+        const toggleInput = document.createElement('input');
+        toggleInput.type = 'checkbox';
+        toggleInput.id = 'cfg-ads-enabled';
+        toggleInput.checked = config.ads.enabled;
+        const slider = document.createElement('span');
+        slider.className = 'slider';
+        toggle.appendChild(toggleInput);
+        toggle.appendChild(slider);
+        toggleRow.appendChild(toggleLabel);
+        toggleRow.appendChild(toggle);
+        container.appendChild(toggleRow);
+
+        container.appendChild(createFormGroup('AdSense Publisher ID', 'cfg-ads-pub', config.ads.adsensePublisherId, 'Örn: ca-pub-1234567890'));
+        const slotRow1 = document.createElement('div');
+        slotRow1.className = 'form-row';
+        slotRow1.appendChild(createFormGroup('Header Slot', 'cfg-ads-header', config.ads.adsenseSlots?.header, 'Slot ID'));
+        slotRow1.appendChild(createFormGroup('Sidebar Slot', 'cfg-ads-sidebar', config.ads.adsenseSlots?.sidebar, 'Slot ID'));
+        container.appendChild(slotRow1);
+        const slotRow2 = document.createElement('div');
+        slotRow2.className = 'form-row';
+        slotRow2.appendChild(createFormGroup('İçerik İçi Slot', 'cfg-ads-incontent', config.ads.adsenseSlots?.inContent, 'Slot ID'));
+        slotRow2.appendChild(createFormGroup('Footer Slot', 'cfg-ads-footer', config.ads.adsenseSlots?.footer, 'Slot ID'));
+        container.appendChild(slotRow2);
+      }
+
+      function collectConfig() {
+        return {
+          analytics: {
+            googleAnalyticsId: document.getElementById('cfg-ga').value.trim(),
+            yandexMetricaId: document.getElementById('cfg-ym').value.trim()
+          },
+          verification: {
+            google: document.getElementById('cfg-vg').value.trim(),
+            yandex: document.getElementById('cfg-vy').value.trim(),
+            bing: document.getElementById('cfg-vb').value.trim()
+          },
+          ads: {
+            enabled: document.getElementById('cfg-ads-enabled').checked,
+            provider: document.getElementById('cfg-ads-pub').value.trim() ? 'adsense' : '',
+            adsensePublisherId: document.getElementById('cfg-ads-pub').value.trim(),
+            adsenseSlots: {
+              header: document.getElementById('cfg-ads-header').value.trim(),
+              sidebar: document.getElementById('cfg-ads-sidebar').value.trim(),
+              inContent: document.getElementById('cfg-ads-incontent').value.trim(),
+              footer: document.getElementById('cfg-ads-footer').value.trim()
+            }
+          }
+        };
+      }
+
+      async function saveConfig() {
+        const btn = document.getElementById('save-config-btn');
+        const el = document.getElementById('config-status');
+        btn.disabled = true;
+        el.textContent = 'Kaydediliyor...';
+        el.style.color = '#94a3b8';
+
+        try {
+          const newConfig = collectConfig();
+          const content = btoa(unescape(encodeURIComponent(JSON.stringify(newConfig, null, 2) + '\n')));
+
+          const result = await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+              message: 'chore: update site config via admin panel',
+              content: content,
+              sha: currentConfigSha
+            })
+          });
+          currentConfigSha = result.content.sha;
+          currentConfig = newConfig;
+
+          // Trigger build
+          try {
+            await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
+              method: 'POST',
+              body: JSON.stringify({ ref: 'main' })
+            });
+            el.textContent = 'Kaydedildi ve build tetiklendi!';
+            el.style.color = '#34d399';
+            setTimeout(() => loadBuildRuns(), 3000);
+          } catch {
+            el.textContent = 'Kaydedildi ama build tetiklenemedi. Manuel tetikleyin.';
+            el.style.color = '#fbbf24';
+          }
+        } catch (err) {
+          el.textContent = 'Kayıt hatası: ' + err.message;
+          el.style.color = '#fca5a5';
+        }
+        btn.disabled = false;
       }
 
       // GitHub login - using personal access token with masked input
       document.getElementById('github-login-btn').addEventListener('click', (e) => {
         e.preventDefault();
 
-        // Create a modal with a password-type input instead of prompt()
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;';
 
@@ -396,11 +636,11 @@
 
         const desc = document.createElement('p');
         desc.style.cssText = 'font-size:0.8rem;color:#94a3b8;margin-bottom:1rem;line-height:1.5;';
-        desc.textContent = 'GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token. Sadece "read:user" scope yeterli.';
+        desc.textContent = 'GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token. Gerekli izinler: Contents (read/write), Actions (read/write), Metadata (read).';
 
         const input = document.createElement('input');
         input.type = 'password';
-        input.placeholder = 'ghp_...';
+        input.placeholder = 'github_pat_...';
         input.autocomplete = 'off';
         input.style.cssText = 'width:100%;padding:0.5rem 0.75rem;border-radius:0.5rem;border:1px solid #334155;background:#0f172a;color:white;font-size:0.875rem;margin-bottom:1rem;';
 

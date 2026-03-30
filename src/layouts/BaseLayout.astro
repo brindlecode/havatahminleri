@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import siteConfig from '../data/site-config.json';
 
 interface Props {
   title: string;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 const { title, description, canonical, structuredData } = Astro.props;
+const { analytics, verification, ads } = siteConfig;
 ---
 
 <!doctype html>
@@ -21,9 +23,9 @@ const { title, description, canonical, structuredData } = Astro.props;
     <meta name="language" content="Turkish" />
     <meta name="author" content="Yarın Hava" />
     <!-- Search Engine Verification -->
-    <meta name="google-site-verification" content="GOOGLE_VERIFICATION_CODE" />
-    <meta name="yandex-verification" content="YANDEX_VERIFICATION_CODE" />
-    <meta name="msvalidate.01" content="BING_VERIFICATION_CODE" />
+    {verification.google && <meta name="google-site-verification" content={verification.google} />}
+    {verification.yandex && <meta name="yandex-verification" content={verification.yandex} />}
+    {verification.bing && <meta name="msvalidate.01" content={verification.bing} />}
     <link rel="canonical" href={canonical} />
 
     <!-- Open Graph -->
@@ -65,14 +67,17 @@ const { title, description, canonical, structuredData } = Astro.props;
       rel="stylesheet"
     />
 
-    <!-- Google Analytics 4 -->
-    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX');
-    </script>
+    {analytics.googleAnalyticsId && (
+      <Fragment>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${analytics.googleAnalyticsId}`}></script>
+        <script is:inline define:vars={{ gaId: analytics.googleAnalyticsId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaId);
+        </script>
+      </Fragment>
+    )}
 
     <title>{title}</title>
 
@@ -95,23 +100,27 @@ const { title, description, canonical, structuredData } = Astro.props;
     </main>
     <slot name="footer" />
 
-    <!-- Ad placeholder - Ezoic/AdSense -->
-    <!-- Reklam scriptleri buraya eklenecek -->
+    {ads.enabled && ads.adsensePublisherId && (
+      <script is:inline async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ads.adsensePublisherId}`} crossorigin="anonymous"></script>
+    )}
 
-    <!-- Yandex.Metrica -->
-    <script is:inline>
-      (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-      m[i].l=1*new Date();
-      for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r)return;}
-      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-      (window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
-      ym(YANDEX_METRICA_ID, "init", {
-        clickmap:true,
-        trackLinks:true,
-        accurateTrackBounce:true,
-        webvisor:true
-      });
-    </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/YANDEX_METRICA_ID" style="position:absolute;left:-9999px;" alt="" /></div></noscript>
+    {analytics.yandexMetricaId && (
+      <Fragment>
+        <script is:inline define:vars={{ ymId: analytics.yandexMetricaId }}>
+          (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+          m[i].l=1*new Date();
+          for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r)return;}
+          k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+          (window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
+          ym(ymId, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+          });
+        </script>
+        <noscript><div><img src={`https://mc.yandex.ru/watch/${analytics.yandexMetricaId}`} style="position:absolute;left:-9999px;" alt="" /></div></noscript>
+      </Fragment>
+    )}
   </body>
 </html>

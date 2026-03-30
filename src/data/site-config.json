@@ -1,0 +1,22 @@
+{
+  "analytics": {
+    "googleAnalyticsId": "",
+    "yandexMetricaId": ""
+  },
+  "verification": {
+    "google": "",
+    "yandex": "",
+    "bing": ""
+  },
+  "ads": {
+    "enabled": false,
+    "provider": "",
+    "adsensePublisherId": "",
+    "adsenseSlots": {
+      "header": "",
+      "sidebar": "",
+      "inContent": "",
+      "footer": ""
+    }
+  }
+}
