@@ -7,11 +7,12 @@ const CACHE_PATH = join(__dirname, '..', 'src', 'data', 'weather-cache.json');
 const BASE_URL = 'https://api.open-meteo.com/v1/forecast';
 
 // Fetch config - tuned for Open-Meteo free tier (600 req/min)
-// Use small batches with longer delays to avoid 429 rate limiting entirely
-const BATCH_SIZE = 5;
-const BATCH_DELAY_MS = 2500; // 5 req per 2.5s = 120 req/min (well under 600 limit, no 429s)
+const INITIAL_BATCH_SIZE = 5;
+const THROTTLED_BATCH_SIZE = 2;
+const INITIAL_BATCH_DELAY_MS = 2500;
 const TIMEOUT_MS = 12000;
-const MAX_RETRIES = 4;
+const MAX_RETRIES = 2;
+const CONSECUTIVE_FAIL_LIMIT = 15; // Stop after this many consecutive fails
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -69,6 +70,7 @@ function parseResponse(d) {
   };
 }
 
+// Returns { data, rateLimited }
 async function fetchOne(lat, lon) {
   const params = new URLSearchParams({
     latitude: lat.toString(),
@@ -85,20 +87,18 @@ async function fetchOne(lat, lon) {
       clearTimeout(timer);
 
       if (res.status === 429) {
-        const wait = attempt * 5000;
-        console.warn(`  Rate limited, waiting ${wait / 1000}s...`);
-        await delay(wait);
-        continue;
+        // Signal rate limit to caller - don't retry here, let batch handle it
+        return { data: null, rateLimited: true };
       }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      return parseResponse(await res.json());
+      return { data: parseResponse(await res.json()), rateLimited: false };
     } catch (err) {
-      if (attempt === MAX_RETRIES) return null;
+      if (attempt === MAX_RETRIES) return { data: null, rateLimited: false };
       await delay(2000 * attempt);
     }
   }
-  return null;
+  return { data: null, rateLimited: false };
 }
 
 async function main() {
@@ -128,26 +128,66 @@ async function main() {
   const results = {};
   let ok = 0;
   let fail = 0;
+  let consecutiveFails = 0;
+  let batchSize = INITIAL_BATCH_SIZE;
+  let batchDelay = INITIAL_BATCH_DELAY_MS;
+  let throttled = false;
 
-  for (let i = 0; i < locations.length; i += BATCH_SIZE) {
-    const batch = locations.slice(i, i + BATCH_SIZE);
+  for (let i = 0; i < locations.length; i += batchSize) {
+    const batch = locations.slice(i, i + batchSize);
     const batchResults = await Promise.all(
-      batch.map(async ([key, { lat, lon }]) => ({ key, data: await fetchOne(lat, lon) })),
+      batch.map(async ([key, { lat, lon }]) => {
+        const result = await fetchOne(lat, lon);
+        return { key, ...result };
+      }),
     );
 
-    for (const { key, data } of batchResults) {
+    let batchRateLimited = false;
+    let batchOk = 0;
+
+    for (const { key, data, rateLimited } of batchResults) {
+      if (rateLimited) batchRateLimited = true;
       if (data) {
         results[key] = data;
         ok++;
+        batchOk++;
+        consecutiveFails = 0;
       } else {
         fail++;
+        consecutiveFails++;
       }
     }
 
-    const done = Math.min(i + BATCH_SIZE, locations.length);
+    const done = Math.min(i + batchSize, locations.length);
     process.stdout.write(`\r[WEATHER] ${done}/${locations.length} (${ok} ok, ${fail} fail)`);
 
-    if (i + BATCH_SIZE < locations.length) await delay(BATCH_DELAY_MS);
+    // Adaptive throttling
+    if (batchRateLimited) {
+      if (!throttled) {
+        console.log('\n[WEATHER] Rate limit detected - throttling down');
+        throttled = true;
+      }
+      batchSize = THROTTLED_BATCH_SIZE;
+      batchDelay = Math.min(batchDelay * 2, 30000); // Double delay, max 30s
+      console.log(`  Backing off: batch=${batchSize}, delay=${batchDelay / 1000}s`);
+      await delay(batchDelay);
+    } else if (throttled && batchOk === batchSize) {
+      // Gradually recover if batch was fully successful
+      batchDelay = Math.max(batchDelay * 0.75, INITIAL_BATCH_DELAY_MS);
+      if (batchDelay <= INITIAL_BATCH_DELAY_MS * 2) {
+        batchSize = Math.min(batchSize + 1, INITIAL_BATCH_SIZE);
+      }
+    }
+
+    // Early exit if too many consecutive failures
+    if (consecutiveFails >= CONSECUTIVE_FAIL_LIMIT) {
+      console.log(`\n[WEATHER] ${consecutiveFails} consecutive failures - stopping fetch early`);
+      break;
+    }
+
+    if (i + batchSize < locations.length && !batchRateLimited) {
+      await delay(batchDelay);
+    }
   }
   console.log('');
 
