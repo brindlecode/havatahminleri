@@ -143,6 +143,24 @@ const periodLinks = getPeriodLinks(baseUrl);
 
     <WeatherSummary cityName={district.name} weather={weather} isDistrict={true} provinceName={province.name} />
 
+    <!-- Internal Linking: Popular Search Patterns -->
+    <section class="weather-card mt-6">
+      <h2 class="text-lg font-semibold mb-3">Sık Aranan {district.name} Hava Tahminleri</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {periodLinks.map(link => (
+          <a
+            href={link.href}
+            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)] hover:text-primary-500 transition-colors"
+          >
+            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            {district.name} {link.label} Hava Durumu
+          </a>
+        ))}
+      </div>
+    </section>
+
     <AdSlot id="district-bottom" />
   </div>
 

@@ -30,6 +30,11 @@
       .stat-card { background: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 1.25rem; }
       .stat-card .label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem; }
       .stat-card .value { font-size: 1.5rem; font-weight: 700; }
+      .stat-card .sub { font-size: 0.65rem; color: #64748b; margin-top: 0.25rem; }
+      .log-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #334155; font-size: 0.75rem; }
+      .log-item:last-child { border-bottom: none; }
+      .log-item .time { color: #64748b; }
+      .log-item .action { color: #94a3b8; }
       .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
       .btn-primary { background: #3b82f6; color: white; }
       .btn-primary:hover { background: #2563eb; }
@@ -68,6 +73,8 @@
     <script is:inline>
       const ADMIN_USERS = ['ilkukaya'];
       const TOKEN_KEY = 'admin_gh_token';
+      const BUILD_HOOK_KEY = 'admin_build_hook';
+      const BUILD_LOG_KEY = 'admin_build_log';
 
       // Sanitize text to prevent XSS
       function sanitizeText(str) {
@@ -115,7 +122,7 @@
         }
       }
 
-      function createStatCard(label, value) {
+      function createStatCard(label, value, sub) {
         const card = document.createElement('div');
         card.className = 'stat-card';
         const labelEl = document.createElement('div');
@@ -126,7 +133,45 @@
         valueEl.textContent = value;
         card.appendChild(labelEl);
         card.appendChild(valueEl);
+        if (sub) {
+          const subEl = document.createElement('div');
+          subEl.className = 'sub';
+          subEl.textContent = sub;
+          card.appendChild(subEl);
+        }
         return card;
+      }
+
+      function addBuildLog(action, status) {
+        const logs = JSON.parse(localStorage.getItem(BUILD_LOG_KEY) || '[]');
+        logs.unshift({ action, status, time: new Date().toISOString() });
+        if (logs.length > 10) logs.length = 10;
+        localStorage.setItem(BUILD_LOG_KEY, JSON.stringify(logs));
+      }
+
+      function renderBuildLog(container) {
+        const logs = JSON.parse(localStorage.getItem(BUILD_LOG_KEY) || '[]');
+        container.replaceChildren();
+        if (logs.length === 0) {
+          const empty = document.createElement('p');
+          empty.style.cssText = 'font-size:0.75rem;color:#64748b;';
+          empty.textContent = 'Henüz build kaydı yok.';
+          container.appendChild(empty);
+          return;
+        }
+        logs.forEach(log => {
+          const item = document.createElement('div');
+          item.className = 'log-item';
+          const action = document.createElement('span');
+          action.className = 'action';
+          action.textContent = log.action + ' — ' + log.status;
+          const time = document.createElement('span');
+          time.className = 'time';
+          time.textContent = new Date(log.time).toLocaleString('tr-TR');
+          item.appendChild(action);
+          item.appendChild(time);
+          container.appendChild(item);
+        });
       }
 
       function showAdmin(user) {
@@ -236,12 +281,26 @@
         buildStatus.id = 'build-status';
         buildStatus.style.cssText = 'font-size:0.75rem;color:#94a3b8;margin-top:0.5rem;';
 
+        // Load saved build hook URL
+        const savedHook = localStorage.getItem(BUILD_HOOK_KEY);
+        if (savedHook) buildInput.value = savedHook;
+
         buildRow.appendChild(buildInput);
         buildRow.appendChild(triggerBtn);
         buildSection.appendChild(buildTitle);
         buildSection.appendChild(buildDesc);
         buildSection.appendChild(buildRow);
         buildSection.appendChild(buildStatus);
+
+        // Build log section
+        const logTitle = document.createElement('h3');
+        logTitle.style.cssText = 'font-size:0.875rem;font-weight:600;margin-top:1.25rem;margin-bottom:0.75rem;';
+        logTitle.textContent = 'Son Build Kayıtları';
+        const logContainer = document.createElement('div');
+        logContainer.id = 'build-log';
+        buildSection.appendChild(logTitle);
+        buildSection.appendChild(logContainer);
+        renderBuildLog(logContainer);
 
         // Assemble
         content.appendChild(userSection);
@@ -259,7 +318,11 @@
           const districts = res.ok ? await res.json() : [];
           const provinceCount = 81;
           const districtCount = districts.length;
-          const totalPages = provinceCount + districtCount + 4;
+          const periodCount = 6; // bugun, yarin, 7gun, 10gun, 15gun, saatlik
+          const staticPages = 4; // anasayfa, hakkimizda, gizlilik, iletisim
+          const provincePeriodPages = provinceCount * periodCount;
+          const districtPeriodPages = districtCount * periodCount;
+          const totalPages = provinceCount + districtCount + provincePeriodPages + districtPeriodPages + staticPages;
           const coveredProvinces = new Set(districts.map(d => {
             const parts = d.u.split('/');
             return parts[1];
@@ -267,10 +330,10 @@
 
           const grid = document.getElementById('stats-grid');
           grid.replaceChildren();
-          grid.appendChild(createStatCard('Toplam Sayfa', totalPages));
-          grid.appendChild(createStatCard('İl Sayısı', provinceCount));
-          grid.appendChild(createStatCard('İlçe Sayısı', districtCount));
-          grid.appendChild(createStatCard('İlçe Kapsam', coveredProvinces + '/81'));
+          grid.appendChild(createStatCard('Toplam Sayfa', totalPages.toLocaleString('tr-TR'), `${provinceCount} il + ${districtCount} ilçe + ${(provincePeriodPages + districtPeriodPages).toLocaleString('tr-TR')} dönem + ${staticPages} statik`));
+          grid.appendChild(createStatCard('İl Sayısı', provinceCount, `+ ${provincePeriodPages} dönem sayfası`));
+          grid.appendChild(createStatCard('İlçe Sayısı', districtCount, `+ ${districtPeriodPages.toLocaleString('tr-TR')} dönem sayfası`));
+          grid.appendChild(createStatCard('İlçe Kapsam', coveredProvinces + '/81', `${Math.round(coveredProvinces/81*100)}% il kapsanıyor`));
         } catch {}
       }
 
@@ -301,13 +364,19 @@
           el.textContent = 'Geçersiz URL. Sadece Netlify build hook URL\'leri kabul edilir (https://api.netlify.com/build_hooks/...).';
           return;
         }
+        // Save build hook URL for next time
+        localStorage.setItem(BUILD_HOOK_KEY, url);
         try {
           el.textContent = 'Tetikleniyor...';
           await fetch(url, { method: 'POST', body: '{}' });
           el.textContent = 'Build başarıyla tetiklendi!';
+          addBuildLog('Manuel build', 'Başarılı');
         } catch {
           el.textContent = 'Tetiklenemedi. URL kontrol edin.';
+          addBuildLog('Manuel build', 'Başarısız');
         }
+        const logContainer = document.getElementById('build-log');
+        if (logContainer) renderBuildLog(logContainer);
       }
 
       // GitHub login - using personal access token with masked input

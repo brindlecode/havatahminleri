@@ -1,6 +1,7 @@
 ---
 import { getWeatherDescription } from '../lib/weatherCodes';
 import { getDayName } from '../lib/utils';
+import { buildWeatherFAQs, generateFAQSchema } from '../lib/seo';
 import type { WeatherData } from '../lib/weather';
 
 interface Props {
@@ -43,6 +44,21 @@ const hasSatData = satIdx < daily.time.length;
 const hasSunData = sunIdx < daily.time.length;
 
 const fullName = isDistrict && provinceName ? `${cityName}, ${provinceName}` : cityName;
+
+// FAQ data for schema and display
+const faqs = buildWeatherFAQs(
+  cityName,
+  todayDesc,
+  todayMax,
+  todayMin,
+  tomorrowDesc,
+  tomorrowMax,
+  tomorrowMin,
+  daily.precipitationProbabilityMax[1] || 0,
+  weekMinTemp,
+  weekMaxTemp,
+);
+const faqSchemaJson = generateFAQSchema(faqs);
 ---
 
 <div class="space-y-6 mt-6">
@@ -111,4 +127,27 @@ const fullName = isDistrict && provinceName ? `${cityName}, ${provinceName}` : c
       </p>
     </section>
   )}
+
+  <!-- FAQ Section - AI-friendly structured Q&A -->
+  <section class="weather-card">
+    <h2 class="text-lg font-semibold mb-4">{cityName} Hava Durumu - Sık Sorulan Sorular</h2>
+    <div class="space-y-4">
+      {faqs.map((faq) => (
+        <details class="group">
+          <summary class="flex items-center justify-between cursor-pointer text-sm font-medium text-[var(--color-text)] hover:text-primary-500 transition-colors">
+            <span>{faq.question}</span>
+            <svg class="w-4 h-4 shrink-0 ml-2 transition-transform group-open:rotate-180 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </summary>
+          <p class="mt-2 text-sm text-[var(--color-text-secondary)] leading-relaxed pl-0">
+            {faq.answer}
+          </p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <!-- FAQ Schema JSON-LD -->
+  <script type="application/ld+json" set:html={faqSchemaJson} />
 </div>

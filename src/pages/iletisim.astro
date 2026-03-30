@@ -22,7 +22,9 @@ const canonical = 'https://yarinhava.com/iletisim';
 
       <div class="weather-card">
         <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">Bize Yazın</h2>
-        <form id="contact-form" class="space-y-4">
+        <form id="contact-form" class="space-y-4" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value="contact" />
+          <p class="hidden"><label>Bunu doldurmayın: <input name="bot-field" /></label></p>
           <div>
             <label for="name" class="block text-sm font-medium text-[var(--color-text)] mb-1">
               Adınız
@@ -91,12 +93,37 @@ const canonical = 'https://yarinhava.com/iletisim';
 </BaseLayout>
 
 <script is:inline>
-  document.getElementById('contact-form').addEventListener('submit', function(e) {
+  document.getElementById('contact-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const msg = document.getElementById('form-message');
-    msg.textContent = 'Mesajınız alındı. En kısa sürede size dönüş yapacağız. Teşekkürler!';
-    msg.className = 'mt-4 text-sm text-green-500';
-    msg.classList.remove('hidden');
-    this.reset();
+    const submitBtn = this.querySelector('button[type="submit"]');
+
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Gönderiliyor...';
+
+      const formData = new FormData(this);
+      const res = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData).toString(),
+      });
+
+      if (res.ok) {
+        msg.textContent = 'Mesajınız alındı. En kısa sürede size dönüş yapacağız. Teşekkürler!';
+        msg.className = 'mt-4 text-sm text-green-500';
+        this.reset();
+      } else {
+        msg.textContent = 'Mesaj gönderilemedi. Lütfen daha sonra tekrar deneyin.';
+        msg.className = 'mt-4 text-sm text-red-500';
+      }
+    } catch {
+      msg.textContent = 'Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.';
+      msg.className = 'mt-4 text-sm text-red-500';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Gönder';
+      msg.classList.remove('hidden');
+    }
   });
 </script>
