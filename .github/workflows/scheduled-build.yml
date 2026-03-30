@@ -1,16 +1,39 @@
-name: Scheduled Build
+name: Build & Deploy
 
 on:
   schedule:
-    # Every 3 hours: 00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00 UTC
-    # Turkey time (UTC+3): 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00, 00:00
-    - cron: '0 */3 * * *'
+    # 06:00 Turkey time (UTC+3)
+    - cron: '0 3 * * *'
+    # 20:00 Turkey time (UTC+3)
+    - cron: '0 17 * * *'
   workflow_dispatch:
 
 jobs:
-  trigger-netlify-build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
     steps:
-      - name: Trigger Netlify Build Hook
-        run: |
-          curl -X POST -d {} "${{ secrets.NETLIFY_BUILD_HOOK }}"
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch weather data
+        run: node scripts/fetch-weather.mjs
+
+      - name: Build site
+        run: npx astro build
+
+      - name: Deploy to Netlify
+        run: npx netlify-cli deploy --prod --dir=dist --message "Deploy from GitHub Actions"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
