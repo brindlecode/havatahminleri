@@ -1,6 +1,9 @@
 name: Build & Deploy
 
 on:
+  push:
+    branches:
+      - claude/weather-forecast-site-JpQxB
   schedule:
     # 06:00 Turkey time (UTC+3)
     - cron: '0 3 * * *'
