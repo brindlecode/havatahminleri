@@ -121,13 +121,16 @@
       }
       .logout-btn:hover { color: var(--color-danger); border-color: var(--color-danger); background: rgba(239, 68, 68, 0.05); }
 
-      /* ── Mobile Hamburger ── */
+      /* ── Mobile Nav Toggle (CSS-only checkbox hack) ── */
+      .mobile-nav-toggle { display: none; }
       .hamburger {
         display: none; background: none; border: none;
         color: var(--color-text-secondary); font-size: 1.25rem;
-        cursor: pointer; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm);
+        cursor: pointer; padding: 0.375rem 0.5rem; border-radius: var(--radius-sm);
+        transition: background 0.2s ease, color 0.2s ease;
+        line-height: 1;
       }
-      .hamburger:hover { background: var(--color-bg-body); }
+      .hamburger:hover { background: var(--color-bg-body); color: var(--color-text-primary); }
 
       /* ── Layout Shell ── */
       .admin-shell { display: flex; min-height: 100vh; }
@@ -152,7 +155,8 @@
         color: var(--color-text-sidebar);
         font-size: 0.8125rem; font-weight: 400;
         font-family: inherit; cursor: pointer;
-        text-align: left; transition: all 0.15s ease;
+        text-align: left;
+        transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
       }
       .nav-item:hover {
         color: var(--color-text-sidebar-hover);
@@ -165,9 +169,16 @@
         background: var(--color-bg-sidebar-active);
         font-weight: 600;
       }
-      .nav-item .nav-icon { width: 18px; height: 18px; opacity: 0.5; flex-shrink: 0; transition: opacity 0.15s; }
+      .nav-item .nav-icon { width: 18px; height: 18px; opacity: 0.5; flex-shrink: 0; transition: opacity 0.2s ease; }
       .nav-item:hover .nav-icon { opacity: 0.8; }
       .nav-item.active .nav-icon { opacity: 1; }
+
+      /* ── Nav Divider ── */
+      .nav-divider {
+        height: 1px; margin: 0.5rem 1.5rem;
+        background: var(--color-border-sidebar);
+        opacity: 0.5;
+      }
 
       .sidebar-bottom { padding: 1rem 1.5rem; border-top: 1px solid var(--color-border-sidebar); }
       .sidebar-bottom a {
@@ -246,7 +257,7 @@
       }
       .card:hover { box-shadow: var(--shadow-card-hover); }
       .card-title { font-size: 1rem; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.375rem; }
-      .card-desc { font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 1.25rem; line-height: 1.5; }
+      .card-desc { font-size: 0.8125rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; line-height: 1.5; }
 
       /* ── Form Field (floating label on border) ── */
       .field { position: relative; margin-bottom: 1.5rem; }
@@ -366,14 +377,14 @@
       /* ── Save Row ── */
       .save-row {
         display: flex; align-items: center; gap: 1rem;
-        margin-top: 0.75rem; padding-top: 1.25rem;
+        margin-top: 1.5rem; padding-top: 1.5rem;
         border-top: 1px solid var(--color-border);
       }
       .save-status { font-size: 0.8125rem; color: var(--color-text-secondary); }
 
       /* ── Responsive: Tablet & Mobile (<768px) ── */
       @media (max-width: 768px) {
-        .hamburger { display: block; }
+        .hamburger { display: flex; align-items: center; justify-content: center; }
 
         .top-header { left: 0; padding: 0 1rem; }
 
@@ -383,7 +394,21 @@
           top: var(--header-height);
           z-index: 300;
         }
+        /* CSS-only checkbox hack: show sidebar when toggle is checked */
+        .mobile-nav-toggle:checked ~ .sidebar,
         .sidebar.open { transform: translateX(0); }
+
+        /* Overlay via checkbox hack */
+        .mobile-nav-toggle:checked ~ .sidebar::after {
+          content: '';
+          position: fixed;
+          top: var(--header-height); left: var(--sidebar-width); right: 0; bottom: 0;
+          background: rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(2px);
+          z-index: 1;
+        }
+
+        /* Sidebar open indicator - uncheck closes via overlay click handled by JS */
 
         .main-content {
           margin-left: 0 !important;
@@ -425,7 +450,7 @@
     <!-- ── Top Header Bar ── -->
     <div id="top-header" class="top-header hidden">
       <div class="top-header-left">
-        <button class="hamburger" id="hamburger-btn">&#9776;</button>
+        <label class="hamburger" id="hamburger-btn" for="mobile-nav-toggle">&#9776;</label>
         <div class="logo">☁ Yarın <span>Hava</span> Admin</div>
       </div>
       <div class="top-header-right" id="header-user"></div>
@@ -436,6 +461,9 @@
 
     <!-- ── Admin Shell ── -->
     <div id="admin-shell" class="admin-shell hidden">
+
+      <!-- CSS-only mobile nav toggle (checkbox hack) -->
+      <input type="checkbox" id="mobile-nav-toggle" class="mobile-nav-toggle" />
 
       <!-- ── Left Sidebar (250px, dark) ── -->
       <aside class="sidebar" id="sidebar" style="width:250px;">
@@ -455,10 +483,12 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
             Auth
           </button>
+          <div class="nav-divider"></div>
           <button class="nav-item" data-tab="build">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
             Build
           </button>
+          <div class="nav-divider"></div>
           <button class="nav-item" data-tab="seo">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
             Routing
