@@ -1,5 +1,5 @@
 ---
-// Admin panel - no server-side data exposed, everything loaded client-side after auth
+// Admin panel - sidebar layout, client-side only after auth
 ---
 
 <!doctype html>
@@ -15,15 +15,42 @@
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
-      .container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
-      .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
-      .header h1 { font-size: 1.5rem; font-weight: 700; }
-      .header a { color: #60a5fa; text-decoration: none; font-size: 0.875rem; }
+      .hidden { display: none !important; }
+
+      /* Login */
       .login-section { text-align: center; padding: 6rem 1rem; }
       .login-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; color: white; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background 0.2s; text-decoration: none; }
       .login-btn:hover { background: #334155; }
       .login-btn svg { width: 20px; height: 20px; }
-      .hidden { display: none !important; }
+
+      /* Admin layout */
+      .admin-layout { display: flex; min-height: 100vh; }
+
+      /* Sidebar */
+      .sidebar { width: 240px; background: #1e293b; border-right: 1px solid #334155; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+      .sidebar-header { padding: 1.5rem 1.25rem 1rem; border-bottom: 1px solid #334155; }
+      .sidebar-header h1 { font-size: 1.125rem; font-weight: 700; }
+      .sidebar-subtitle { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+      .sidebar-user { padding: 1rem 1.25rem; border-bottom: 1px solid #334155; }
+      .sidebar-user .user-info { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+      .sidebar-user img { width: 28px; height: 28px; border-radius: 50%; }
+      .sidebar-user .username { font-size: 0.8rem; font-weight: 500; }
+      .sidebar-user .badge { font-size: 0.65rem; background: #064e3b; color: #34d399; padding: 0.125rem 0.375rem; border-radius: 0.25rem; }
+      .logout-btn { font-size: 0.7rem; color: #ef4444; cursor: pointer; background: none; border: none; padding: 0; }
+      .sidebar-nav { flex: 1; padding: 0.75rem 0; overflow-y: auto; }
+      .nav-item { display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.625rem 1.25rem; background: none; border: none; border-left: 3px solid transparent; color: #94a3b8; font-size: 0.8rem; cursor: pointer; text-align: left; transition: all 0.15s; font-family: inherit; }
+      .nav-item:hover { background: rgba(255,255,255,0.04); color: #e2e8f0; }
+      .nav-item.active { border-left-color: #3b82f6; background: rgba(59,130,246,0.08); color: #e2e8f0; font-weight: 500; }
+      .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid #334155; }
+      .sidebar-footer a { color: #60a5fa; text-decoration: none; font-size: 0.8rem; }
+
+      /* Main content */
+      .main-content { flex: 1; margin-left: 240px; padding: 2rem; min-height: 100vh; }
+      .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; }
+      .tab-panel { display: none; }
+      .tab-panel.active { display: block; }
+
+      /* Shared components */
       .section { background: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; }
       .section h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
       .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
@@ -31,11 +58,7 @@
       .stat-card .label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem; }
       .stat-card .value { font-size: 1.5rem; font-weight: 700; }
       .stat-card .sub { font-size: 0.65rem; color: #64748b; margin-top: 0.25rem; }
-      .log-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #334155; font-size: 0.75rem; }
-      .log-item:last-child { border-bottom: none; }
-      .log-item .time { color: #64748b; }
-      .log-item .action { color: #94a3b8; }
-      .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
+      .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-size: 0.875rem; font-weight: 500; cursor: pointer; font-family: inherit; }
       .btn-primary { background: #3b82f6; color: white; }
       .btn-primary:hover { background: #2563eb; }
       .btn-success { background: #059669; color: white; }
@@ -47,12 +70,9 @@
       .status-ok { background: #064e3b; color: #34d399; }
       .status-warn { background: #78350f; color: #fbbf24; }
       .status-error { background: #7f1d1d; color: #fca5a5; }
-      .user-info { display: flex; align-items: center; gap: 0.75rem; }
-      .user-info img { width: 32px; height: 32px; border-radius: 50%; }
-      .logout-btn { font-size: 0.75rem; color: #ef4444; cursor: pointer; background: none; border: none; }
       .form-group { margin-bottom: 1rem; }
       .form-group label { display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem; }
-      .form-group input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.875rem; }
+      .form-group input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.875rem; font-family: inherit; }
       .form-group input:focus { outline: none; border-color: #3b82f6; }
       .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
       .form-group .hint { font-size: 0.65rem; color: #64748b; margin-top: 0.25rem; }
@@ -74,31 +94,73 @@
       .build-run .run-info { flex: 1; }
       .build-run .run-time { color: #64748b; }
       @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-      @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+
+      /* Mobile header */
+      .mobile-header { display: none; position: fixed; top: 0; left: 0; right: 0; height: 48px; background: #1e293b; border-bottom: 1px solid #334155; align-items: center; padding: 0 1rem; z-index: 101; gap: 0.75rem; }
+      .mobile-header span { font-size: 0.9rem; font-weight: 600; }
+      .hamburger-btn { background: none; border: none; color: #e2e8f0; font-size: 1.25rem; cursor: pointer; padding: 0.25rem; }
+      .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+
+      @media (max-width: 768px) {
+        .mobile-header:not(.hidden) { display: flex; }
+        .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-overlay.open { display: block; }
+        .main-content { margin-left: 0; padding: 1rem; padding-top: 64px; }
+        .form-row { grid-template-columns: 1fr; }
+      }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h1>Yarın Hava Admin</h1>
-        <a href="/">← Siteye Dön</a>
-      </div>
+    <!-- Login -->
+    <div id="login-section" class="login-section">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5" style="margin: 0 auto 1rem;">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+      </svg>
+      <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Admin Paneli</h2>
+      <p style="color: #94a3b8; margin-bottom: 2rem; font-size: 0.875rem;">Devam etmek için GitHub hesabınızla giriş yapın</p>
+      <a id="github-login-btn" class="login-btn" href="#">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub ile Giriş Yap
+      </a>
+    </div>
 
-      <!-- Login -->
-      <div id="login-section" class="login-section">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5" style="margin: 0 auto 1rem;">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-        </svg>
-        <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Admin Paneli</h2>
-        <p style="color: #94a3b8; margin-bottom: 2rem; font-size: 0.875rem;">Devam etmek için GitHub hesabınızla giriş yapın</p>
-        <a id="github-login-btn" class="login-btn" href="#">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          GitHub ile Giriş Yap
-        </a>
-      </div>
+    <!-- Mobile header -->
+    <div id="mobile-header" class="mobile-header hidden">
+      <button class="hamburger-btn" id="hamburger-btn">&#9776;</button>
+      <span>Yarın Hava Admin</span>
+    </div>
 
-      <!-- Admin Content - rendered by JS only after auth -->
-      <div id="admin-content" class="hidden"></div>
+    <!-- Sidebar overlay for mobile -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Admin layout - shown after auth -->
+    <div id="admin-layout" class="admin-layout hidden">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h1>Yarın Hava</h1>
+          <div class="sidebar-subtitle">Admin Panel</div>
+        </div>
+        <div class="sidebar-user" id="sidebar-user"></div>
+        <nav class="sidebar-nav" id="sidebar-nav">
+          <button class="nav-item active" data-tab="dashboard">&#128202; Genel Bakış</button>
+          <button class="nav-item" data-tab="build">&#128296; Build Yönetimi</button>
+          <button class="nav-item" data-tab="analytics">&#128200; Analitik</button>
+          <button class="nav-item" data-tab="search">&#128269; Arama Motoru</button>
+          <button class="nav-item" data-tab="ads">&#128226; Reklamlar</button>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="/">&#8592; Siteye Dön</a>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div id="panel-dashboard" class="tab-panel active"></div>
+        <div id="panel-build" class="tab-panel"></div>
+        <div id="panel-analytics" class="tab-panel"></div>
+        <div id="panel-search" class="tab-panel"></div>
+        <div id="panel-ads" class="tab-panel"></div>
+      </main>
     </div>
 
     <script is:inline>
@@ -117,35 +179,6 @@
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
-      }
-
-      function checkAuth() {
-        const token = sessionStorage.getItem(TOKEN_KEY);
-        if (token) validateToken(token);
-      }
-
-      async function validateToken(token) {
-        if (!token || token.length < 10) {
-          sessionStorage.removeItem(TOKEN_KEY);
-          return;
-        }
-        try {
-          const res = await fetch('https://api.github.com/user', {
-            headers: { 'Authorization': 'token ' + token }
-          });
-          if (res.ok) {
-            const user = await res.json();
-            if (ADMIN_USERS.includes(user.login)) {
-              currentToken = token;
-              showAdmin(user);
-              return;
-            }
-            alert('Bu GitHub hesabının admin yetkisi bulunmamaktadır.');
-          }
-          sessionStorage.removeItem(TOKEN_KEY);
-        } catch {
-          sessionStorage.removeItem(TOKEN_KEY);
-        }
       }
 
       async function ghApi(path, options = {}) {
@@ -204,51 +237,120 @@
         return group;
       }
 
+      function checkAuth() {
+        const token = sessionStorage.getItem(TOKEN_KEY);
+        if (token) validateToken(token);
+      }
+
+      async function validateToken(token) {
+        if (!token || token.length < 10) {
+          sessionStorage.removeItem(TOKEN_KEY);
+          return;
+        }
+        try {
+          const res = await fetch('https://api.github.com/user', {
+            headers: { 'Authorization': 'token ' + token }
+          });
+          if (res.ok) {
+            const user = await res.json();
+            if (ADMIN_USERS.includes(user.login)) {
+              currentToken = token;
+              showAdmin(user);
+              return;
+            }
+            alert('Bu GitHub hesabının admin yetkisi bulunmamaktadır.');
+          }
+          sessionStorage.removeItem(TOKEN_KEY);
+        } catch {
+          sessionStorage.removeItem(TOKEN_KEY);
+        }
+      }
+
+      // Tab switching
+      function switchTab(tabId) {
+        document.querySelectorAll('.nav-item').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.tab === tabId);
+        });
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+          panel.classList.toggle('active', panel.id === 'panel-' + tabId);
+        });
+        // Close mobile sidebar
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('open');
+      }
+
       function showAdmin(user) {
         document.getElementById('login-section').classList.add('hidden');
-        const content = document.getElementById('admin-content');
-        content.classList.remove('hidden');
-        content.replaceChildren();
+        document.getElementById('admin-layout').classList.remove('hidden');
+        document.getElementById('mobile-header').classList.remove('hidden');
 
-        // User info section
-        const userSection = document.createElement('div');
-        userSection.className = 'section';
-        userSection.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
-
-        const userInfo = document.createElement('div');
-        userInfo.className = 'user-info';
+        // Sidebar user info
+        const userEl = document.getElementById('sidebar-user');
+        userEl.innerHTML = '';
+        const info = document.createElement('div');
+        info.className = 'user-info';
         const avatar = document.createElement('img');
         avatar.src = user.avatar_url;
         avatar.alt = sanitizeText(user.login);
-        avatar.width = 32;
-        avatar.height = 32;
-        const username = document.createElement('span');
-        username.textContent = user.login;
+        const uname = document.createElement('span');
+        uname.className = 'username';
+        uname.textContent = user.login;
         const badge = document.createElement('span');
-        badge.className = 'status status-ok';
+        badge.className = 'badge';
         badge.textContent = 'Admin';
-        userInfo.appendChild(avatar);
-        userInfo.appendChild(username);
-        userInfo.appendChild(badge);
-
+        info.appendChild(avatar);
+        info.appendChild(uname);
+        info.appendChild(badge);
+        userEl.appendChild(info);
         const logoutBtn = document.createElement('button');
         logoutBtn.className = 'logout-btn';
         logoutBtn.textContent = 'Çıkış Yap';
-        logoutBtn.addEventListener('click', () => {
-          sessionStorage.removeItem(TOKEN_KEY);
-          location.reload();
+        logoutBtn.addEventListener('click', () => { sessionStorage.removeItem(TOKEN_KEY); location.reload(); });
+        userEl.appendChild(logoutBtn);
+
+        // Nav events
+        document.querySelectorAll('.nav-item').forEach(btn => {
+          btn.addEventListener('click', () => switchTab(btn.dataset.tab));
         });
 
-        userSection.appendChild(userInfo);
-        userSection.appendChild(logoutBtn);
+        // Mobile hamburger
+        document.getElementById('hamburger-btn').addEventListener('click', () => {
+          document.getElementById('sidebar').classList.toggle('open');
+          document.getElementById('sidebar-overlay').classList.toggle('open');
+        });
+        document.getElementById('sidebar-overlay').addEventListener('click', () => {
+          document.getElementById('sidebar').classList.remove('open');
+          document.getElementById('sidebar-overlay').classList.remove('open');
+        });
 
-        // Stats grid
+        // Render all panels
+        renderDashboardPanel();
+        renderBuildPanel();
+        renderAnalyticsPanel();
+        renderSearchPanel();
+        renderAdsPanel();
+
+        // Load data
+        loadStats();
+        checkAPI();
+        loadBuildRuns();
+        loadConfig();
+      }
+
+      function renderDashboardPanel() {
+        const panel = document.getElementById('panel-dashboard');
+        panel.innerHTML = '';
+        const title = document.createElement('h2');
+        title.className = 'panel-title';
+        title.textContent = 'Genel Bakış';
+        panel.appendChild(title);
+
         const statsGrid = document.createElement('div');
         statsGrid.className = 'stats';
         statsGrid.id = 'stats-grid';
         statsGrid.appendChild(createStatCard('Yükleniyor...', '-'));
+        panel.appendChild(statsGrid);
 
-        // API status section
         const apiSection = document.createElement('div');
         apiSection.className = 'section';
         const apiTitle = document.createElement('h2');
@@ -261,27 +363,34 @@
         apiStatus.id = 'api-status';
         apiStatus.className = 'status status-warn';
         apiStatus.textContent = 'Kontrol ediliyor...';
-        const checkApiBtn = document.createElement('button');
-        checkApiBtn.className = 'btn btn-primary';
-        checkApiBtn.style.marginLeft = 'auto';
-        checkApiBtn.textContent = 'Kontrol Et';
-        checkApiBtn.addEventListener('click', checkAPI);
+        const checkBtn = document.createElement('button');
+        checkBtn.className = 'btn btn-primary';
+        checkBtn.style.marginLeft = 'auto';
+        checkBtn.textContent = 'Kontrol Et';
+        checkBtn.addEventListener('click', checkAPI);
         apiRow.appendChild(apiLabel);
         apiRow.appendChild(apiStatus);
-        apiRow.appendChild(checkApiBtn);
+        apiRow.appendChild(checkBtn);
         apiSection.appendChild(apiTitle);
         apiSection.appendChild(apiRow);
+        panel.appendChild(apiSection);
+      }
 
-        // Build section (GitHub Actions)
-        const buildSection = document.createElement('div');
-        buildSection.className = 'section';
-        const buildTitle = document.createElement('h2');
-        buildTitle.textContent = 'Build Yönetimi (GitHub Actions)';
-        const buildDesc = document.createElement('p');
-        buildDesc.style.cssText = 'font-size:0.875rem;color:#94a3b8;margin-bottom:1rem;';
-        buildDesc.textContent = 'Otomatik: Her gün 06:00 ve 20:00 (TR). Manuel tetikleme için aşağıdaki butonu kullanın.';
-        const buildBtnRow = document.createElement('div');
-        buildBtnRow.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;';
+      function renderBuildPanel() {
+        const panel = document.getElementById('panel-build');
+        panel.innerHTML = '';
+        const title = document.createElement('h2');
+        title.className = 'panel-title';
+        title.textContent = 'Build Yönetimi';
+        panel.appendChild(title);
+
+        const section = document.createElement('div');
+        section.className = 'section';
+        const desc = document.createElement('p');
+        desc.style.cssText = 'font-size:0.875rem;color:#94a3b8;margin-bottom:1rem;';
+        desc.textContent = 'Otomatik: Her gün 06:00 ve 20:00 (TR). Manuel tetikleme için aşağıdaki butonu kullanın.';
+        const btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;';
         const triggerBtn = document.createElement('button');
         triggerBtn.className = 'btn btn-primary';
         triggerBtn.id = 'trigger-build-btn';
@@ -290,63 +399,140 @@
         const buildStatus = document.createElement('span');
         buildStatus.id = 'build-status';
         buildStatus.style.cssText = 'font-size:0.75rem;color:#94a3b8;';
-        buildBtnRow.appendChild(triggerBtn);
-        buildBtnRow.appendChild(buildStatus);
-        buildSection.appendChild(buildTitle);
-        buildSection.appendChild(buildDesc);
-        buildSection.appendChild(buildBtnRow);
+        btnRow.appendChild(triggerBtn);
+        btnRow.appendChild(buildStatus);
+        section.appendChild(desc);
+        section.appendChild(btnRow);
 
-        // Recent runs
         const runsTitle = document.createElement('h3');
         runsTitle.style.cssText = 'font-size:0.875rem;font-weight:600;margin-top:1.25rem;margin-bottom:0.75rem;';
-        runsTitle.textContent = 'Son Build\'ler';
+        runsTitle.textContent = "Son Build'ler";
         const runsContainer = document.createElement('div');
         runsContainer.className = 'build-runs';
         runsContainer.id = 'build-runs';
         runsContainer.textContent = 'Yükleniyor...';
-        buildSection.appendChild(runsTitle);
-        buildSection.appendChild(runsContainer);
+        section.appendChild(runsTitle);
+        section.appendChild(runsContainer);
+        panel.appendChild(section);
+      }
 
-        // Config section
-        const configSection = document.createElement('div');
-        configSection.className = 'section';
-        configSection.id = 'config-section';
-        const configTitle = document.createElement('h2');
-        configTitle.textContent = 'Site Ayarları';
-        const configDesc = document.createElement('p');
-        configDesc.style.cssText = 'font-size:0.875rem;color:#94a3b8;margin-bottom:1rem;';
-        configDesc.textContent = 'Değişiklikler GitHub\'a kaydedilir. Yeni build sonrası aktif olur.';
-        const configForm = document.createElement('div');
-        configForm.id = 'config-form';
-        configForm.textContent = 'Ayarlar yükleniyor...';
-        const configBtnRow = document.createElement('div');
-        configBtnRow.style.cssText = 'display:flex;gap:0.5rem;align-items:center;margin-top:1rem;';
-        const saveConfigBtn = document.createElement('button');
-        saveConfigBtn.className = 'btn btn-success';
-        saveConfigBtn.id = 'save-config-btn';
-        saveConfigBtn.textContent = 'Kaydet & Build Tetikle';
-        saveConfigBtn.addEventListener('click', saveConfig);
-        const configStatus = document.createElement('span');
-        configStatus.id = 'config-status';
-        configStatus.style.cssText = 'font-size:0.75rem;color:#94a3b8;';
-        configBtnRow.appendChild(saveConfigBtn);
-        configBtnRow.appendChild(configStatus);
-        configSection.appendChild(configTitle);
-        configSection.appendChild(configDesc);
-        configSection.appendChild(configForm);
-        configSection.appendChild(configBtnRow);
+      function renderAnalyticsPanel() {
+        const panel = document.getElementById('panel-analytics');
+        panel.innerHTML = '';
+        const title = document.createElement('h2');
+        title.className = 'panel-title';
+        title.textContent = 'Analitik';
+        panel.appendChild(title);
 
-        // Assemble
-        content.appendChild(userSection);
-        content.appendChild(statsGrid);
-        content.appendChild(apiSection);
-        content.appendChild(buildSection);
-        content.appendChild(configSection);
+        const section = document.createElement('div');
+        section.className = 'section';
+        const row = document.createElement('div');
+        row.className = 'form-row';
+        row.appendChild(createFormGroup('Google Analytics ID', 'cfg-ga', '', 'Örn: G-XXXXXXXXXX'));
+        row.appendChild(createFormGroup('Yandex Metrica ID', 'cfg-ym', '', 'Örn: 12345678'));
+        section.appendChild(row);
 
-        loadStats();
-        checkAPI();
-        loadBuildRuns();
-        loadConfig();
+        const btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:0.5rem;align-items:center;margin-top:1rem;';
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'btn btn-success';
+        saveBtn.textContent = 'Kaydet & Build Tetikle';
+        saveBtn.addEventListener('click', () => saveConfig('analytics-status'));
+        const status = document.createElement('span');
+        status.id = 'analytics-status';
+        status.style.cssText = 'font-size:0.75rem;color:#94a3b8;';
+        btnRow.appendChild(saveBtn);
+        btnRow.appendChild(status);
+        section.appendChild(btnRow);
+        panel.appendChild(section);
+      }
+
+      function renderSearchPanel() {
+        const panel = document.getElementById('panel-search');
+        panel.innerHTML = '';
+        const title = document.createElement('h2');
+        title.className = 'panel-title';
+        title.textContent = 'Arama Motoru Doğrulama';
+        panel.appendChild(title);
+
+        const section = document.createElement('div');
+        section.className = 'section';
+        section.appendChild(createFormGroup('Google Search Console', 'cfg-vg', '', 'meta tag content değeri'));
+        const row = document.createElement('div');
+        row.className = 'form-row';
+        row.appendChild(createFormGroup('Yandex Webmaster', 'cfg-vy', '', 'meta tag content değeri'));
+        row.appendChild(createFormGroup('Bing Webmaster', 'cfg-vb', '', 'meta tag content değeri'));
+        section.appendChild(row);
+
+        const btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:0.5rem;align-items:center;margin-top:1rem;';
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'btn btn-success';
+        saveBtn.textContent = 'Kaydet & Build Tetikle';
+        saveBtn.addEventListener('click', () => saveConfig('search-status'));
+        const status = document.createElement('span');
+        status.id = 'search-status';
+        status.style.cssText = 'font-size:0.75rem;color:#94a3b8;';
+        btnRow.appendChild(saveBtn);
+        btnRow.appendChild(status);
+        section.appendChild(btnRow);
+        panel.appendChild(section);
+      }
+
+      function renderAdsPanel() {
+        const panel = document.getElementById('panel-ads');
+        panel.innerHTML = '';
+        const title = document.createElement('h2');
+        title.className = 'panel-title';
+        title.textContent = 'Reklamlar';
+        panel.appendChild(title);
+
+        const section = document.createElement('div');
+        section.className = 'section';
+
+        const toggleRow = document.createElement('div');
+        toggleRow.className = 'toggle-row';
+        const toggleLabel = document.createElement('span');
+        toggleLabel.style.cssText = 'font-size:0.875rem;';
+        toggleLabel.textContent = 'Reklamlar aktif';
+        const toggle = document.createElement('label');
+        toggle.className = 'toggle';
+        const toggleInput = document.createElement('input');
+        toggleInput.type = 'checkbox';
+        toggleInput.id = 'cfg-ads-enabled';
+        const slider = document.createElement('span');
+        slider.className = 'slider';
+        toggle.appendChild(toggleInput);
+        toggle.appendChild(slider);
+        toggleRow.appendChild(toggleLabel);
+        toggleRow.appendChild(toggle);
+        section.appendChild(toggleRow);
+
+        section.appendChild(createFormGroup('AdSense Publisher ID', 'cfg-ads-pub', '', 'Örn: ca-pub-1234567890'));
+        const slotRow1 = document.createElement('div');
+        slotRow1.className = 'form-row';
+        slotRow1.appendChild(createFormGroup('Header Slot', 'cfg-ads-header', '', 'Slot ID'));
+        slotRow1.appendChild(createFormGroup('Sidebar Slot', 'cfg-ads-sidebar', '', 'Slot ID'));
+        section.appendChild(slotRow1);
+        const slotRow2 = document.createElement('div');
+        slotRow2.className = 'form-row';
+        slotRow2.appendChild(createFormGroup('İçerik İçi Slot', 'cfg-ads-incontent', '', 'Slot ID'));
+        slotRow2.appendChild(createFormGroup('Footer Slot', 'cfg-ads-footer', '', 'Slot ID'));
+        section.appendChild(slotRow2);
+
+        const btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:0.5rem;align-items:center;margin-top:1rem;';
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'btn btn-success';
+        saveBtn.textContent = 'Kaydet & Build Tetikle';
+        saveBtn.addEventListener('click', () => saveConfig('ads-status'));
+        const status = document.createElement('span');
+        status.id = 'ads-status';
+        status.style.cssText = 'font-size:0.75rem;color:#94a3b8;';
+        btnRow.appendChild(saveBtn);
+        btnRow.appendChild(status);
+        section.appendChild(btnRow);
+        panel.appendChild(section);
       }
 
       async function loadStats() {
@@ -376,6 +562,7 @@
 
       async function checkAPI() {
         const el = document.getElementById('api-status');
+        if (!el) return;
         el.textContent = 'Kontrol ediliyor...';
         el.className = 'status status-warn';
         try {
@@ -417,6 +604,7 @@
 
       async function loadBuildRuns() {
         const container = document.getElementById('build-runs');
+        if (!container) return;
         try {
           const data = await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=5`);
           container.replaceChildren();
@@ -427,44 +615,30 @@
           data.workflow_runs.forEach(run => {
             const item = document.createElement('div');
             item.className = 'build-run';
-
             const dot = document.createElement('div');
             dot.className = 'run-status ' + (run.conclusion || run.status);
-
             const info = document.createElement('div');
             info.className = 'run-info';
-
             const link = document.createElement('a');
             link.href = run.html_url;
             link.target = '_blank';
             link.rel = 'noopener';
             link.style.cssText = 'color:#60a5fa;text-decoration:none;';
             link.textContent = '#' + run.run_number;
-
             const statusText = document.createElement('span');
             statusText.style.cssText = 'margin-left:0.5rem;color:#94a3b8;';
-            const statusMap = {
-              success: 'Başarılı',
-              failure: 'Başarısız',
-              cancelled: 'İptal',
-              in_progress: 'Devam ediyor',
-              queued: 'Kuyrukta'
-            };
+            const statusMap = { success: 'Başarılı', failure: 'Başarısız', cancelled: 'İptal', in_progress: 'Devam ediyor', queued: 'Kuyrukta' };
             statusText.textContent = statusMap[run.conclusion || run.status] || run.status;
-
             const trigger = document.createElement('span');
             trigger.style.cssText = 'margin-left:0.5rem;color:#64748b;';
             const triggerMap = { schedule: 'Otomatik', workflow_dispatch: 'Manuel', push: 'Push' };
             trigger.textContent = '(' + (triggerMap[run.event] || run.event) + ')';
-
             info.appendChild(link);
             info.appendChild(statusText);
             info.appendChild(trigger);
-
             const time = document.createElement('span');
             time.className = 'run-time';
             time.textContent = new Date(run.created_at).toLocaleString('tr-TR');
-
             item.appendChild(dot);
             item.appendChild(info);
             item.appendChild(time);
@@ -476,81 +650,30 @@
       }
 
       async function loadConfig() {
-        const form = document.getElementById('config-form');
         try {
           const data = await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}`);
           currentConfig = JSON.parse(atob(data.content));
           currentConfigSha = data.sha;
-          renderConfigForm(form, currentConfig);
+          populateConfigFields(currentConfig);
         } catch (err) {
-          form.textContent = 'Ayarlar yüklenemedi: ' + err.message;
+          console.error('Config yüklenemedi:', err.message);
         }
       }
 
-      function renderConfigForm(container, config) {
-        container.replaceChildren();
-
-        // Analytics
-        const analyticsTitle = document.createElement('h3');
-        analyticsTitle.style.cssText = 'font-size:0.875rem;font-weight:600;margin-bottom:0.75rem;color:#60a5fa;';
-        analyticsTitle.textContent = 'Analitik';
-        container.appendChild(analyticsTitle);
-
-        const analyticsRow = document.createElement('div');
-        analyticsRow.className = 'form-row';
-        analyticsRow.appendChild(createFormGroup('Google Analytics ID', 'cfg-ga', config.analytics.googleAnalyticsId, 'Örn: G-XXXXXXXXXX'));
-        analyticsRow.appendChild(createFormGroup('Yandex Metrica ID', 'cfg-ym', config.analytics.yandexMetricaId, 'Örn: 12345678'));
-        container.appendChild(analyticsRow);
-
-        // Verification
-        const verTitle = document.createElement('h3');
-        verTitle.style.cssText = 'font-size:0.875rem;font-weight:600;margin-top:1.25rem;margin-bottom:0.75rem;color:#60a5fa;';
-        verTitle.textContent = 'Arama Motoru Doğrulama';
-        container.appendChild(verTitle);
-
-        container.appendChild(createFormGroup('Google Search Console', 'cfg-vg', config.verification.google, 'meta tag content değeri'));
-        const verRow = document.createElement('div');
-        verRow.className = 'form-row';
-        verRow.appendChild(createFormGroup('Yandex Webmaster', 'cfg-vy', config.verification.yandex, 'meta tag content değeri'));
-        verRow.appendChild(createFormGroup('Bing Webmaster', 'cfg-vb', config.verification.bing, 'meta tag content değeri'));
-        container.appendChild(verRow);
-
-        // Ads
-        const adsTitle = document.createElement('h3');
-        adsTitle.style.cssText = 'font-size:0.875rem;font-weight:600;margin-top:1.25rem;margin-bottom:0.75rem;color:#60a5fa;';
-        adsTitle.textContent = 'Reklamlar';
-        container.appendChild(adsTitle);
-
-        const toggleRow = document.createElement('div');
-        toggleRow.className = 'toggle-row';
-        const toggleLabel = document.createElement('span');
-        toggleLabel.style.cssText = 'font-size:0.875rem;';
-        toggleLabel.textContent = 'Reklamlar aktif';
-        const toggle = document.createElement('label');
-        toggle.className = 'toggle';
-        const toggleInput = document.createElement('input');
-        toggleInput.type = 'checkbox';
-        toggleInput.id = 'cfg-ads-enabled';
-        toggleInput.checked = config.ads.enabled;
-        const slider = document.createElement('span');
-        slider.className = 'slider';
-        toggle.appendChild(toggleInput);
-        toggle.appendChild(slider);
-        toggleRow.appendChild(toggleLabel);
-        toggleRow.appendChild(toggle);
-        container.appendChild(toggleRow);
-
-        container.appendChild(createFormGroup('AdSense Publisher ID', 'cfg-ads-pub', config.ads.adsensePublisherId, 'Örn: ca-pub-1234567890'));
-        const slotRow1 = document.createElement('div');
-        slotRow1.className = 'form-row';
-        slotRow1.appendChild(createFormGroup('Header Slot', 'cfg-ads-header', config.ads.adsenseSlots?.header, 'Slot ID'));
-        slotRow1.appendChild(createFormGroup('Sidebar Slot', 'cfg-ads-sidebar', config.ads.adsenseSlots?.sidebar, 'Slot ID'));
-        container.appendChild(slotRow1);
-        const slotRow2 = document.createElement('div');
-        slotRow2.className = 'form-row';
-        slotRow2.appendChild(createFormGroup('İçerik İçi Slot', 'cfg-ads-incontent', config.ads.adsenseSlots?.inContent, 'Slot ID'));
-        slotRow2.appendChild(createFormGroup('Footer Slot', 'cfg-ads-footer', config.ads.adsenseSlots?.footer, 'Slot ID'));
-        container.appendChild(slotRow2);
+      function populateConfigFields(config) {
+        const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+        const setChecked = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+        setVal('cfg-ga', config.analytics?.googleAnalyticsId);
+        setVal('cfg-ym', config.analytics?.yandexMetricaId);
+        setVal('cfg-vg', config.verification?.google);
+        setVal('cfg-vy', config.verification?.yandex);
+        setVal('cfg-vb', config.verification?.bing);
+        setChecked('cfg-ads-enabled', config.ads?.enabled);
+        setVal('cfg-ads-pub', config.ads?.adsensePublisherId);
+        setVal('cfg-ads-header', config.ads?.adsenseSlots?.header);
+        setVal('cfg-ads-sidebar', config.ads?.adsenseSlots?.sidebar);
+        setVal('cfg-ads-incontent', config.ads?.adsenseSlots?.inContent);
+        setVal('cfg-ads-footer', config.ads?.adsenseSlots?.footer);
       }
 
       function collectConfig() {
@@ -578,17 +701,15 @@
         };
       }
 
-      async function saveConfig() {
-        const btn = document.getElementById('save-config-btn');
-        const el = document.getElementById('config-status');
-        btn.disabled = true;
-        el.textContent = 'Kaydediliyor...';
-        el.style.color = '#94a3b8';
-
+      async function saveConfig(statusElId) {
+        const statusEl = document.getElementById(statusElId || 'config-status');
+        if (statusEl) {
+          statusEl.textContent = 'Kaydediliyor...';
+          statusEl.style.color = '#94a3b8';
+        }
         try {
           const newConfig = collectConfig();
           const content = btoa(unescape(encodeURIComponent(JSON.stringify(newConfig, null, 2) + '\n')));
-
           const result = await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}`, {
             method: 'PUT',
             body: JSON.stringify({
@@ -599,60 +720,46 @@
           });
           currentConfigSha = result.content.sha;
           currentConfig = newConfig;
-
-          // Trigger build
           try {
             await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
               method: 'POST',
               body: JSON.stringify({ ref: 'main' })
             });
-            el.textContent = 'Kaydedildi ve build tetiklendi!';
-            el.style.color = '#34d399';
+            if (statusEl) { statusEl.textContent = 'Kaydedildi ve build tetiklendi!'; statusEl.style.color = '#34d399'; }
             setTimeout(() => loadBuildRuns(), 3000);
           } catch {
-            el.textContent = 'Kaydedildi ama build tetiklenemedi. Manuel tetikleyin.';
-            el.style.color = '#fbbf24';
+            if (statusEl) { statusEl.textContent = 'Kaydedildi ama build tetiklenemedi.'; statusEl.style.color = '#fbbf24'; }
           }
         } catch (err) {
-          el.textContent = 'Kayıt hatası: ' + err.message;
-          el.style.color = '#fca5a5';
+          if (statusEl) { statusEl.textContent = 'Kayıt hatası: ' + err.message; statusEl.style.color = '#fca5a5'; }
         }
-        btn.disabled = false;
       }
 
-      // GitHub login - using personal access token with masked input
+      // Login modal
       document.getElementById('github-login-btn').addEventListener('click', (e) => {
         e.preventDefault();
-
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;';
-
         const modal = document.createElement('div');
         modal.style.cssText = 'background:#1e293b;border:1px solid #334155;border-radius:1rem;padding:2rem;max-width:480px;width:90%;';
-
         const title = document.createElement('h3');
         title.style.cssText = 'margin-bottom:0.75rem;font-size:1rem;';
         title.textContent = 'GitHub Personal Access Token';
-
         const desc = document.createElement('p');
         desc.style.cssText = 'font-size:0.8rem;color:#94a3b8;margin-bottom:1rem;line-height:1.5;';
         desc.textContent = 'GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token. Gerekli izinler: Contents (read/write), Actions (read/write), Metadata (read).';
-
         const input = document.createElement('input');
         input.type = 'password';
         input.placeholder = 'github_pat_...';
         input.autocomplete = 'off';
-        input.style.cssText = 'width:100%;padding:0.5rem 0.75rem;border-radius:0.5rem;border:1px solid #334155;background:#0f172a;color:white;font-size:0.875rem;margin-bottom:1rem;';
-
+        input.style.cssText = 'width:100%;padding:0.5rem 0.75rem;border-radius:0.5rem;border:1px solid #334155;background:#0f172a;color:white;font-size:0.875rem;margin-bottom:1rem;font-family:inherit;';
         const btnRow = document.createElement('div');
         btnRow.style.cssText = 'display:flex;gap:0.5rem;justify-content:flex-end;';
-
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'btn';
         cancelBtn.style.cssText = 'background:#334155;color:white;';
         cancelBtn.textContent = 'İptal';
         cancelBtn.addEventListener('click', () => overlay.remove());
-
         const okBtn = document.createElement('button');
         okBtn.className = 'btn btn-primary';
         okBtn.textContent = 'Giriş Yap';
@@ -664,12 +771,10 @@
           }
           overlay.remove();
         });
-
         input.addEventListener('keydown', (ev) => {
           if (ev.key === 'Enter') okBtn.click();
           if (ev.key === 'Escape') overlay.remove();
         });
-
         btnRow.appendChild(cancelBtn);
         btnRow.appendChild(okBtn);
         modal.appendChild(title);
