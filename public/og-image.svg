@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="sun-g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Accent bar top -->
+  <rect width="1200" height="4" fill="url(#accent)"/>
+  <!-- Weather illustration (scaled favicon elements) -->
+  <g transform="translate(750, 120) scale(3.5)">
+    <circle cx="33" cy="14" r="7" fill="url(#sun-g)"/>
+    <g stroke="#FBBF24" stroke-width="1.8" stroke-linecap="round" opacity="0.7">
+      <line x1="33" y1="4" x2="33" y2="5.5"/>
+      <line x1="40" y1="7" x2="39" y2="8.2"/>
+      <line x1="43" y1="14" x2="41.5" y2="14"/>
+      <line x1="26" y1="7" x2="27" y2="8.2"/>
+    </g>
+    <ellipse cx="18" cy="24" rx="10" ry="6.5" fill="white" opacity="0.15"/>
+    <ellipse cx="27" cy="22" rx="8" ry="6" fill="white" opacity="0.15"/>
+    <ellipse cx="12" cy="25" rx="6" ry="4.5" fill="white" opacity="0.12"/>
+    <circle cx="32" cy="34" r="1.2" fill="white" opacity="0.2"/>
+    <circle cx="36" cy="38" r="1" fill="white" opacity="0.15"/>
+    <circle cx="30" cy="40" r="1.1" fill="white" opacity="0.15"/>
+  </g>
+  <!-- Brand text -->
+  <text x="80" y="260" font-family="Inter, system-ui, sans-serif" font-size="72" font-weight="700" fill="#f1f5f9">
+    <tspan>Yarın</tspan>
+    <tspan fill="#3b82f6"> Hava</tspan>
+  </text>
+  <!-- Tagline -->
+  <text x="80" y="320" font-family="Inter, system-ui, sans-serif" font-size="28" fill="#94a3b8">
+    Türkiye Hava Durumu ve 15 Günlük Tahmin
+  </text>
+  <!-- Stats -->
+  <g transform="translate(80, 380)">
+    <rect width="200" height="80" rx="12" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+    <text x="100" y="35" font-family="Inter, sans-serif" font-size="28" font-weight="700" fill="#3b82f6" text-anchor="middle">81</text>
+    <text x="100" y="60" font-family="Inter, sans-serif" font-size="14" fill="#64748b" text-anchor="middle">Il</text>
+  </g>
+  <g transform="translate(300, 380)">
+    <rect width="200" height="80" rx="12" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+    <text x="100" y="35" font-family="Inter, sans-serif" font-size="28" font-weight="700" fill="#3b82f6" text-anchor="middle">1050+</text>
+    <text x="100" y="60" font-family="Inter, sans-serif" font-size="14" fill="#64748b" text-anchor="middle">Ilce</text>
+  </g>
+  <g transform="translate(520, 380)">
+    <rect width="200" height="80" rx="12" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+    <text x="100" y="35" font-family="Inter, sans-serif" font-size="28" font-weight="700" fill="#3b82f6" text-anchor="middle">15</text>
+    <text x="100" y="60" font-family="Inter, sans-serif" font-size="14" fill="#64748b" text-anchor="middle">Gunluk Tahmin</text>
+  </g>
+  <!-- Domain -->
+  <text x="80" y="560" font-family="Inter, system-ui, sans-serif" font-size="22" fill="#475569">yarinhava.com</text>
+  <!-- Bottom accent -->
+  <rect y="626" width="1200" height="4" fill="url(#accent)"/>
+</svg>
