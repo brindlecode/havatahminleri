@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yarinhava.com - Büyüme ve İyileştirme Planı</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #1e293b; line-height: 1.7; max-width: 800px; margin: 0 auto; padding: 3rem 2rem; }
+  @media print { body { padding: 1rem; font-size: 11px; line-height: 1.5; } h1 { font-size: 20px !important; } h2 { font-size: 16px !important; page-break-before: always; } h2:first-of-type { page-break-before: avoid; } h3 { font-size: 13px !important; } .no-print { display: none; } }
+
+  h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; color: #0f172a; }
+  .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 2rem; }
+  .date { color: #94a3b8; font-size: 0.75rem; }
+  h2 { font-size: 1.25rem; font-weight: 700; color: #1e40af; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #dbeafe; }
+  h3 { font-size: 1rem; font-weight: 600; color: #0f172a; margin: 1.5rem 0 0.5rem; }
+  p, li { font-size: 0.875rem; color: #334155; }
+  ul { padding-left: 1.25rem; margin-bottom: 1rem; }
+  li { margin-bottom: 0.375rem; }
+  strong { color: #0f172a; }
+  code { background: #f1f5f9; padding: 0.125rem 0.375rem; border-radius: 4px; font-size: 0.8rem; color: #475569; }
+  .context { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem; }
+  .context p { font-size: 0.8125rem; color: #475569; }
+  .priority-tag { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600; margin-left: 0.25rem; }
+  .p0 { background: #fef2f2; color: #dc2626; }
+  .p1 { background: #fff7ed; color: #ea580c; }
+  .p2 { background: #fefce8; color: #ca8a04; }
+  .p3 { background: #f0fdf4; color: #16a34a; }
+
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.8125rem; }
+  th { background: #1e293b; color: white; padding: 0.625rem 0.75rem; text-align: left; font-weight: 600; }
+  td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #e2e8f0; }
+  tr:nth-child(even) { background: #f8fafc; }
+
+  .section-divider { border: none; border-top: 1px solid #e2e8f0; margin: 2rem 0; }
+  .print-btn { position: fixed; bottom: 2rem; right: 2rem; background: #2563eb; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+  .print-btn:hover { background: #1d4ed8; }
+</style>
+</head>
+<body>
+
+<h1>yarinhava.com<br>Büyüme ve İyileştirme Planı</h1>
+<p class="subtitle">Trafik, Gelir ve Kullanıcı Deneyimi Stratejisi</p>
+<p class="date">Oluşturulma: 31 Mart 2026</p>
+
+<div class="context">
+  <p><strong>Site:</strong> yarinhava.com — ~48.000 statik sayfalık Türkiye hava durumu sitesi (Astro + Netlify + GitHub Actions)</p>
+  <p><strong>Güçlü yanlar:</strong> SEO altyapısı (JSON-LD, FAQ schema, sitemap, dinamik meta taglar), 81 il + 1050+ ilçe kapsamı, 6 dönem varyasyonu</p>
+  <p><strong>Eksikler:</strong> Analytics yok, AdSense kapalı, kullanıcı bağlılığı özellikleri eksik</p>
+  <p><strong>Hedef:</strong> Organik trafik → reklam geliri → sürdürülebilir büyüme</p>
+</div>
+
+<h2>A) HEMEN YAPILANLAR <span class="priority-tag p0">P0 — Bu Hafta</span></h2>
+<p>Kod değişikliği gerektirmez, admin panelinden yapılır:</p>
+
+<h3>1. Google Search Console Kaydı</h3>
+<ul>
+  <li><strong>Neden:</strong> Google siteyi indekslesin, sitemap'i tanısın. 48.000 sayfanın keşfi hızlansın.</li>
+  <li><strong>Nasıl:</strong> search.google.com/search-console → domain ekle → doğrulama kodunu admin <strong>Routing &gt; Google Search Console</strong> alanına yapıştır → sitemap submit et (<code>sitemap-index.xml</code>)</li>
+</ul>
+
+<h3>2. Yandex Webmaster Kaydı</h3>
+<ul>
+  <li><strong>Neden:</strong> Türkiye'de Yandex kullanımı var, ek trafik kaynağı</li>
+  <li><strong>Nasıl:</strong> webmaster.yandex.com → domain ekle → kodu admin <strong>Routing &gt; Yandex Webmaster</strong>'a gir</li>
+</ul>
+
+<h3>3. Bing Webmaster Kaydı</h3>
+<ul>
+  <li><strong>Neden:</strong> Bing + DuckDuckGo trafiği</li>
+  <li><strong>Nasıl:</strong> bing.com/webmasters → Google import veya manuel ekle → kodu admin <strong>Routing &gt; Bing Webmaster</strong>'a gir</li>
+</ul>
+
+<h3>4. Google Analytics 4 Kurulumu</h3>
+<ul>
+  <li><strong>Neden:</strong> Trafik takibi olmadan neyin işe yaradığını bilemezsiniz</li>
+  <li><strong>Nasıl:</strong> analytics.google.com → GA4 property oluştur → Measurement ID'yi admin <strong>Site Settings &gt; Google Analytics 4 ID</strong>'ye gir</li>
+</ul>
+
+<h3>5. Yandex Metrica Kurulumu</h3>
+<ul>
+  <li><strong>Neden:</strong> Heatmap, session recording, web visor (ücretsiz!) — GA'dan bile daha detaylı</li>
+  <li><strong>Nasıl:</strong> metrica.yandex.com → counter oluştur → ID'yi admin <strong>Site Settings &gt; Yandex Metrica ID</strong>'ye gir</li>
+</ul>
+
+<h3>6. AdSense Başvurusu</h3>
+<ul>
+  <li><strong>Neden:</strong> Para kazanma. 48.000 sayfa + hava durumu nişi = iyi RPM</li>
+  <li><strong>Nasıl:</strong> adsense.google.com → başvur → onaylanınca publisher ID + slot ID'leri admin'e gir</li>
+  <li><strong>Not:</strong> Onay 1-2 hafta sürebilir, hemen başvur</li>
+  <li><strong>Dikkat:</strong> Mevcut AdSlot.astro sadece boş div render ediyor — gerçek AdSense kodu eklenmesi gerekecek</li>
+  <li><strong>Başlangıç:</strong> Sayfa başı max 2-3 reklam. 11 slotun hepsini açma</li>
+</ul>
+
+<h3>6b. Build Sıklığını Artır (Günde 4x)</h3>
+<ul>
+  <li><strong>Neden:</strong> Hava verisi 12 saat eskiyebiliyor. Google'ın gördüğü değer bayat</li>
+  <li><strong>Nasıl:</strong> Workflow'a 2 cron daha ekle (12:00 + 16:00 TR saati)</li>
+  <li><strong>Maliyet:</strong> GitHub Actions free tier 2000dk/ay. 4 build × 15dk × 30gün = 1800dk → sınırın içinde</li>
+</ul>
+
+<hr class="section-divider">
+
+<h2>B) KISA VADELI KOD İYİLEŞTİRMELERİ <span class="priority-tag p1">P1 — 1-2 Hafta</span></h2>
+
+<h3>7. Kullanıcı Konumu Otomatik Algılama (Geolocation)</h3>
+<ul>
+  <li><strong>Neden:</strong> Ziyaretçi siteye girdiğinde kendi şehrinin havasını görsün → bounce rate düşer</li>
+  <li><strong>Nasıl:</strong> Browser Geolocation API → en yakın il/ilçe → banner göster (yönlendirme değil)</li>
+  <li><strong>Dosyalar:</strong> <code>src/pages/index.astro</code></li>
+</ul>
+
+<h3>8. Hava Kalitesi (AQI) Verisi Ekleme</h3>
+<ul>
+  <li><strong>Neden:</strong> Rakiplerden farklılaşma. Çoğu Türk hava sitesinde AQI yok. Yeni long-tail keywordler</li>
+  <li><strong>Nasıl:</strong> Open-Meteo Air Quality API (ücretsiz) — PM2.5, PM10, NO2, O3, European AQI</li>
+  <li><strong>SEO bonus:</strong> "İstanbul hava kalitesi", "Ankara PM2.5" gibi yeni aranabilir içerik</li>
+  <li><strong>Dosyalar:</strong> <code>src/lib/weather.ts</code>, yeni <code>AirQuality.astro</code> component</li>
+</ul>
+
+<h3>9. Sosyal Paylaşım Butonları</h3>
+<ul>
+  <li><strong>Neden:</strong> Ücretsiz trafik. WhatsApp Türkiye'de çok yaygın</li>
+  <li><strong>Nasıl:</strong> WhatsApp, Twitter/X, Facebook share linkleri (JS gerektirmez)</li>
+  <li><strong>Örnek:</strong> <code>whatsapp://send?text=İstanbul yarın 5°C! yarinhava.com/istanbul-hava-durumu</code></li>
+</ul>
+
+<h3>10. Favori Şehirler (localStorage)</h3>
+<ul>
+  <li><strong>Neden:</strong> Geri dönüş oranını artırır, kullanıcı deneyimini kişiselleştirir</li>
+  <li><strong>Nasıl:</strong> localStorage'da şehir listesi → homepage'de "Favorilerim" bölümü</li>
+  <li><strong>Maliyet:</strong> Sıfır (client-side)</li>
+</ul>
+
+<h3>11. Reklam Yerleşimi Optimizasyonu</h3>
+<ul>
+  <li><strong>Neden:</strong> Doğru yerleşim = 2-3x daha fazla gelir</li>
+  <li><strong>En iyi pozisyonlar:</strong> Hava durumu kartının hemen altı, dönem tabları arası, saatlik tahmin sonrası</li>
+  <li><strong>Dosyalar:</strong> <code>src/components/AdSlot.astro</code>, <code>src/layouts/BaseLayout.astro</code></li>
+</ul>
+
+<hr class="section-divider">
+
+<h2>C) ORTA VADELI BÜYÜME <span class="priority-tag p2">P2 — 2-4 Hafta</span></h2>
+
+<h3>12. Programmatik SEO — Mevsimsel İçerik Sayfaları</h3>
+<ul>
+  <li><strong>Neden:</strong> "İstanbul kış hava durumu", "Antalya yaz sıcaklıkları" — long-tail aramalar</li>
+  <li><strong>Sayfalar:</strong> <code>/istanbul-hava-durumu/yaz</code>, <code>/antalya-hava-durumu/kis</code> vb.</li>
+  <li><strong>SEO değeri:</strong> Yüksek — bu aramalar her yıl tekrarlanır (evergreen)</li>
+</ul>
+
+<h3>13. Polen ve Alerji Verisi</h3>
+<ul>
+  <li><strong>Neden:</strong> Niş özellik, rakiplerde yok. Alerji hastaları için değerli</li>
+  <li><strong>Nasıl:</strong> Open-Meteo Pollen API (ücretsiz)</li>
+  <li><strong>SEO bonus:</strong> "İstanbul polen tahmini", "çim poleni bugün" gibi keywordler</li>
+</ul>
+
+<h3>14. Haftalık Hava Durumu Özet E-postası</h3>
+<ul>
+  <li><strong>Neden:</strong> Geri dönüş trafiği, doğrudan kanal oluşturma</li>
+  <li><strong>Nasıl:</strong> Buttondown veya Mailchimp free tier + footer'a kayıt formu</li>
+</ul>
+
+<h3>15. PWA Offline Desteği</h3>
+<ul>
+  <li><strong>Neden:</strong> Mobil kullanıcılar için app-benzeri deneyim</li>
+  <li><strong>Nasıl:</strong> Service worker → son ziyaret edilen sayfaları cache</li>
+</ul>
+
+<h3>15b. Hava Uyarı Bannerları</h3>
+<ul>
+  <li><strong>Neden:</strong> "Yarın İstanbul'da şiddetli yağış!" → dikkat çeker, geri dönüş</li>
+  <li><strong>Nasıl:</strong> Build-time'da aşırı koşulları bul (yağış&gt;20mm, sıcaklık&lt;-10, rüzgar&gt;60km/h)</li>
+  <li><strong>Yeni API gerekmez:</strong> Mevcut veriyle threshold kontrolü yeterli</li>
+</ul>
+
+<h3>16. Daha Zengin Yapısal Veri (Schema.org)</h3>
+<ul>
+  <li><strong>Neden:</strong> Google'da zengin snippet'lar → daha yüksek CTR</li>
+  <li><strong>Eklenecekler:</strong> WeatherForecast schema, FAQ'ları 6-8 soruya çıkar</li>
+</ul>
+
+<hr class="section-divider">
+
+<h2>D) UZUN VADELI STRATEJİ <span class="priority-tag p3">P3 — 1+ Ay</span></h2>
+
+<h3>17. Blog / İçerik Pazarlama</h3>
+<ul>
+  <li><strong>Neden:</strong> Bilgilendirici içerik = backlink + otorite + organik trafik</li>
+  <li><strong>Konular:</strong> "Türkiye'de en sıcak iller", "Kışın tatil için en iyi yerler", "Hava durumu nasıl okunur"</li>
+  <li><strong>SEO değeri:</strong> Çok yüksek — bilgi amaçlı aramalar</li>
+</ul>
+
+<h3>18. Şehir Karşılaştırma Aracı</h3>
+<ul>
+  <li><strong>Neden:</strong> Viral potansiyeli var, rakiplerde yok</li>
+  <li><strong>URL:</strong> <code>/karsilastir/istanbul-antalya</code></li>
+</ul>
+
+<h3>19. Hava Durumu Widget'ı (Embed)</h3>
+<ul>
+  <li><strong>Neden:</strong> Diğer siteler embed edince backlink gelir → SEO otoritesi artar</li>
+</ul>
+
+<h3>20. Tarihsel Hava Verisi Sayfaları</h3>
+<ul>
+  <li><strong>Neden:</strong> "İstanbul geçen yıl hava durumu" → rakiplerde yok, evergreen SEO</li>
+  <li><strong>Nasıl:</strong> Open-Meteo Historical API (ücretsiz)</li>
+</ul>
+
+<h3>21. Türk Diasporası Genişlemesi</h3>
+<ul>
+  <li><strong>Neden:</strong> 6M+ Türk yurt dışında. "Berlin hava durumu" Türkçe arıyorlar</li>
+  <li><strong>Rekabet:</strong> Düşük — Türk hava siteleri sadece Türkiye</li>
+</ul>
+
+<h3>22. Alternatif Gelir: Affiliate</h3>
+<ul>
+  <li><strong>Fırsatlar:</strong> Yağmurda şemsiye/yağmurluk, karda mont/kış lastiği, tatil bölgelerinde otel/uçak</li>
+  <li><strong>Nasıl:</strong> Trendyol, Hepsiburada affiliate programları + hava durumuna göre bağlamsal öneriler</li>
+</ul>
+
+<hr class="section-divider">
+
+<h2>Önceliklendirme Matrisi</h2>
+<table>
+  <thead>
+    <tr><th>#</th><th>İş</th><th>Etki</th><th>Efor</th><th>Öncelik</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1-5</td><td>Search Console + Analytics + Metrica</td><td>Çok Yüksek</td><td>Çok Düşük</td><td><span class="priority-tag p0">P0</span></td></tr>
+    <tr><td>6</td><td>AdSense başvurusu</td><td>Yüksek</td><td>Düşük</td><td><span class="priority-tag p0">P0</span></td></tr>
+    <tr><td>6b</td><td>Build sıklığı 4x/gün</td><td>Orta</td><td>5 dakika</td><td><span class="priority-tag p0">P0</span></td></tr>
+    <tr><td>7</td><td>Geolocation</td><td>Yüksek</td><td>Düşük</td><td><span class="priority-tag p1">P1</span></td></tr>
+    <tr><td>8</td><td>Hava Kalitesi (AQI)</td><td>Yüksek</td><td>Orta</td><td><span class="priority-tag p1">P1</span></td></tr>
+    <tr><td>9</td><td>Sosyal paylaşım</td><td>Orta</td><td>Çok Düşük</td><td><span class="priority-tag p1">P1</span></td></tr>
+    <tr><td>10</td><td>Favori şehirler</td><td>Orta</td><td>Düşük</td><td><span class="priority-tag p2">P2</span></td></tr>
+    <tr><td>11</td><td>Reklam optimizasyonu</td><td>Yüksek</td><td>Düşük</td><td><span class="priority-tag p1">P1</span></td></tr>
+    <tr><td>12</td><td>Mevsimsel sayfalar</td><td>Yüksek</td><td>Orta</td><td><span class="priority-tag p2">P2</span></td></tr>
+    <tr><td>13</td><td>Polen verisi</td><td>Orta</td><td>Orta</td><td><span class="priority-tag p2">P2</span></td></tr>
+    <tr><td>14</td><td>E-posta listesi</td><td>Orta</td><td>Orta</td><td><span class="priority-tag p2">P2</span></td></tr>
+    <tr><td>15</td><td>PWA offline</td><td>Düşük-Orta</td><td>Orta</td><td><span class="priority-tag p3">P3</span></td></tr>
+    <tr><td>16</td><td>Zengin schema</td><td>Orta</td><td>Düşük</td><td><span class="priority-tag p2">P2</span></td></tr>
+    <tr><td>17</td><td>Blog</td><td>Yüksek</td><td>Yüksek</td><td><span class="priority-tag p3">P3</span></td></tr>
+    <tr><td>18</td><td>Şehir karşılaştırma</td><td>Orta</td><td>Orta</td><td><span class="priority-tag p3">P3</span></td></tr>
+    <tr><td>19</td><td>Widget embed</td><td>Orta</td><td>Orta</td><td><span class="priority-tag p3">P3</span></td></tr>
+    <tr><td>20</td><td>Tarihsel veri</td><td>Orta</td><td>Orta</td><td><span class="priority-tag p3">P3</span></td></tr>
+    <tr><td>21</td><td>Diaspora genişleme</td><td>Orta</td><td>Orta</td><td><span class="priority-tag p3">P3</span></td></tr>
+    <tr><td>22</td><td>Affiliate</td><td>Düşük-Orta</td><td>Orta</td><td><span class="priority-tag p3">P3</span></td></tr>
+  </tbody>
+</table>
+
+<hr class="section-divider">
+
+<h2>Uygulama Sırası</h2>
+<ul>
+  <li><strong>Bu hafta:</strong> 1-6b (admin panel kayıtları + başvurular + build sıklığı)</li>
+  <li><strong>Gelecek hafta:</strong> 7, 8, 9 (geolocation + AQI + paylaşım butonları)</li>
+  <li><strong>2. hafta:</strong> 10, 11, 16 (favoriler + reklam + schema)</li>
+  <li><strong>3-4. hafta:</strong> 12, 13, 14, 15b (mevsimsel + polen + e-posta + uyarılar)</li>
+  <li><strong>1+ ay:</strong> 17-22 (blog + karşılaştırma + widget + tarihsel + diaspora + affiliate)</li>
+</ul>
+
+<hr class="section-divider">
+
+<h2>Kritik Dosyalar</h2>
+<table>
+  <thead><tr><th>Dosya</th><th>Açıklama</th></tr></thead>
+  <tbody>
+    <tr><td><code>src/data/site-config.json</code></td><td>Tüm ayarlar (analytics, verification, ads)</td></tr>
+    <tr><td><code>src/layouts/BaseLayout.astro</code></td><td>Meta taglar, analytics, ads script</td></tr>
+    <tr><td><code>src/lib/weather.ts</code></td><td>Hava verisi fetch (AQI buraya eklenir)</td></tr>
+    <tr><td><code>src/lib/seo.ts</code></td><td>Schema.org / structured data</td></tr>
+    <tr><td><code>src/components/AdSlot.astro</code></td><td>Reklam yerleşimi</td></tr>
+    <tr><td><code>src/pages/index.astro</code></td><td>Homepage (geolocation, favoriler)</td></tr>
+    <tr><td><code>scripts/fetch-weather.mjs</code></td><td>Build-time veri çekme</td></tr>
+    <tr><td><code>.github/workflows/scheduled-build.yml</code></td><td>Build zamanlama (cron)</td></tr>
+    <tr><td><code>src/pages/admin/index.astro</code></td><td>Admin panel</td></tr>
+  </tbody>
+</table>
+
+<hr class="section-divider">
+
+<h2>Doğrulama Araçları</h2>
+<ul>
+  <li>Google Search Console → indeksleme durumu</li>
+  <li>Google PageSpeed Insights → performans skoru</li>
+  <li>Schema.org Validator → yapısal veri kontrolü</li>
+  <li>Google Mobile-Friendly Test</li>
+  <li>Ahrefs / Ubersuggest (free) → keyword sıralamaları</li>
+</ul>
+
+<button class="print-btn no-print" onclick="window.print()">PDF Olarak Kaydet</button>
+
+</body>
+</html>
