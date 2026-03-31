@@ -1,5 +1,5 @@
 ---
-// Admin panel - sidebar layout, client-side only after auth
+// Admin panel - CMS-style sidebar layout
 ---
 
 <!doctype html>
@@ -13,153 +13,366 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
       body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
       .hidden { display: none !important; }
 
-      /* Login */
-      .login-section { text-align: center; padding: 6rem 1rem; }
-      .login-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; color: white; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background 0.2s; text-decoration: none; }
-      .login-btn:hover { background: #334155; }
+      /* ── Login Screen ── */
+      .login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+      .login-card { text-align: center; max-width: 400px; width: 100%; }
+      .login-card .lock-icon { margin-bottom: 1.5rem; opacity: 0.4; }
+      .login-card h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+      .login-card p { color: #94a3b8; font-size: 0.875rem; margin-bottom: 2rem; line-height: 1.5; }
+      .login-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; color: white; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+      .login-btn:hover { background: #334155; border-color: #475569; }
       .login-btn svg { width: 20px; height: 20px; }
 
-      /* Admin layout */
-      .admin-layout { display: flex; min-height: 100vh; }
+      /* ── Top Header Bar ── */
+      .top-header { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; z-index: 200; }
+      .top-header-left { display: flex; align-items: center; gap: 0.75rem; }
+      .top-header-left .logo { font-size: 1rem; font-weight: 700; color: #f1f5f9; }
+      .top-header-left .logo span { color: #3b82f6; }
+      .top-header-right { display: flex; align-items: center; gap: 1rem; }
+      .top-header-right .user-pill { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem 0.25rem 0.25rem; background: #0f172a; border: 1px solid #334155; border-radius: 2rem; }
+      .top-header-right .user-pill img { width: 24px; height: 24px; border-radius: 50%; }
+      .top-header-right .user-pill span { font-size: 0.75rem; color: #cbd5e1; }
+      .logout-btn { font-size: 0.7rem; color: #94a3b8; cursor: pointer; background: none; border: 1px solid #334155; border-radius: 0.375rem; padding: 0.3rem 0.6rem; transition: all 0.15s; }
+      .logout-btn:hover { color: #ef4444; border-color: #ef4444; }
 
-      /* Sidebar */
-      .sidebar { width: 240px; background: #1e293b; border-right: 1px solid #334155; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
-      .sidebar-header { padding: 1.5rem 1.25rem 1rem; border-bottom: 1px solid #334155; }
-      .sidebar-header h1 { font-size: 1.125rem; font-weight: 700; }
-      .sidebar-subtitle { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
-      .sidebar-user { padding: 1rem 1.25rem; border-bottom: 1px solid #334155; }
-      .sidebar-user .user-info { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-      .sidebar-user img { width: 28px; height: 28px; border-radius: 50%; }
-      .sidebar-user .username { font-size: 0.8rem; font-weight: 500; }
-      .sidebar-user .badge { font-size: 0.65rem; background: #064e3b; color: #34d399; padding: 0.125rem 0.375rem; border-radius: 0.25rem; }
-      .logout-btn { font-size: 0.7rem; color: #ef4444; cursor: pointer; background: none; border: none; padding: 0; }
-      .sidebar-nav { flex: 1; padding: 0.75rem 0; overflow-y: auto; }
-      .nav-item { display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.625rem 1.25rem; background: none; border: none; border-left: 3px solid transparent; color: #94a3b8; font-size: 0.8rem; cursor: pointer; text-align: left; transition: all 0.15s; font-family: inherit; }
-      .nav-item:hover { background: rgba(255,255,255,0.04); color: #e2e8f0; }
-      .nav-item.active { border-left-color: #3b82f6; background: rgba(59,130,246,0.08); color: #e2e8f0; font-weight: 500; }
-      .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid #334155; }
-      .sidebar-footer a { color: #60a5fa; text-decoration: none; font-size: 0.8rem; }
+      /* ── Mobile hamburger ── */
+      .hamburger { display: none; background: none; border: none; color: #e2e8f0; font-size: 1.25rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 0.375rem; }
+      .hamburger:hover { background: rgba(255,255,255,0.05); }
 
-      /* Main content */
-      .main-content { flex: 1; margin-left: 240px; padding: 2rem; min-height: 100vh; }
-      .panel-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; }
+      /* ── Layout ── */
+      .admin-shell { display: flex; padding-top: 56px; min-height: 100vh; }
+
+      /* ── Sidebar ── */
+      .sidebar { width: 220px; background: #1e293b; border-right: 1px solid #334155; position: fixed; top: 56px; bottom: 0; left: 0; display: flex; flex-direction: column; overflow-y: auto; z-index: 100; }
+      .sidebar-nav { flex: 1; padding: 0.5rem 0; }
+      .nav-item { display: flex; align-items: center; gap: 0.625rem; width: 100%; padding: 0.7rem 1.25rem; background: none; border: none; border-left: 3px solid transparent; color: #94a3b8; font-size: 0.8125rem; font-family: inherit; cursor: pointer; text-align: left; transition: all 0.15s; }
+      .nav-item:hover { color: #e2e8f0; background: rgba(255,255,255,0.03); }
+      .nav-item.active { color: #3b82f6; border-left-color: #3b82f6; background: rgba(59,130,246,0.06); font-weight: 500; }
+      .nav-item .nav-icon { width: 18px; height: 18px; opacity: 0.7; flex-shrink: 0; }
+      .nav-item.active .nav-icon { opacity: 1; }
+      .sidebar-bottom { padding: 1rem 1.25rem; border-top: 1px solid #334155; }
+      .sidebar-bottom a { color: #64748b; text-decoration: none; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem; transition: color 0.15s; }
+      .sidebar-bottom a:hover { color: #94a3b8; }
+
+      /* ── Sidebar overlay (mobile) ── */
+      .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+      .sidebar-overlay.open { display: block; }
+
+      /* ── Main Content ── */
+      .main-content { flex: 1; margin-left: 220px; padding: 2rem 2.5rem; max-width: 900px; }
       .tab-panel { display: none; }
       .tab-panel.active { display: block; }
 
-      /* Shared components */
-      .section { background: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; }
-      .section h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
-      .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-      .stat-card { background: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 1.25rem; }
-      .stat-card .label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem; }
-      .stat-card .value { font-size: 1.5rem; font-weight: 700; }
-      .stat-card .sub { font-size: 0.65rem; color: #64748b; margin-top: 0.25rem; }
-      .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-size: 0.875rem; font-weight: 500; cursor: pointer; font-family: inherit; }
-      .btn-primary { background: #3b82f6; color: white; }
-      .btn-primary:hover { background: #2563eb; }
-      .btn-success { background: #059669; color: white; }
-      .btn-success:hover { background: #047857; }
-      .btn-danger { background: #dc2626; color: white; }
-      .btn-danger:hover { background: #b91c1c; }
-      .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-      .status { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; }
-      .status-ok { background: #064e3b; color: #34d399; }
-      .status-warn { background: #78350f; color: #fbbf24; }
-      .status-error { background: #7f1d1d; color: #fca5a5; }
-      .form-group { margin-bottom: 1rem; }
-      .form-group label { display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem; }
-      .form-group input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid #334155; background: #0f172a; color: white; font-size: 0.875rem; font-family: inherit; }
-      .form-group input:focus { outline: none; border-color: #3b82f6; }
-      .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-      .form-group .hint { font-size: 0.65rem; color: #64748b; margin-top: 0.25rem; }
-      .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-      .toggle { position: relative; width: 44px; height: 24px; }
+      /* ── Panel Header ── */
+      .panel-header { margin-bottom: 2rem; }
+      .panel-header h1 { font-size: 1.375rem; font-weight: 700; margin-bottom: 0.25rem; }
+      .panel-header p { font-size: 0.8125rem; color: #64748b; }
+
+      /* ── Stats Grid ── */
+      .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+      .stat-card { background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; padding: 1.25rem; }
+      .stat-card .stat-label { font-size: 0.6875rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
+      .stat-card .stat-value { font-size: 1.5rem; font-weight: 700; color: #f1f5f9; }
+      .stat-card .stat-sub { font-size: 0.6875rem; color: #475569; margin-top: 0.375rem; }
+
+      /* ── Section Card ── */
+      .card { background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; }
+      .card-title { font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.25rem; }
+      .card-desc { font-size: 0.8125rem; color: #64748b; margin-bottom: 1.25rem; }
+
+      /* ── Form Field (StayAtNiche style: label floating on border) ── */
+      .field { position: relative; margin-bottom: 1.5rem; }
+      .field label { position: absolute; top: -0.5rem; left: 0.75rem; background: #1e293b; padding: 0 0.375rem; font-size: 0.6875rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em; z-index: 1; pointer-events: none; }
+      .field input, .field select { width: 100%; padding: 0.875rem 1rem; border: 1px solid #334155; border-radius: 0.5rem; background: transparent; color: #e2e8f0; font-size: 0.875rem; font-family: inherit; transition: border-color 0.15s; }
+      .field input:focus, .field select:focus { outline: none; border-color: #3b82f6; }
+      .field .hint { font-size: 0.6875rem; color: #475569; margin-top: 0.375rem; padding-left: 0.125rem; }
+      .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+      /* ── Toggle Switch ── */
+      .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1rem; border: 1px solid #334155; border-radius: 0.5rem; margin-bottom: 1.5rem; }
+      .toggle-row .toggle-label { font-size: 0.875rem; }
+      .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
       .toggle input { opacity: 0; width: 0; height: 0; }
       .toggle .slider { position: absolute; inset: 0; background: #334155; border-radius: 24px; cursor: pointer; transition: 0.2s; }
-      .toggle .slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+      .toggle .slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.2s; }
       .toggle input:checked + .slider { background: #3b82f6; }
-      .toggle input:checked + .slider:before { transform: translateX(20px); }
-      .build-runs { margin-top: 1rem; }
-      .build-run { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #334155; font-size: 0.75rem; }
+      .toggle input:checked + .slider::before { transform: translateX(20px); }
+
+      /* ── Buttons ── */
+      .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; border-radius: 0.5rem; border: none; font-size: 0.8125rem; font-weight: 500; font-family: inherit; cursor: pointer; transition: all 0.15s; }
+      .btn-primary { background: #3b82f6; color: white; }
+      .btn-primary:hover { background: #2563eb; }
+      .btn-save { background: #059669; color: white; }
+      .btn-save:hover { background: #047857; }
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+      /* ── Status Badge ── */
+      .badge { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; padding: 0.25rem 0.625rem; border-radius: 2rem; }
+      .badge-ok { background: rgba(52,211,153,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
+      .badge-warn { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+      .badge-error { background: rgba(252,165,165,0.1); color: #fca5a5; border: 1px solid rgba(252,165,165,0.2); }
+
+      /* ── API Status Row ── */
+      .api-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+      .api-row .api-label { font-size: 0.875rem; color: #94a3b8; }
+      .api-row .btn { margin-left: auto; }
+
+      /* ── Build Runs ── */
+      .build-runs { margin-top: 1.25rem; }
+      .build-run { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0; border-bottom: 1px solid rgba(51,65,85,0.5); font-size: 0.8125rem; }
       .build-run:last-child { border-bottom: none; }
-      .build-run .run-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-      .build-run .run-status.success { background: #34d399; }
-      .build-run .run-status.failure { background: #ef4444; }
-      .build-run .run-status.in_progress { background: #fbbf24; animation: pulse 1s infinite; }
-      .build-run .run-status.queued { background: #64748b; }
-      .build-run .run-info { flex: 1; }
-      .build-run .run-time { color: #64748b; }
+      .run-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+      .run-dot.success { background: #34d399; }
+      .run-dot.failure { background: #ef4444; }
+      .run-dot.in_progress { background: #fbbf24; animation: pulse 1s infinite; }
+      .run-dot.queued { background: #64748b; }
+      .run-info { flex: 1; }
+      .run-info a { color: #60a5fa; text-decoration: none; font-weight: 500; }
+      .run-info a:hover { text-decoration: underline; }
+      .run-info .run-meta { color: #64748b; margin-left: 0.5rem; }
+      .run-time { color: #475569; font-size: 0.75rem; }
       @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-      /* Mobile header */
-      .mobile-header { display: none; position: fixed; top: 0; left: 0; right: 0; height: 48px; background: #1e293b; border-bottom: 1px solid #334155; align-items: center; padding: 0 1rem; z-index: 101; gap: 0.75rem; }
-      .mobile-header span { font-size: 0.9rem; font-weight: 600; }
-      .hamburger-btn { background: none; border: none; color: #e2e8f0; font-size: 1.25rem; cursor: pointer; padding: 0.25rem; }
-      .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+      /* ── Save Row ── */
+      .save-row { display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; padding-top: 1.25rem; border-top: 1px solid #334155; }
+      .save-status { font-size: 0.8125rem; color: #64748b; }
 
+      /* ── Responsive ── */
       @media (max-width: 768px) {
-        .mobile-header:not(.hidden) { display: flex; }
-        .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+        .hamburger { display: block; }
+        .sidebar { transform: translateX(-100%); transition: transform 0.2s ease; top: 56px; }
         .sidebar.open { transform: translateX(0); }
-        .sidebar-overlay.open { display: block; }
-        .main-content { margin-left: 0; padding: 1rem; padding-top: 64px; }
-        .form-row { grid-template-columns: 1fr; }
+        .main-content { margin-left: 0; padding: 1.5rem 1rem; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .field-row { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 480px) {
+        .stats-grid { grid-template-columns: 1fr; }
+        .top-header { padding: 0 0.75rem; }
       }
     </style>
   </head>
   <body>
-    <!-- Login -->
-    <div id="login-section" class="login-section">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5" style="margin: 0 auto 1rem;">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-      </svg>
-      <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Admin Paneli</h2>
-      <p style="color: #94a3b8; margin-bottom: 2rem; font-size: 0.875rem;">Devam etmek için GitHub hesabınızla giriş yapın</p>
-      <a id="github-login-btn" class="login-btn" href="#">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-        GitHub ile Giriş Yap
-      </a>
+
+    <!-- ── Login Screen ── -->
+    <div id="login-screen" class="login-screen">
+      <div class="login-card">
+        <svg class="lock-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        <h2>Admin Paneli</h2>
+        <p>Devam etmek için GitHub hesabınızla giriş yapın</p>
+        <a id="github-login-btn" class="login-btn" href="#">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub ile Giriş Yap
+        </a>
+      </div>
     </div>
 
-    <!-- Mobile header -->
-    <div id="mobile-header" class="mobile-header hidden">
-      <button class="hamburger-btn" id="hamburger-btn">&#9776;</button>
-      <span>Yarın Hava Admin</span>
+    <!-- ── Top Header ── -->
+    <div id="top-header" class="top-header hidden">
+      <div class="top-header-left">
+        <button class="hamburger" id="hamburger-btn">&#9776;</button>
+        <div class="logo">☁ Yarın <span>Hava</span> Admin</div>
+      </div>
+      <div class="top-header-right" id="header-user"></div>
     </div>
 
-    <!-- Sidebar overlay for mobile -->
+    <!-- Sidebar overlay (mobile) -->
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
-    <!-- Admin layout - shown after auth -->
-    <div id="admin-layout" class="admin-layout hidden">
+    <!-- ── Admin Shell ── -->
+    <div id="admin-shell" class="admin-shell hidden">
+
+      <!-- Sidebar -->
       <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <h1>Yarın Hava</h1>
-          <div class="sidebar-subtitle">Admin Panel</div>
-        </div>
-        <div class="sidebar-user" id="sidebar-user"></div>
         <nav class="sidebar-nav" id="sidebar-nav">
-          <button class="nav-item active" data-tab="dashboard">&#128202; Genel Bakış</button>
-          <button class="nav-item" data-tab="build">&#128296; Build Yönetimi</button>
-          <button class="nav-item" data-tab="analytics">&#128200; Analitik</button>
-          <button class="nav-item" data-tab="search">&#128269; Arama Motoru</button>
-          <button class="nav-item" data-tab="ads">&#128226; Reklamlar</button>
+          <button class="nav-item active" data-tab="overview">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Genel Bakış
+          </button>
+          <button class="nav-item" data-tab="build">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+            Build Yönetimi
+          </button>
+          <button class="nav-item" data-tab="analytics">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Analitik &amp; İzleme
+          </button>
+          <button class="nav-item" data-tab="seo">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            SEO &amp; Doğrulama
+          </button>
+          <button class="nav-item" data-tab="ads">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            Reklamlar
+          </button>
+          <button class="nav-item" data-tab="api">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            API Durumu
+          </button>
         </nav>
-        <div class="sidebar-footer">
+        <div class="sidebar-bottom">
           <a href="/">&#8592; Siteye Dön</a>
         </div>
       </aside>
 
+      <!-- Main Content -->
       <main class="main-content">
-        <div id="panel-dashboard" class="tab-panel active"></div>
-        <div id="panel-build" class="tab-panel"></div>
-        <div id="panel-analytics" class="tab-panel"></div>
-        <div id="panel-search" class="tab-panel"></div>
-        <div id="panel-ads" class="tab-panel"></div>
+        <!-- Overview -->
+        <div id="panel-overview" class="tab-panel active">
+          <div class="panel-header">
+            <h1>Genel Bakış</h1>
+            <p>Site istatistikleri ve özet bilgiler</p>
+          </div>
+          <div class="stats-grid" id="stats-grid">
+            <div class="stat-card"><div class="stat-label">Yükleniyor</div><div class="stat-value">—</div></div>
+          </div>
+        </div>
+
+        <!-- Build -->
+        <div id="panel-build" class="tab-panel">
+          <div class="panel-header">
+            <h1>Build Yönetimi</h1>
+            <p>GitHub Actions ile site derleme işlemleri</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Manuel Build</div>
+            <div class="card-desc">Otomatik: Her gün 06:00 ve 20:00 (TR). Manuel tetikleme için butonu kullanın.</div>
+            <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+              <button class="btn btn-primary" id="trigger-build-btn">Build Tetikle</button>
+              <span class="save-status" id="build-status"></span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Son Build'ler</div>
+            <div class="build-runs" id="build-runs">
+              <div style="color:#64748b;font-size:0.8125rem;">Yükleniyor...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics -->
+        <div id="panel-analytics" class="tab-panel">
+          <div class="panel-header">
+            <h1>Analitik &amp; İzleme</h1>
+            <p>Ziyaretçi analiz araçları yapılandırması</p>
+          </div>
+          <div class="card" id="analytics-card">
+            <div class="field">
+              <label>Google Analytics 4 ID</label>
+              <input type="text" id="cfg-ga" autocomplete="off" />
+              <div class="hint">G-XXXXXXXXXX</div>
+            </div>
+            <div class="field">
+              <label>Yandex Metrica ID</label>
+              <input type="text" id="cfg-ym" autocomplete="off" />
+              <div class="hint">12345678</div>
+            </div>
+            <div class="save-row">
+              <button class="btn btn-save" id="save-analytics-btn">Kaydet &amp; Build Tetikle</button>
+              <span class="save-status" id="analytics-status"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEO -->
+        <div id="panel-seo" class="tab-panel">
+          <div class="panel-header">
+            <h1>SEO &amp; Doğrulama</h1>
+            <p>Arama motoru doğrulama kodları</p>
+          </div>
+          <div class="card" id="seo-card">
+            <div class="field">
+              <label>Google Search Console</label>
+              <input type="text" id="cfg-vg" autocomplete="off" />
+              <div class="hint">meta tag content değeri</div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>Yandex Webmaster</label>
+                <input type="text" id="cfg-vy" autocomplete="off" />
+                <div class="hint">meta tag content değeri</div>
+              </div>
+              <div class="field">
+                <label>Bing Webmaster</label>
+                <input type="text" id="cfg-vb" autocomplete="off" />
+                <div class="hint">meta tag content değeri</div>
+              </div>
+            </div>
+            <div class="save-row">
+              <button class="btn btn-save" id="save-seo-btn">Kaydet &amp; Build Tetikle</button>
+              <span class="save-status" id="seo-status"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ads -->
+        <div id="panel-ads" class="tab-panel">
+          <div class="panel-header">
+            <h1>Reklamlar</h1>
+            <p>Google AdSense yapılandırması</p>
+          </div>
+          <div class="card" id="ads-card">
+            <div class="toggle-row">
+              <span class="toggle-label">Reklamlar aktif</span>
+              <label class="toggle">
+                <input type="checkbox" id="cfg-ads-enabled" />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="field">
+              <label>AdSense Publisher ID</label>
+              <input type="text" id="cfg-ads-pub" autocomplete="off" />
+              <div class="hint">ca-pub-1234567890</div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>Header Slot</label>
+                <input type="text" id="cfg-ads-header" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label>Sidebar Slot</label>
+                <input type="text" id="cfg-ads-sidebar" autocomplete="off" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>İçerik İçi Slot</label>
+                <input type="text" id="cfg-ads-incontent" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label>Footer Slot</label>
+                <input type="text" id="cfg-ads-footer" autocomplete="off" />
+              </div>
+            </div>
+            <div class="save-row">
+              <button class="btn btn-save" id="save-ads-btn">Kaydet &amp; Build Tetikle</button>
+              <span class="save-status" id="ads-status"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- API Status -->
+        <div id="panel-api" class="tab-panel">
+          <div class="panel-header">
+            <h1>API Durumu</h1>
+            <p>Dış servis bağlantı kontrolleri</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Open-Meteo API</div>
+            <div class="card-desc">Hava durumu verilerinin kaynağı</div>
+            <div class="api-row">
+              <span class="api-label">Durum:</span>
+              <span class="badge badge-warn" id="api-status">Kontrol ediliyor...</span>
+              <button class="btn btn-primary" id="check-api-btn">Kontrol Et</button>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
 
@@ -195,48 +408,6 @@
         return res.status === 204 ? null : res.json();
       }
 
-      function createStatCard(label, value, sub) {
-        const card = document.createElement('div');
-        card.className = 'stat-card';
-        const labelEl = document.createElement('div');
-        labelEl.className = 'label';
-        labelEl.textContent = label;
-        const valueEl = document.createElement('div');
-        valueEl.className = 'value';
-        valueEl.textContent = value;
-        card.appendChild(labelEl);
-        card.appendChild(valueEl);
-        if (sub) {
-          const subEl = document.createElement('div');
-          subEl.className = 'sub';
-          subEl.textContent = sub;
-          card.appendChild(subEl);
-        }
-        return card;
-      }
-
-      function createFormGroup(label, id, value, hint) {
-        const group = document.createElement('div');
-        group.className = 'form-group';
-        const lbl = document.createElement('label');
-        lbl.setAttribute('for', id);
-        lbl.textContent = label;
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.id = id;
-        input.value = value || '';
-        input.autocomplete = 'off';
-        group.appendChild(lbl);
-        group.appendChild(input);
-        if (hint) {
-          const h = document.createElement('div');
-          h.className = 'hint';
-          h.textContent = hint;
-          group.appendChild(h);
-        }
-        return group;
-      }
-
       function checkAuth() {
         const token = sessionStorage.getItem(TOKEN_KEY);
         if (token) validateToken(token);
@@ -266,7 +437,7 @@
         }
       }
 
-      // Tab switching
+      // ── Hash-based routing ──
       function switchTab(tabId) {
         document.querySelectorAll('.nav-item').forEach(btn => {
           btn.classList.toggle('active', btn.dataset.tab === tabId);
@@ -274,41 +445,50 @@
         document.querySelectorAll('.tab-panel').forEach(panel => {
           panel.classList.toggle('active', panel.id === 'panel-' + tabId);
         });
-        // Close mobile sidebar
+        window.location.hash = tabId;
+        closeMobileSidebar();
+      }
+
+      function getTabFromHash() {
+        const hash = window.location.hash.slice(1);
+        const valid = ['overview', 'build', 'analytics', 'seo', 'ads', 'api'];
+        return valid.includes(hash) ? hash : 'overview';
+      }
+
+      function closeMobileSidebar() {
         document.getElementById('sidebar').classList.remove('open');
         document.getElementById('sidebar-overlay').classList.remove('open');
       }
 
       function showAdmin(user) {
-        document.getElementById('login-section').classList.add('hidden');
-        document.getElementById('admin-layout').classList.remove('hidden');
-        document.getElementById('mobile-header').classList.remove('hidden');
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('top-header').classList.remove('hidden');
+        document.getElementById('admin-shell').classList.remove('hidden');
 
-        // Sidebar user info
-        const userEl = document.getElementById('sidebar-user');
-        userEl.innerHTML = '';
-        const info = document.createElement('div');
-        info.className = 'user-info';
+        // Header user info
+        const headerUser = document.getElementById('header-user');
+        headerUser.innerHTML = '';
+        const pill = document.createElement('div');
+        pill.className = 'user-pill';
         const avatar = document.createElement('img');
         avatar.src = user.avatar_url;
         avatar.alt = sanitizeText(user.login);
         const uname = document.createElement('span');
-        uname.className = 'username';
         uname.textContent = user.login;
-        const badge = document.createElement('span');
-        badge.className = 'badge';
-        badge.textContent = 'Admin';
-        info.appendChild(avatar);
-        info.appendChild(uname);
-        info.appendChild(badge);
-        userEl.appendChild(info);
+        pill.appendChild(avatar);
+        pill.appendChild(uname);
+        headerUser.appendChild(pill);
+
         const logoutBtn = document.createElement('button');
         logoutBtn.className = 'logout-btn';
-        logoutBtn.textContent = 'Çıkış Yap';
-        logoutBtn.addEventListener('click', () => { sessionStorage.removeItem(TOKEN_KEY); location.reload(); });
-        userEl.appendChild(logoutBtn);
+        logoutBtn.textContent = 'Çıkış';
+        logoutBtn.addEventListener('click', () => {
+          sessionStorage.removeItem(TOKEN_KEY);
+          location.reload();
+        });
+        headerUser.appendChild(logoutBtn);
 
-        // Nav events
+        // Sidebar navigation
         document.querySelectorAll('.nav-item').forEach(btn => {
           btn.addEventListener('click', () => switchTab(btn.dataset.tab));
         });
@@ -318,17 +498,18 @@
           document.getElementById('sidebar').classList.toggle('open');
           document.getElementById('sidebar-overlay').classList.toggle('open');
         });
-        document.getElementById('sidebar-overlay').addEventListener('click', () => {
-          document.getElementById('sidebar').classList.remove('open');
-          document.getElementById('sidebar-overlay').classList.remove('open');
-        });
+        document.getElementById('sidebar-overlay').addEventListener('click', closeMobileSidebar);
 
-        // Render all panels
-        renderDashboardPanel();
-        renderBuildPanel();
-        renderAnalyticsPanel();
-        renderSearchPanel();
-        renderAdsPanel();
+        // Hash routing
+        window.addEventListener('hashchange', () => switchTab(getTabFromHash()));
+        switchTab(getTabFromHash());
+
+        // Wire up buttons
+        document.getElementById('trigger-build-btn').addEventListener('click', triggerBuild);
+        document.getElementById('check-api-btn').addEventListener('click', checkAPI);
+        document.getElementById('save-analytics-btn').addEventListener('click', () => saveConfig('analytics-status'));
+        document.getElementById('save-seo-btn').addEventListener('click', () => saveConfig('seo-status'));
+        document.getElementById('save-ads-btn').addEventListener('click', () => saveConfig('ads-status'));
 
         // Load data
         loadStats();
@@ -337,204 +518,7 @@
         loadConfig();
       }
 
-      function renderDashboardPanel() {
-        const panel = document.getElementById('panel-dashboard');
-        panel.innerHTML = '';
-        const title = document.createElement('h2');
-        title.className = 'panel-title';
-        title.textContent = 'Genel Bakış';
-        panel.appendChild(title);
-
-        const statsGrid = document.createElement('div');
-        statsGrid.className = 'stats';
-        statsGrid.id = 'stats-grid';
-        statsGrid.appendChild(createStatCard('Yükleniyor...', '-'));
-        panel.appendChild(statsGrid);
-
-        const apiSection = document.createElement('div');
-        apiSection.className = 'section';
-        const apiTitle = document.createElement('h2');
-        apiTitle.textContent = 'API Durumu';
-        const apiRow = document.createElement('div');
-        apiRow.style.cssText = 'display:flex;align-items:center;gap:1rem;flex-wrap:wrap;';
-        const apiLabel = document.createElement('span');
-        apiLabel.textContent = 'Open-Meteo API:';
-        const apiStatus = document.createElement('span');
-        apiStatus.id = 'api-status';
-        apiStatus.className = 'status status-warn';
-        apiStatus.textContent = 'Kontrol ediliyor...';
-        const checkBtn = document.createElement('button');
-        checkBtn.className = 'btn btn-primary';
-        checkBtn.style.marginLeft = 'auto';
-        checkBtn.textContent = 'Kontrol Et';
-        checkBtn.addEventListener('click', checkAPI);
-        apiRow.appendChild(apiLabel);
-        apiRow.appendChild(apiStatus);
-        apiRow.appendChild(checkBtn);
-        apiSection.appendChild(apiTitle);
-        apiSection.appendChild(apiRow);
-        panel.appendChild(apiSection);
-      }
-
-      function renderBuildPanel() {
-        const panel = document.getElementById('panel-build');
-        panel.innerHTML = '';
-        const title = document.createElement('h2');
-        title.className = 'panel-title';
-        title.textContent = 'Build Yönetimi';
-        panel.appendChild(title);
-
-        const section = document.createElement('div');
-        section.className = 'section';
-        const desc = document.createElement('p');
-        desc.style.cssText = 'font-size:0.875rem;color:#94a3b8;margin-bottom:1rem;';
-        desc.textContent = 'Otomatik: Her gün 06:00 ve 20:00 (TR). Manuel tetikleme için aşağıdaki butonu kullanın.';
-        const btnRow = document.createElement('div');
-        btnRow.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;';
-        const triggerBtn = document.createElement('button');
-        triggerBtn.className = 'btn btn-primary';
-        triggerBtn.id = 'trigger-build-btn';
-        triggerBtn.textContent = 'Build Tetikle';
-        triggerBtn.addEventListener('click', triggerBuild);
-        const buildStatus = document.createElement('span');
-        buildStatus.id = 'build-status';
-        buildStatus.style.cssText = 'font-size:0.75rem;color:#94a3b8;';
-        btnRow.appendChild(triggerBtn);
-        btnRow.appendChild(buildStatus);
-        section.appendChild(desc);
-        section.appendChild(btnRow);
-
-        const runsTitle = document.createElement('h3');
-        runsTitle.style.cssText = 'font-size:0.875rem;font-weight:600;margin-top:1.25rem;margin-bottom:0.75rem;';
-        runsTitle.textContent = "Son Build'ler";
-        const runsContainer = document.createElement('div');
-        runsContainer.className = 'build-runs';
-        runsContainer.id = 'build-runs';
-        runsContainer.textContent = 'Yükleniyor...';
-        section.appendChild(runsTitle);
-        section.appendChild(runsContainer);
-        panel.appendChild(section);
-      }
-
-      function renderAnalyticsPanel() {
-        const panel = document.getElementById('panel-analytics');
-        panel.innerHTML = '';
-        const title = document.createElement('h2');
-        title.className = 'panel-title';
-        title.textContent = 'Analitik';
-        panel.appendChild(title);
-
-        const section = document.createElement('div');
-        section.className = 'section';
-        const row = document.createElement('div');
-        row.className = 'form-row';
-        row.appendChild(createFormGroup('Google Analytics ID', 'cfg-ga', '', 'Örn: G-XXXXXXXXXX'));
-        row.appendChild(createFormGroup('Yandex Metrica ID', 'cfg-ym', '', 'Örn: 12345678'));
-        section.appendChild(row);
-
-        const btnRow = document.createElement('div');
-        btnRow.style.cssText = 'display:flex;gap:0.5rem;align-items:center;margin-top:1rem;';
-        const saveBtn = document.createElement('button');
-        saveBtn.className = 'btn btn-success';
-        saveBtn.textContent = 'Kaydet & Build Tetikle';
-        saveBtn.addEventListener('click', () => saveConfig('analytics-status'));
-        const status = document.createElement('span');
-        status.id = 'analytics-status';
-        status.style.cssText = 'font-size:0.75rem;color:#94a3b8;';
-        btnRow.appendChild(saveBtn);
-        btnRow.appendChild(status);
-        section.appendChild(btnRow);
-        panel.appendChild(section);
-      }
-
-      function renderSearchPanel() {
-        const panel = document.getElementById('panel-search');
-        panel.innerHTML = '';
-        const title = document.createElement('h2');
-        title.className = 'panel-title';
-        title.textContent = 'Arama Motoru Doğrulama';
-        panel.appendChild(title);
-
-        const section = document.createElement('div');
-        section.className = 'section';
-        section.appendChild(createFormGroup('Google Search Console', 'cfg-vg', '', 'meta tag content değeri'));
-        const row = document.createElement('div');
-        row.className = 'form-row';
-        row.appendChild(createFormGroup('Yandex Webmaster', 'cfg-vy', '', 'meta tag content değeri'));
-        row.appendChild(createFormGroup('Bing Webmaster', 'cfg-vb', '', 'meta tag content değeri'));
-        section.appendChild(row);
-
-        const btnRow = document.createElement('div');
-        btnRow.style.cssText = 'display:flex;gap:0.5rem;align-items:center;margin-top:1rem;';
-        const saveBtn = document.createElement('button');
-        saveBtn.className = 'btn btn-success';
-        saveBtn.textContent = 'Kaydet & Build Tetikle';
-        saveBtn.addEventListener('click', () => saveConfig('search-status'));
-        const status = document.createElement('span');
-        status.id = 'search-status';
-        status.style.cssText = 'font-size:0.75rem;color:#94a3b8;';
-        btnRow.appendChild(saveBtn);
-        btnRow.appendChild(status);
-        section.appendChild(btnRow);
-        panel.appendChild(section);
-      }
-
-      function renderAdsPanel() {
-        const panel = document.getElementById('panel-ads');
-        panel.innerHTML = '';
-        const title = document.createElement('h2');
-        title.className = 'panel-title';
-        title.textContent = 'Reklamlar';
-        panel.appendChild(title);
-
-        const section = document.createElement('div');
-        section.className = 'section';
-
-        const toggleRow = document.createElement('div');
-        toggleRow.className = 'toggle-row';
-        const toggleLabel = document.createElement('span');
-        toggleLabel.style.cssText = 'font-size:0.875rem;';
-        toggleLabel.textContent = 'Reklamlar aktif';
-        const toggle = document.createElement('label');
-        toggle.className = 'toggle';
-        const toggleInput = document.createElement('input');
-        toggleInput.type = 'checkbox';
-        toggleInput.id = 'cfg-ads-enabled';
-        const slider = document.createElement('span');
-        slider.className = 'slider';
-        toggle.appendChild(toggleInput);
-        toggle.appendChild(slider);
-        toggleRow.appendChild(toggleLabel);
-        toggleRow.appendChild(toggle);
-        section.appendChild(toggleRow);
-
-        section.appendChild(createFormGroup('AdSense Publisher ID', 'cfg-ads-pub', '', 'Örn: ca-pub-1234567890'));
-        const slotRow1 = document.createElement('div');
-        slotRow1.className = 'form-row';
-        slotRow1.appendChild(createFormGroup('Header Slot', 'cfg-ads-header', '', 'Slot ID'));
-        slotRow1.appendChild(createFormGroup('Sidebar Slot', 'cfg-ads-sidebar', '', 'Slot ID'));
-        section.appendChild(slotRow1);
-        const slotRow2 = document.createElement('div');
-        slotRow2.className = 'form-row';
-        slotRow2.appendChild(createFormGroup('İçerik İçi Slot', 'cfg-ads-incontent', '', 'Slot ID'));
-        slotRow2.appendChild(createFormGroup('Footer Slot', 'cfg-ads-footer', '', 'Slot ID'));
-        section.appendChild(slotRow2);
-
-        const btnRow = document.createElement('div');
-        btnRow.style.cssText = 'display:flex;gap:0.5rem;align-items:center;margin-top:1rem;';
-        const saveBtn = document.createElement('button');
-        saveBtn.className = 'btn btn-success';
-        saveBtn.textContent = 'Kaydet & Build Tetikle';
-        saveBtn.addEventListener('click', () => saveConfig('ads-status'));
-        const status = document.createElement('span');
-        status.id = 'ads-status';
-        status.style.cssText = 'font-size:0.75rem;color:#94a3b8;';
-        btnRow.appendChild(saveBtn);
-        btnRow.appendChild(status);
-        section.appendChild(btnRow);
-        panel.appendChild(section);
-      }
-
+      // ── Data Functions ──
       async function loadStats() {
         try {
           const res = await fetch('/search-index.json');
@@ -552,11 +536,19 @@
           })).size;
 
           const grid = document.getElementById('stats-grid');
-          grid.replaceChildren();
-          grid.appendChild(createStatCard('Toplam Sayfa', totalPages.toLocaleString('tr-TR'), `${provinceCount} il + ${districtCount} ilçe + ${(provincePeriodPages + districtPeriodPages).toLocaleString('tr-TR')} dönem + ${staticPages} statik`));
-          grid.appendChild(createStatCard('İl Sayısı', provinceCount, `+ ${provincePeriodPages} dönem sayfası`));
-          grid.appendChild(createStatCard('İlçe Sayısı', districtCount, `+ ${districtPeriodPages.toLocaleString('tr-TR')} dönem sayfası`));
-          grid.appendChild(createStatCard('İlçe Kapsam', coveredProvinces + '/81', `${Math.round(coveredProvinces/81*100)}% il kapsanıyor`));
+          grid.innerHTML = '';
+          const cards = [
+            { label: 'Toplam Sayfa', value: totalPages.toLocaleString('tr-TR'), sub: `${provinceCount} il + ${districtCount} ilçe + ${(provincePeriodPages + districtPeriodPages).toLocaleString('tr-TR')} dönem + ${staticPages} statik` },
+            { label: 'İl Sayısı', value: provinceCount, sub: `+ ${provincePeriodPages} dönem sayfası` },
+            { label: 'İlçe Sayısı', value: districtCount, sub: `+ ${districtPeriodPages.toLocaleString('tr-TR')} dönem sayfası` },
+            { label: 'İlçe Kapsam', value: coveredProvinces + '/81', sub: `${Math.round(coveredProvinces / 81 * 100)}% il kapsanıyor` }
+          ];
+          cards.forEach(c => {
+            const card = document.createElement('div');
+            card.className = 'stat-card';
+            card.innerHTML = `<div class="stat-label">${sanitizeText(c.label)}</div><div class="stat-value">${sanitizeText(String(c.value))}</div><div class="stat-sub">${sanitizeText(c.sub)}</div>`;
+            grid.appendChild(card);
+          });
         } catch {}
       }
 
@@ -564,21 +556,21 @@
         const el = document.getElementById('api-status');
         if (!el) return;
         el.textContent = 'Kontrol ediliyor...';
-        el.className = 'status status-warn';
+        el.className = 'badge badge-warn';
         try {
           const start = Date.now();
           const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=41&longitude=29&current=temperature_2m');
           const ms = Date.now() - start;
           if (res.ok) {
             el.textContent = 'Aktif (' + ms + 'ms)';
-            el.className = 'status status-ok';
+            el.className = 'badge badge-ok';
           } else {
             el.textContent = 'Hata: ' + res.status;
-            el.className = 'status status-error';
+            el.className = 'badge badge-error';
           }
         } catch {
           el.textContent = 'Bağlantı hatası';
-          el.className = 'status status-error';
+          el.className = 'badge badge-error';
         }
       }
 
@@ -587,6 +579,7 @@
         const el = document.getElementById('build-status');
         btn.disabled = true;
         el.textContent = 'Tetikleniyor...';
+        el.style.color = '#94a3b8';
         try {
           await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
             method: 'POST',
@@ -607,73 +600,51 @@
         if (!container) return;
         try {
           const data = await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=5`);
-          container.replaceChildren();
+          container.innerHTML = '';
           if (!data.workflow_runs || data.workflow_runs.length === 0) {
-            container.textContent = 'Henüz build kaydı yok.';
+            container.innerHTML = '<div style="color:#64748b;font-size:0.8125rem;">Henüz build kaydı yok.</div>';
             return;
           }
+          const statusMap = { success: 'Başarılı', failure: 'Başarısız', cancelled: 'İptal', in_progress: 'Devam ediyor', queued: 'Kuyrukta' };
+          const triggerMap = { schedule: 'Otomatik', workflow_dispatch: 'Manuel', push: 'Push' };
           data.workflow_runs.forEach(run => {
             const item = document.createElement('div');
             item.className = 'build-run';
-            const dot = document.createElement('div');
-            dot.className = 'run-status ' + (run.conclusion || run.status);
-            const info = document.createElement('div');
-            info.className = 'run-info';
-            const link = document.createElement('a');
-            link.href = run.html_url;
-            link.target = '_blank';
-            link.rel = 'noopener';
-            link.style.cssText = 'color:#60a5fa;text-decoration:none;';
-            link.textContent = '#' + run.run_number;
-            const statusText = document.createElement('span');
-            statusText.style.cssText = 'margin-left:0.5rem;color:#94a3b8;';
-            const statusMap = { success: 'Başarılı', failure: 'Başarısız', cancelled: 'İptal', in_progress: 'Devam ediyor', queued: 'Kuyrukta' };
-            statusText.textContent = statusMap[run.conclusion || run.status] || run.status;
-            const trigger = document.createElement('span');
-            trigger.style.cssText = 'margin-left:0.5rem;color:#64748b;';
-            const triggerMap = { schedule: 'Otomatik', workflow_dispatch: 'Manuel', push: 'Push' };
-            trigger.textContent = '(' + (triggerMap[run.event] || run.event) + ')';
-            info.appendChild(link);
-            info.appendChild(statusText);
-            info.appendChild(trigger);
-            const time = document.createElement('span');
-            time.className = 'run-time';
-            time.textContent = new Date(run.created_at).toLocaleString('tr-TR');
-            item.appendChild(dot);
-            item.appendChild(info);
-            item.appendChild(time);
+            const conclusion = run.conclusion || run.status;
+            item.innerHTML = `<div class="run-dot ${sanitizeText(conclusion)}"></div><div class="run-info"><a href="${sanitizeText(run.html_url)}" target="_blank" rel="noopener">#${run.run_number}</a><span class="run-meta">${sanitizeText(statusMap[conclusion] || run.status)} (${sanitizeText(triggerMap[run.event] || run.event)})</span></div><span class="run-time">${new Date(run.created_at).toLocaleString('tr-TR')}</span>`;
             container.appendChild(item);
           });
-        } catch (err) {
-          container.textContent = 'Build geçmişi yüklenemedi.';
+        } catch {
+          container.innerHTML = '<div style="color:#fca5a5;font-size:0.8125rem;">Build geçmişi yüklenemedi.</div>';
         }
       }
 
+      // ── Config ──
       async function loadConfig() {
         try {
           const data = await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}`);
           currentConfig = JSON.parse(atob(data.content));
           currentConfigSha = data.sha;
-          populateConfigFields(currentConfig);
+          populateFields(currentConfig);
         } catch (err) {
-          console.error('Config yüklenemedi:', err.message);
+          console.error('Config yüklenemedi:', err);
         }
       }
 
-      function populateConfigFields(config) {
-        const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-        const setChecked = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
-        setVal('cfg-ga', config.analytics?.googleAnalyticsId);
-        setVal('cfg-ym', config.analytics?.yandexMetricaId);
-        setVal('cfg-vg', config.verification?.google);
-        setVal('cfg-vy', config.verification?.yandex);
-        setVal('cfg-vb', config.verification?.bing);
-        setChecked('cfg-ads-enabled', config.ads?.enabled);
-        setVal('cfg-ads-pub', config.ads?.adsensePublisherId);
-        setVal('cfg-ads-header', config.ads?.adsenseSlots?.header);
-        setVal('cfg-ads-sidebar', config.ads?.adsenseSlots?.sidebar);
-        setVal('cfg-ads-incontent', config.ads?.adsenseSlots?.inContent);
-        setVal('cfg-ads-footer', config.ads?.adsenseSlots?.footer);
+      function populateFields(c) {
+        const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+        set('cfg-ga', c.analytics?.googleAnalyticsId);
+        set('cfg-ym', c.analytics?.yandexMetricaId);
+        set('cfg-vg', c.verification?.google);
+        set('cfg-vy', c.verification?.yandex);
+        set('cfg-vb', c.verification?.bing);
+        const adsEnabled = document.getElementById('cfg-ads-enabled');
+        if (adsEnabled) adsEnabled.checked = !!c.ads?.enabled;
+        set('cfg-ads-pub', c.ads?.adsensePublisherId);
+        set('cfg-ads-header', c.ads?.adsenseSlots?.header);
+        set('cfg-ads-sidebar', c.ads?.adsenseSlots?.sidebar);
+        set('cfg-ads-incontent', c.ads?.adsenseSlots?.inContent);
+        set('cfg-ads-footer', c.ads?.adsenseSlots?.footer);
       }
 
       function collectConfig() {
@@ -702,21 +673,14 @@
       }
 
       async function saveConfig(statusElId) {
-        const statusEl = document.getElementById(statusElId || 'config-status');
-        if (statusEl) {
-          statusEl.textContent = 'Kaydediliyor...';
-          statusEl.style.color = '#94a3b8';
-        }
+        const el = document.getElementById(statusElId);
+        if (el) { el.textContent = 'Kaydediliyor...'; el.style.color = '#94a3b8'; }
         try {
           const newConfig = collectConfig();
           const content = btoa(unescape(encodeURIComponent(JSON.stringify(newConfig, null, 2) + '\n')));
           const result = await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}`, {
             method: 'PUT',
-            body: JSON.stringify({
-              message: 'chore: update site config via admin panel',
-              content: content,
-              sha: currentConfigSha
-            })
+            body: JSON.stringify({ message: 'chore: update site config via admin panel', content, sha: currentConfigSha })
           });
           currentConfigSha = result.content.sha;
           currentConfig = newConfig;
@@ -725,34 +689,34 @@
               method: 'POST',
               body: JSON.stringify({ ref: 'main' })
             });
-            if (statusEl) { statusEl.textContent = 'Kaydedildi ve build tetiklendi!'; statusEl.style.color = '#34d399'; }
+            if (el) { el.textContent = 'Kaydedildi ve build tetiklendi!'; el.style.color = '#34d399'; }
             setTimeout(() => loadBuildRuns(), 3000);
           } catch {
-            if (statusEl) { statusEl.textContent = 'Kaydedildi ama build tetiklenemedi.'; statusEl.style.color = '#fbbf24'; }
+            if (el) { el.textContent = 'Kaydedildi ama build tetiklenemedi.'; el.style.color = '#fbbf24'; }
           }
         } catch (err) {
-          if (statusEl) { statusEl.textContent = 'Kayıt hatası: ' + err.message; statusEl.style.color = '#fca5a5'; }
+          if (el) { el.textContent = 'Kayıt hatası: ' + err.message; el.style.color = '#fca5a5'; }
         }
       }
 
-      // Login modal
+      // ── Login Modal ──
       document.getElementById('github-login-btn').addEventListener('click', (e) => {
         e.preventDefault();
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;';
         const modal = document.createElement('div');
-        modal.style.cssText = 'background:#1e293b;border:1px solid #334155;border-radius:1rem;padding:2rem;max-width:480px;width:90%;';
+        modal.style.cssText = 'background:#1e293b;border:1px solid #334155;border-radius:0.75rem;padding:2rem;max-width:480px;width:90%;';
         const title = document.createElement('h3');
         title.style.cssText = 'margin-bottom:0.75rem;font-size:1rem;';
         title.textContent = 'GitHub Personal Access Token';
         const desc = document.createElement('p');
-        desc.style.cssText = 'font-size:0.8rem;color:#94a3b8;margin-bottom:1rem;line-height:1.5;';
-        desc.textContent = 'GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token. Gerekli izinler: Contents (read/write), Actions (read/write), Metadata (read).';
+        desc.style.cssText = 'font-size:0.8rem;color:#94a3b8;margin-bottom:1.25rem;line-height:1.6;';
+        desc.textContent = 'GitHub \u2192 Settings \u2192 Developer settings \u2192 Personal access tokens \u2192 Fine-grained tokens \u2192 Generate new token. Gerekli izinler: Contents (read/write), Actions (read/write), Metadata (read).';
         const input = document.createElement('input');
         input.type = 'password';
         input.placeholder = 'github_pat_...';
         input.autocomplete = 'off';
-        input.style.cssText = 'width:100%;padding:0.5rem 0.75rem;border-radius:0.5rem;border:1px solid #334155;background:#0f172a;color:white;font-size:0.875rem;margin-bottom:1rem;font-family:inherit;';
+        input.style.cssText = 'width:100%;padding:0.875rem 1rem;border-radius:0.5rem;border:1px solid #334155;background:#0f172a;color:white;font-size:0.875rem;margin-bottom:1.25rem;font-family:inherit;';
         const btnRow = document.createElement('div');
         btnRow.style.cssText = 'display:flex;gap:0.5rem;justify-content:flex-end;';
         const cancelBtn = document.createElement('button');
@@ -765,10 +729,7 @@
         okBtn.textContent = 'Giriş Yap';
         okBtn.addEventListener('click', () => {
           const token = input.value.trim();
-          if (token) {
-            sessionStorage.setItem(TOKEN_KEY, token);
-            validateToken(token);
-          }
+          if (token) { sessionStorage.setItem(TOKEN_KEY, token); validateToken(token); }
           overlay.remove();
         });
         input.addEventListener('keydown', (ev) => {
@@ -786,6 +747,7 @@
         input.focus();
       });
 
+      // ── Init ──
       checkAuth();
     </script>
   </body>
