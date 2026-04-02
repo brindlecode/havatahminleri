@@ -1,6 +1,6 @@
 ---
 import { getWeatherDescription } from '../lib/weatherCodes';
-import { getDayName } from '../lib/utils';
+import { getDayName, getCityLocative } from '../lib/utils';
 import { buildWeatherFAQs, generateFAQSchema } from '../lib/seo';
 import type { WeatherData } from '../lib/weather';
 
@@ -44,6 +44,7 @@ const hasSatData = satIdx < daily.time.length;
 const hasSunData = sunIdx < daily.time.length;
 
 const fullName = isDistrict && provinceName ? `${cityName}, ${provinceName}` : cityName;
+const cityLocative = getCityLocative(cityName);
 
 // FAQ data for schema and display
 const faqs = buildWeatherFAQs(
@@ -76,9 +77,9 @@ const faqSchemaJson = generateFAQSchema(faqs);
 
   <!-- Tomorrow -->
   <section class="weather-card">
-    <h2 class="text-lg font-semibold mb-3">{cityName}'de Yarın Hava Nasıl Olacak?</h2>
+    <h2 class="text-lg font-semibold mb-3">{cityLocative} Yarın Hava Nasıl Olacak?</h2>
     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
-      {cityName} için yarınki hava durumu tahminlerine göre hava {tomorrowDesc.toLowerCase()} olması
+      {cityName} için yarın hava, tahminlere göre {tomorrowDesc.toLowerCase()} şeklinde olması
       beklenmektedir. En yüksek sıcaklık {tomorrowMax}°C, en düşük sıcaklık ise {tomorrowMin}°C olarak
       öngörülmektedir.
       {daily.precipitationProbabilityMax[1] > 30
@@ -133,7 +134,7 @@ const faqSchemaJson = generateFAQSchema(faqs);
     <h2 class="text-lg font-semibold mb-4">{cityName} Hava Durumu - Sık Sorulan Sorular</h2>
     <div class="space-y-4">
       {faqs.map((faq) => (
-        <details class="group">
+        <details class="group" open>
           <summary class="flex items-center justify-between cursor-pointer text-sm font-medium text-[var(--color-text)] hover:text-primary-500 transition-colors">
             <span>{faq.question}</span>
             <svg class="w-4 h-4 shrink-0 ml-2 transition-transform group-open:rotate-180 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

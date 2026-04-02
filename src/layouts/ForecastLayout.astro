@@ -42,6 +42,28 @@ const dayCount = period === 'bugun' ? 1 : period === 'yarin' ? 2 : period === '7
 const startDay = period === 'yarin' ? 1 : 0;
 const showHourly = period === 'bugun' || period === 'yarin' || period === 'saatlik' || period === '15gun';
 
+// Dynamic title for DailyForecast based on period
+const dailyTitleMap: Record<string, string> = {
+  'bugun': 'Bugünkü Hava Durumu',
+  'yarin': 'Yarınki Hava Durumu',
+  '7gun': '7 Günlük Hava Tahmini',
+  '10gun': '10 Günlük Hava Tahmini',
+  '15gun': '15 Günlük Hava Tahmini',
+  'saatlik': 'Saatlik Hava Tahmini',
+};
+const dailyTitle = dailyTitleMap[period] || '15 Günlük Hava Tahmini';
+
+// Hourly section title and range based on period
+const hourlyTitleMap: Record<string, string> = {
+  'bugun': 'Bugün Saatlik Tahmin',
+  'yarin': 'Yarın Saatlik Tahmin',
+  'saatlik': 'Saatlik Tahmin',
+  '15gun': 'Saatlik Tahmin',
+};
+const hourlyTitle = hourlyTitleMap[period] || 'Saatlik Tahmin';
+const hourlyStart = period === 'yarin' ? 24 : 0;
+const hourlyEnd = period === 'bugun' ? 24 : period === 'yarin' ? 48 : 48;
+
 // Slice daily data for this period
 const periodDaily = {
   ...weather.daily,
@@ -70,15 +92,15 @@ const periodDaily = {
 
     <!-- Period Navigation -->
     <div class="weather-card my-4">
-      <div class="flex gap-1 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
+      <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
         {links.map(link => (
           <a
             href={link.href}
             class:list={[
-              'px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all border',
+              'px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-2 shadow-sm',
               link.label === periodLabel
-                ? 'bg-blue-500 text-white border-blue-500'
-                : 'bg-[var(--color-bg)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]'
+                ? 'bg-blue-500 text-white border-blue-500 shadow-blue-200'
+                : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg)] hover:text-blue-500 hover:border-blue-400'
             ]}
           >
             {link.label}
@@ -89,13 +111,13 @@ const periodDaily = {
 
     {showHourly && (
       <div class="mt-4">
-        <HourlyForecast hourly={weather.hourly} />
+        <HourlyForecast hourly={weather.hourly} startIndex={hourlyStart} endIndex={hourlyEnd} title={hourlyTitle} />
       </div>
     )}
 
     {period !== 'saatlik' && (
       <div class="mt-4">
-        <DailyForecast daily={periodDaily} />
+        <DailyForecast daily={periodDaily} title={dailyTitle} />
       </div>
     )}
 

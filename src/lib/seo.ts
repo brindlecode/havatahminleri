@@ -1,4 +1,5 @@
 import { getWeatherDescription } from './weatherCodes';
+import { getCityLocative } from './utils';
 
 export interface SEOData {
   title: string;
@@ -169,24 +170,25 @@ export function buildWeatherFAQs(
   weekMinTemp: number,
   weekMaxTemp: number,
 ): FAQItem[] {
+  const locative = getCityLocative(cityName);
   return [
     {
       question: `${cityName} bugün hava nasıl?`,
-      answer: `${cityName}'de bugün hava ${todayDesc.toLowerCase()}. En yüksek sıcaklık ${todayMax}°C, en düşük sıcaklık ${todayMin}°C olarak tahmin edilmektedir.`,
+      answer: `${locative} bugün hava ${todayDesc.toLowerCase()}. En yüksek sıcaklık ${todayMax}°C, en düşük sıcaklık ${todayMin}°C olarak tahmin edilmektedir.`,
     },
     {
-      question: `${cityName}'de yarın hava nasıl olacak?`,
-      answer: `${cityName} yarınki hava tahminine göre ${tomorrowDesc.toLowerCase()} beklenmektedir. Sıcaklık ${tomorrowMax}°C ile ${tomorrowMin}°C arasında olacaktır.${precipProb > 30 ? ` Yağış olasılığı %${precipProb} seviyesindedir.` : ''}`,
+      question: `${locative} yarın hava nasıl olacak?`,
+      answer: `${cityName} için yarın hava, tahminlere göre ${tomorrowDesc.toLowerCase()} şeklinde olması beklenmektedir. Sıcaklık ${tomorrowMax}°C ile ${tomorrowMin}°C arasında olacaktır.${precipProb > 30 ? ` Yağış olasılığı %${precipProb} seviyesindedir.` : ''}`,
     },
     {
       question: `${cityName} 15 günlük hava durumu tahmini nedir?`,
       answer: `${cityName} için önümüzdeki 15 gün boyunca sıcaklıklar ${weekMinTemp}°C ile ${weekMaxTemp}°C arasında seyredecektir. Detaylı saatlik ve günlük tahminler için yarinhava.com'u ziyaret edebilirsiniz.`,
     },
     {
-      question: `${cityName}'de yağmur yağacak mı?`,
+      question: `${locative} yağmur yağacak mı?`,
       answer: precipProb > 30
-        ? `Evet, ${cityName}'de yakın dönemde yağış olasılığı %${precipProb} seviyesindedir. Dışarı çıkarken şemsiye almanızı öneririz.`
-        : `${cityName}'de yakın dönemde belirgin bir yağış beklenmemektedir. Ancak güncel tahminleri takip etmenizi öneririz.`,
+        ? `Evet, ${locative} yakın dönemde yağış olasılığı %${precipProb} seviyesindedir. Dışarı çıkarken şemsiye almanızı öneririz.`
+        : `${locative} yakın dönemde belirgin bir yağış beklenmemektedir. Ancak güncel tahminleri takip etmenizi öneririz.`,
     },
   ];
 }

@@ -64,6 +64,21 @@ const siblingDistricts = districts
 import { getPeriodLinks } from '../../lib/periods';
 const baseUrl = `/${province.slug}/${district.slug}-hava-durumu`;
 const periodLinks = getPeriodLinks(baseUrl);
+
+// Default view: Yarın (tomorrow) - slice daily data to show only tomorrow
+const yarinDaily = {
+  ...weather.daily,
+  time: weather.daily.time.slice(1, 2),
+  weatherCode: weather.daily.weatherCode.slice(1, 2),
+  temperatureMax: weather.daily.temperatureMax.slice(1, 2),
+  temperatureMin: weather.daily.temperatureMin.slice(1, 2),
+  precipitationSum: weather.daily.precipitationSum.slice(1, 2),
+  precipitationProbabilityMax: weather.daily.precipitationProbabilityMax.slice(1, 2),
+  windSpeedMax: weather.daily.windSpeedMax.slice(1, 2),
+  uvIndexMax: weather.daily.uvIndexMax.slice(1, 2),
+  sunrise: weather.daily.sunrise.slice(1, 2),
+  sunset: weather.daily.sunset.slice(1, 2),
+};
 ---
 
 <BaseLayout
@@ -83,15 +98,15 @@ const periodLinks = getPeriodLinks(baseUrl);
 
     <!-- Period Navigation Links -->
     <div class="weather-card my-4">
-      <div class="flex gap-1 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
+      <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
         {periodLinks.map(link => (
           <a
             href={link.href}
             class:list={[
-              'px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all border',
-              link.label === '15 Günlük'
-                ? 'bg-blue-500 text-white border-blue-500'
-                : 'bg-[var(--color-bg)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]'
+              'px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-2 shadow-sm',
+              link.label === 'Yarın'
+                ? 'bg-blue-500 text-white border-blue-500 shadow-blue-200'
+                : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg)] hover:text-blue-500 hover:border-blue-400'
             ]}
           >
             {link.label}
@@ -101,11 +116,11 @@ const periodLinks = getPeriodLinks(baseUrl);
     </div>
 
     <div class="mt-4">
-      <HourlyForecast hourly={weather.hourly} />
+      <HourlyForecast hourly={weather.hourly} startIndex={24} endIndex={48} title="Yarın Saatlik Tahmin" />
     </div>
 
     <div class="mt-4">
-      <DailyForecast daily={weather.daily} />
+      <DailyForecast daily={yarinDaily} title="Yarınki Hava Durumu" />
     </div>
 
     <AdSlot id="district-mid" />

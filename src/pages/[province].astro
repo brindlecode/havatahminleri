@@ -49,13 +49,25 @@ const structuredData = generateStructuredData('province', {
 });
 
 const provinceDistricts = districts.filter((d: any) => d.province === province.slug);
-const nearbyProvinces = provinces
-  .filter((p: any) => p.region === province.region && p.slug !== province.slug)
-  .slice(0, 6);
 
 import { getPeriodLinks } from '../lib/periods';
 const baseUrl = `/${province.slug}-hava-durumu`;
 const periodLinks = getPeriodLinks(baseUrl);
+
+// Default view: Yarın (tomorrow) - slice daily data to show only tomorrow
+const yarinDaily = {
+  ...weather.daily,
+  time: weather.daily.time.slice(1, 2),
+  weatherCode: weather.daily.weatherCode.slice(1, 2),
+  temperatureMax: weather.daily.temperatureMax.slice(1, 2),
+  temperatureMin: weather.daily.temperatureMin.slice(1, 2),
+  precipitationSum: weather.daily.precipitationSum.slice(1, 2),
+  precipitationProbabilityMax: weather.daily.precipitationProbabilityMax.slice(1, 2),
+  windSpeedMax: weather.daily.windSpeedMax.slice(1, 2),
+  uvIndexMax: weather.daily.uvIndexMax.slice(1, 2),
+  sunrise: weather.daily.sunrise.slice(1, 2),
+  sunset: weather.daily.sunset.slice(1, 2),
+};
 ---
 
 <BaseLayout
@@ -75,15 +87,15 @@ const periodLinks = getPeriodLinks(baseUrl);
 
     <!-- Period Navigation Links (each is a separate page for SEO) -->
     <div class="weather-card my-4">
-      <div class="flex gap-1 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
+      <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
         {periodLinks.map(link => (
           <a
             href={link.href}
             class:list={[
-              'px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all border',
-              link.label === '15 Günlük'
-                ? 'bg-blue-500 text-white border-blue-500'
-                : 'bg-[var(--color-bg)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]'
+              'px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-2 shadow-sm',
+              link.label === 'Yarın'
+                ? 'bg-blue-500 text-white border-blue-500 shadow-blue-200'
+                : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg)] hover:text-blue-500 hover:border-blue-400'
             ]}
           >
             {link.label}
@@ -92,14 +104,14 @@ const periodLinks = getPeriodLinks(baseUrl);
       </div>
     </div>
 
-    <!-- Hourly Forecast -->
+    <!-- Hourly Forecast (tomorrow hours) -->
     <div class="mt-4">
-      <HourlyForecast hourly={weather.hourly} />
+      <HourlyForecast hourly={weather.hourly} startIndex={24} endIndex={48} title="Yarın Saatlik Tahmin" />
     </div>
 
-    <!-- Daily Forecast -->
+    <!-- Daily Forecast (tomorrow only) -->
     <div class="mt-4">
-      <DailyForecast daily={weather.daily} />
+      <DailyForecast daily={yarinDaily} title="Yarınki Hava Durumu" />
     </div>
 
     <AdSlot id="city-mid" />
@@ -125,26 +137,6 @@ const periodLinks = getPeriodLinks(baseUrl);
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
               </svg>
               <span class="text-sm">{d.name}</span>
-            </a>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <!-- Nearby Provinces -->
-    {nearbyProvinces.length > 0 && (
-      <section class="weather-card mt-6">
-        <h2 class="text-lg font-semibold mb-4">Yakın İller</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {nearbyProvinces.map((p: any) => (
-            <a
-              href={`/${p.slug}-hava-durumu`}
-              class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors"
-            >
-              <svg class="w-3.5 h-3.5 text-[var(--color-text-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-              </svg>
-              <span class="text-sm">{p.name}</span>
             </a>
           ))}
         </div>

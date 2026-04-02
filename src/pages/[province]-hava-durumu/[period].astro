@@ -28,6 +28,7 @@ const periodTitleMap: Record<string, string> = {
   'yarin': 'Yarınki',
   '7gun': '7 Günlük',
   '10gun': '10 Günlük',
+  '15gun': '15 Günlük',
   'saatlik': 'Saatlik',
 };
 
@@ -57,9 +58,6 @@ const baseUrl = `/${province.slug}-hava-durumu`;
 const links = getPeriodLinks(baseUrl);
 
 const provinceDistricts = districts.filter((d: any) => d.province === province.slug);
-const nearbyProvinces = provinces
-  .filter((p: any) => p.region === province.region && p.slug !== province.slug)
-  .slice(0, 6);
 ---
 
 <ForecastLayout
@@ -93,20 +91,4 @@ const nearbyProvinces = provinces
     </section>
   )}
 
-  {nearbyProvinces.length > 0 && (
-    <section class="weather-card mt-6">
-      <h2 class="text-lg font-semibold mb-4">Yakın İller</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        {nearbyProvinces.map((p: any) => (
-          <a href={`/${p.slug}-hava-durumu`}
-            class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors">
-            <svg class="w-3.5 h-3.5 text-[var(--color-text-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-            </svg>
-            <span class="text-sm">{p.name}</span>
-          </a>
-        ))}
-      </div>
-    </section>
-  )}
 </ForecastLayout>

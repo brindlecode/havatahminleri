@@ -6,9 +6,10 @@ import type { DailyForecast as DF } from '../lib/weather';
 
 interface Props {
   daily: DF;
+  title?: string;
 }
 
-const { daily } = Astro.props;
+const { daily, title = '15 Günlük Hava Tahmini' } = Astro.props;
 
 const days = daily.time.map((time, i) => ({
   date: time,
@@ -31,7 +32,7 @@ const range = globalMax - globalMin || 1;
 ---
 
 <section class="weather-card" id="daily-forecast">
-  <h2 class="text-lg font-semibold mb-4 px-2">15 Günlük Hava Tahmini</h2>
+  <h2 class="text-lg font-semibold mb-4 px-2">{title}</h2>
   <div class="divide-y divide-[var(--color-border)]">
     {days.map((day, index) => {
       const leftPct = ((day.min - globalMin) / range) * 100;
