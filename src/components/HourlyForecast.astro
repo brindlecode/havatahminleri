@@ -5,27 +5,32 @@ import type { HourlyForecast as HF } from '../lib/weather';
 
 interface Props {
   hourly: HF;
+  startIndex?: number;
+  endIndex?: number;
+  title?: string;
 }
 
-const { hourly } = Astro.props;
+const { hourly, startIndex = 0, endIndex = 48, title = 'Saatlik Tahmin' } = Astro.props;
 
-// Show all 48 hours
-const hours = hourly.time.slice(0, 48).map((time, i) => ({
+// Show hours in the specified range
+const allHours = hourly.time.slice(0, 48).map((time, i) => ({
   time: formatHour(time),
   temp: Math.round(hourly.temperature[i]),
   code: hourly.weatherCode[i],
   precip: hourly.precipitationProbability[i],
   isDay: hourly.isDay[i] === 1,
+  originalIndex: i,
 }));
+const hours = allHours.slice(startIndex, endIndex);
 ---
 
 <section class="weather-card" id="hourly-forecast">
-  <h2 class="text-lg font-semibold mb-4 px-2">Saatlik Tahmin</h2>
+  <h2 class="text-lg font-semibold mb-4 px-2">{title}</h2>
   <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
     {hours.map((h, i) => (
-      <div data-hour-index={i} class="flex flex-col items-center gap-1.5 min-w-[70px] shrink-0 py-2 px-1">
+      <div data-hour-index={h.originalIndex} class="flex flex-col items-center gap-1.5 min-w-[70px] shrink-0 py-2 px-1">
         <span class="text-xs text-[var(--color-text-secondary)]">
-          {i === 0 ? 'Şimdi' : h.time}
+          {startIndex === 0 && i === 0 ? 'Şimdi' : h.time}
         </span>
         <WeatherIcon code={h.code} isDay={h.isDay} size="w-8 h-8" />
         <span class:list={['text-sm font-semibold', getTempColorClass(h.temp)]}>

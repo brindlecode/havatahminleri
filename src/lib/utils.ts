@@ -68,6 +68,43 @@ export function getUVLevel(uv: number): { label: string; color: string } {
   return { label: 'Aşırı', color: 'text-purple-500' };
 }
 
+/**
+ * Turkish locative suffix with vowel harmony: 'da, 'de, 'ta, 'te
+ * Example: Adana'da, İzmir'de, Sivas'ta, Kars'ta
+ */
+export function getLocativeSuffix(name: string): string {
+  const lower = name.toLowerCase().replace(/\s+/g, '');
+  const backVowels = ['a', 'ı', 'o', 'u'];
+  const frontVowels = ['e', 'i', 'ö', 'ü'];
+  const voiceless = ['p', 'ç', 't', 'k', 'f', 'h', 's', 'ş'];
+
+  // Find last vowel for a/e harmony
+  let lastVowelIsBack = true;
+  for (let i = lower.length - 1; i >= 0; i--) {
+    if (backVowels.includes(lower[i])) { lastVowelIsBack = true; break; }
+    if (frontVowels.includes(lower[i])) { lastVowelIsBack = false; break; }
+  }
+
+  const lastChar = lower[lower.length - 1];
+  const consonant = voiceless.includes(lastChar) ? 't' : 'd';
+  const vowel = lastVowelIsBack ? 'a' : 'e';
+
+  return `${name}'${consonant}${vowel}`;
+}
+
+/**
+ * Returns city name with locative suffix for use in sentences
+ * Example: "Adana'da", "İzmir'de"
+ */
+export function getCityLocative(cityName: string): string {
+  // For compound names like "Seyhan, Adana", use first part
+  const parts = cityName.split(',');
+  if (parts.length > 1) {
+    return getLocativeSuffix(parts[0].trim()) + ',' + parts.slice(1).join(',');
+  }
+  return getLocativeSuffix(cityName);
+}
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()
