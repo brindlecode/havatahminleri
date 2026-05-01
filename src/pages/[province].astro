@@ -45,7 +45,7 @@ const structuredData = generateStructuredData('province', {
   url: seo.canonical,
   lat: province.lat,
   lon: province.lon,
-  breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://yarinhava.com' }, ...breadcrumbs],
+  breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://yarinhava.com/' }, ...breadcrumbs],
 });
 
 const provinceDistricts = districts.filter((d: any) => d.province === province.slug);

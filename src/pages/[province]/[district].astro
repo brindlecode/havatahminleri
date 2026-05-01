@@ -44,7 +44,7 @@ const seo = getDistrictSEO(
 const region = regions.find((r: any) => r.id === province.region);
 const breadcrumbs = [
   { name: region?.name || '', url: '/' },
-  { name: province.name, url: `/${province.slug}-hava-durumu` },
+  { name: province.name, url: `/${province.slug}-hava-durumu/` },
   { name: `${district.name} Hava Durumu`, url: seo.canonical },
 ];
 
@@ -54,7 +54,7 @@ const structuredData = generateStructuredData('district', {
   url: seo.canonical,
   lat: district.lat,
   lon: district.lon,
-  breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://yarinhava.com' }, ...breadcrumbs],
+  breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://yarinhava.com/' }, ...breadcrumbs],
 });
 
 const siblingDistricts = districts
