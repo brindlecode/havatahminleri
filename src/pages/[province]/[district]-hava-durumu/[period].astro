@@ -37,13 +37,13 @@ const periodTitleMap: Record<string, string> = {
 const titlePrefix = periodTitleMap[periodInfo.id] || '';
 const title = `${district.name} (${province.name}) ${titlePrefix} Hava Durumu | Yarın Hava`;
 const description = `${district.name}, ${province.name} ${periodInfo.label.toLowerCase()} hava durumu tahmini.`;
-const canonical = `https://yarinhava.com/${province.slug}/${district.slug}-hava-durumu/${periodInfo.slug}`;
+const canonical = `https://yarinhava.com/${province.slug}/${district.slug}-hava-durumu/${periodInfo.slug}/`;
 
 const region = regions.find((r: any) => r.id === province.region);
 const breadcrumbs = [
   { name: region?.name || '', url: '/' },
-  { name: province.name, url: `/${province.slug}-hava-durumu` },
-  { name: district.name, url: `/${province.slug}/${district.slug}-hava-durumu` },
+  { name: province.name, url: `/${province.slug}-hava-durumu/` },
+  { name: district.name, url: `/${province.slug}/${district.slug}-hava-durumu/` },
   { name: `${periodInfo.label}`, url: canonical },
 ];
 
@@ -53,7 +53,7 @@ const structuredData = generateStructuredData('district', {
   url: canonical,
   lat: district.lat,
   lon: district.lon,
-  breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://yarinhava.com' }, ...breadcrumbs],
+  breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://yarinhava.com/' }, ...breadcrumbs],
 });
 
 import { getPeriodLinks } from '../../../lib/periods';
