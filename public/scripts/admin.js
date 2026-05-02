@@ -2,6 +2,7 @@
       const REPO_NAME = 'havatahminleri';
       const CONFIG_PATH = 'src/data/site-config.json';
       const WORKFLOW_FILE = 'scheduled-build.yml';
+      const WORKFLOW_BRANCH = 'claude/weather-forecast-site-JpQxB';
       const ADMIN_USERS = ['ilkukaya'];
       const TOKEN_KEY = 'admin_gh_token';
 
@@ -72,13 +73,20 @@
 
       function getTabFromHash() {
         const hash = window.location.hash.slice(1);
-        const valid = ['overview', 'build', 'analytics', 'seo', 'ads', 'api'];
+        const valid = ['overview', 'build', 'analytics', 'seo', 'api'];
         return valid.includes(hash) ? hash : 'overview';
       }
 
       function closeMobileSidebar() {
         document.getElementById('sidebar').classList.remove('open');
         document.getElementById('sidebar-overlay').classList.remove('open');
+      }
+
+      function setSaveButtonsEnabled(enabled) {
+        ['save-analytics-btn', 'save-seo-btn', 'save-ads-btn'].forEach(id => {
+          const btn = document.getElementById(id);
+          if (btn) btn.disabled = !enabled;
+        });
       }
 
       function showAdmin(user) {
@@ -94,6 +102,8 @@
         const avatar = document.createElement('img');
         avatar.src = user.avatar_url;
         avatar.alt = sanitizeText(user.login);
+        avatar.width = 26;
+        avatar.height = 26;
         const uname = document.createElement('span');
         uname.textContent = user.login;
         pill.appendChild(avatar);
@@ -141,6 +151,7 @@
 
       // ── Data Functions ──
       async function loadStats() {
+        const grid = document.getElementById('stats-grid');
         try {
           const res = await fetch('/search-index.json');
           const districts = res.ok ? await res.json() : [];
@@ -156,7 +167,6 @@
             return parts[1];
           })).size;
 
-          const grid = document.getElementById('stats-grid');
           grid.innerHTML = '';
           const cards = [
             { label: 'Toplam Sayfa', value: totalPages.toLocaleString('tr-TR'), sub: `${provinceCount} il + ${districtCount} ilçe + ${(provincePeriodPages + districtPeriodPages).toLocaleString('tr-TR')} dönem + ${staticPages} statik` },
@@ -170,7 +180,9 @@
             card.innerHTML = `<div class="stat-label">${sanitizeText(c.label)}</div><div class="stat-value">${sanitizeText(String(c.value))}</div><div class="stat-sub">${sanitizeText(c.sub)}</div>`;
             grid.appendChild(card);
           });
-        } catch {}
+        } catch {
+          grid.innerHTML = '<div style="color:#fca5a5;font-size:0.8125rem;">İstatistikler yüklenemedi.</div>';
+        }
       }
 
       async function checkAPI() {
@@ -204,7 +216,7 @@
         try {
           await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
             method: 'POST',
-            body: JSON.stringify({ ref: 'main' })
+            body: JSON.stringify({ ref: WORKFLOW_BRANCH })
           });
           el.textContent = 'Build başarıyla tetiklendi!';
           el.style.color = '#34d399';
@@ -247,8 +259,13 @@
           currentConfig = JSON.parse(atob(data.content));
           currentConfigSha = data.sha;
           populateFields(currentConfig);
+          setSaveButtonsEnabled(true);
         } catch (err) {
           console.error('Config yüklenemedi:', err);
+          ['analytics-status', 'seo-status', 'ads-status'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.textContent = 'Config yüklenemedi'; el.style.color = '#fca5a5'; }
+          });
         }
       }
 
@@ -294,7 +311,9 @@
       }
 
       async function saveConfig(statusElId) {
+        if (!currentConfigSha) return;
         const el = document.getElementById(statusElId);
+        setSaveButtonsEnabled(false);
         if (el) { el.textContent = 'Kaydediliyor...'; el.style.color = '#94a3b8'; }
         try {
           const newConfig = collectConfig();
@@ -308,7 +327,7 @@
           try {
             await ghApi(`/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
               method: 'POST',
-              body: JSON.stringify({ ref: 'main' })
+              body: JSON.stringify({ ref: WORKFLOW_BRANCH })
             });
             if (el) { el.textContent = 'Kaydedildi ve build tetiklendi!'; el.style.color = '#34d399'; }
             setTimeout(() => loadBuildRuns(), 3000);
@@ -318,6 +337,7 @@
         } catch (err) {
           if (el) { el.textContent = 'Kayıt hatası: ' + err.message; el.style.color = '#fca5a5'; }
         }
+        setSaveButtonsEnabled(true);
       }
 
       // ── Login Modal ──
@@ -332,7 +352,7 @@
         title.textContent = 'GitHub Personal Access Token';
         const desc = document.createElement('p');
         desc.style.cssText = 'font-size:0.8rem;color:#94a3b8;margin-bottom:1.25rem;line-height:1.6;';
-        desc.textContent = 'GitHub \u2192 Settings \u2192 Developer settings \u2192 Personal access tokens \u2192 Fine-grained tokens \u2192 Generate new token. Gerekli izinler: Contents (read/write), Actions (read/write), Metadata (read).';
+        desc.textContent = 'GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token. Gerekli izinler: Contents (read/write), Actions (read/write), Metadata (read).';
         const input = document.createElement('input');
         input.type = 'password';
         input.placeholder = 'github_pat_...';
