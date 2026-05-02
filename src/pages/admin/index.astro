@@ -121,8 +121,7 @@
       }
       .logout-btn:hover { color: var(--color-danger); border-color: var(--color-danger); background: rgba(239, 68, 68, 0.05); }
 
-      /* ── Mobile Nav Toggle (CSS-only checkbox hack) ── */
-      .mobile-nav-toggle { display: none; }
+      /* ── Mobile Nav Toggle ── */
       .hamburger {
         display: none; background: none; border: none;
         color: var(--color-text-secondary); font-size: 1.25rem;
@@ -202,6 +201,7 @@
         padding: calc(var(--header-height) + 2rem) 2.5rem 2rem;
         max-width: 960px;
         min-height: 100vh;
+        overflow-x: hidden;
       }
       .tab-panel { display: none; animation: fadeIn 0.2s ease; }
       .tab-panel.active { display: block; }
@@ -394,21 +394,7 @@
           top: var(--header-height);
           z-index: 300;
         }
-        /* CSS-only checkbox hack: show sidebar when toggle is checked */
-        .mobile-nav-toggle:checked ~ .sidebar,
         .sidebar.open { transform: translateX(0); }
-
-        /* Overlay via checkbox hack */
-        .mobile-nav-toggle:checked ~ .sidebar::after {
-          content: '';
-          position: fixed;
-          top: var(--header-height); left: var(--sidebar-width); right: 0; bottom: 0;
-          background: rgba(0, 0, 0, 0.4);
-          backdrop-filter: blur(2px);
-          z-index: 1;
-        }
-
-        /* Sidebar open indicator - uncheck closes via overlay click handled by JS */
 
         .main-content {
           margin-left: 0 !important;
@@ -450,7 +436,7 @@
     <!-- ── Top Header Bar ── -->
     <div id="top-header" class="top-header hidden">
       <div class="top-header-left">
-        <label class="hamburger" id="hamburger-btn" for="mobile-nav-toggle">&#9776;</label>
+        <button class="hamburger" id="hamburger-btn" aria-label="Menüyü aç/kapat">&#9776;</button>
         <div class="logo">☁ Yarın <span>Hava</span> Admin</div>
       </div>
       <div class="top-header-right" id="header-user"></div>
@@ -461,9 +447,6 @@
 
     <!-- ── Admin Shell ── -->
     <div id="admin-shell" class="admin-shell hidden">
-
-      <!-- CSS-only mobile nav toggle (checkbox hack) -->
-      <input type="checkbox" id="mobile-nav-toggle" class="mobile-nav-toggle" />
 
       <!-- ── Left Sidebar (250px, dark) ── -->
       <aside class="sidebar" id="sidebar" style="width:250px;">
@@ -601,7 +584,7 @@
               </div>
             </div>
             <div class="save-row">
-              <button class="btn btn-save" id="save-seo-btn">Kaydet &amp; Build Tetikle</button>
+              <button class="btn btn-save" id="save-seo-btn" disabled>Kaydet &amp; Build Tetikle</button>
               <span class="save-status" id="seo-status"></span>
             </div>
           </div>
@@ -629,7 +612,7 @@
               <div class="hint">12345678</div>
             </div>
             <div class="save-row">
-              <button class="btn btn-save" id="save-analytics-btn">Kaydet &amp; Build Tetikle</button>
+              <button class="btn btn-save" id="save-analytics-btn" disabled>Kaydet &amp; Build Tetikle</button>
               <span class="save-status" id="analytics-status"></span>
             </div>
           </div>
@@ -671,17 +654,9 @@
               </div>
             </div>
             <div class="save-row">
-              <button class="btn btn-save" id="save-ads-btn">Kaydet &amp; Build Tetikle</button>
+              <button class="btn btn-save" id="save-ads-btn" disabled>Kaydet &amp; Build Tetikle</button>
               <span class="save-status" id="ads-status"></span>
             </div>
-          </div>
-        </div>
-
-        <!-- Hidden panel placeholder for JS compatibility (ads tab) -->
-        <div id="panel-ads" class="tab-panel">
-          <div class="panel-header">
-            <h1>Reklamlar</h1>
-            <p>Reklam ayarları Site Settings bölümünden yönetilmektedir.</p>
           </div>
         </div>
 
