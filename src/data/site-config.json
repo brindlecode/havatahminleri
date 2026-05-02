@@ -10,8 +10,8 @@
   },
   "ads": {
     "enabled": false,
-    "provider": "",
-    "adsensePublisherId": "",
+    "provider": "adsense",
+    "adsensePublisherId": "ca-pub-9110547384071189",
     "adsenseSlots": {
       "header": "",
       "sidebar": "",
