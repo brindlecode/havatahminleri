@@ -2,17 +2,22 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { generateLegalPageStructuredData } from '../lib/seo';
 
-const title = 'Çerez Politikası | Yarın Hava';
+const pageName = 'Çerez Politikası';
+const title = 'Çerez Politikası - Yarın Hava | KVKK Uyumlu Çerez Bilgisi';
 const description =
-  'Yarın Hava çerez politikası. Sitemizde kullanılan çerezler, türleri, amaçları ve çerez tercihlerinizi nasıl yönetebileceğiniz hakkında bilgi.';
+  'Yarın Hava çerez politikası. Sitemizde kullanılan çerezler, türleri, amaçları ve çerez tercihlerinizi nasıl yönetebileceğiniz hakkında KVKK uyumlu detaylı bilgi.';
 const canonical = 'https://yarinhava.com/cerez-politikasi/';
+const structuredData = generateLegalPageStructuredData(pageName, description, canonical);
 ---
 
-<BaseLayout title={title} description={description} canonical={canonical}>
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData}>
   <Header slot="header" />
 
   <div class="max-w-3xl mx-auto px-4 py-10">
+    <Breadcrumb items={[{ name: pageName, url: canonical }]} />
     <h1 class="text-3xl font-bold mb-6">Çerez Politikası</h1>
     <p class="text-sm text-[var(--color-text-secondary)] mb-8">
       Son güncelleme: {new Date().toLocaleDateString('tr-TR')}

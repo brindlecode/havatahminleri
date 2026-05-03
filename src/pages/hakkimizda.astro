@@ -2,16 +2,21 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { generateLegalPageStructuredData } from '../lib/seo';
 
-const title = 'Hakkımızda | Yarın Hava';
-const description = 'Yarın Hava hakkında bilgi. Türkiye genelinde 81 il ve tüm ilçeler için güvenilir hava durumu tahminleri sunuyoruz.';
+const pageName = 'Hakkımızda';
+const title = 'Hakkımızda - Yarın Hava | Türkiye Hava Durumu Sitesi';
+const description = 'Yarın Hava hakkında bilgi. Türkiye genelinde 81 il ve tüm ilçeler için güvenilir hava durumu tahminleri ve 15 günlük detaylı meteorolojik veri sunan platformumuzu tanıyın.';
 const canonical = 'https://yarinhava.com/hakkimizda/';
+const structuredData = generateLegalPageStructuredData(pageName, description, canonical);
 ---
 
-<BaseLayout title={title} description={description} canonical={canonical}>
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData}>
   <Header slot="header" />
 
   <div class="max-w-3xl mx-auto px-4 py-10">
+    <Breadcrumb items={[{ name: pageName, url: canonical }]} />
     <h1 class="text-3xl font-bold mb-6">Hakkımızda</h1>
 
     <div class="space-y-6 text-[var(--color-text-secondary)] leading-relaxed">

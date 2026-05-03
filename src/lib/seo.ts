@@ -60,6 +60,39 @@ export function getHomeSEO(): SEOData {
   };
 }
 
+export function generateLegalPageStructuredData(
+  pageTitle: string,
+  pageDescription: string,
+  canonical: string,
+): string {
+  const today = new Date().toISOString().split('T')[0];
+  const items = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: pageTitle,
+      description: pageDescription,
+      url: canonical,
+      inLanguage: 'tr-TR',
+      dateModified: today,
+      publisher: {
+        '@type': 'Organization',
+        name: 'Yarın Hava',
+        url: 'https://yarinhava.com/',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://yarinhava.com/' },
+        { '@type': 'ListItem', position: 2, name: pageTitle, item: canonical },
+      ],
+    },
+  ];
+  return items.map((i) => JSON.stringify(i)).join('\n');
+}
+
 export interface PeriodMeta {
   titlePrefix: string;
   shortLabel: string;
