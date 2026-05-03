@@ -1,0 +1,180 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Çerez Politikası | Yarın Hava';
+const description =
+  'Yarın Hava çerez politikası. Sitemizde kullanılan çerezler, türleri, amaçları ve çerez tercihlerinizi nasıl yönetebileceğiniz hakkında bilgi.';
+const canonical = 'https://yarinhava.com/cerez-politikasi/';
+---
+
+<BaseLayout title={title} description={description} canonical={canonical}>
+  <Header slot="header" />
+
+  <div class="max-w-3xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-6">Çerez Politikası</h1>
+    <p class="text-sm text-[var(--color-text-secondary)] mb-8">
+      Son güncelleme: {new Date().toLocaleDateString('tr-TR')}
+    </p>
+
+    <div class="space-y-6 text-[var(--color-text-secondary)] leading-relaxed">
+      <p>
+        Bu Çerez Politikası, YarınHava.com (“Site”) tarafından kullanılan çerezleri ve benzeri
+        teknolojileri, hangi amaçlarla kullanıldıklarını ve çerez tercihlerinizi nasıl
+        yönetebileceğinizi açıklamaktadır. Bu politika, 6698 sayılı Kişisel Verilerin Korunması
+        Kanunu (KVKK) ve ilgili mevzuat ile Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR)
+        kapsamında bilgilendirme amacıyla hazırlanmıştır.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Çerez Nedir?</h2>
+      <p>
+        Çerezler (cookies), bir web sitesini ziyaret ettiğinizde tarayıcınız aracılığıyla
+        cihazınıza kaydedilen küçük metin dosyalarıdır. Çerezler; tercihlerinizin hatırlanması,
+        oturumunuzun sürdürülmesi, site trafiğinin analiz edilmesi ve size daha alakalı içerik
+        sunulması gibi amaçlarla kullanılır.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">
+        Sitemizde Kullanılan Çerez Türleri
+      </h2>
+
+      <h3 class="text-lg font-semibold text-[var(--color-text)] mt-6">1. Zorunlu Çerezler</h3>
+      <p>
+        Sitenin temel işlevlerinin çalışması için gerekli olan çerezlerdir. Bunlar tema tercihiniz
+        (açık/koyu mod), çerez onay tercihiniz ve hava durumu önbelleği gibi ayarlarınızı
+        saklamak için kullanılır. Bu çerezler kapatıldığında site düzgün çalışmayabilir ve onay
+        gerektirmez.
+      </p>
+
+      <h3 class="text-lg font-semibold text-[var(--color-text)] mt-6">2. Analitik Çerezler</h3>
+      <p>
+        Sitenin nasıl kullanıldığını anlamamıza, istatistik toplamamıza ve deneyimi
+        iyileştirmemize yardımcı olan çerezlerdir. Bu kategori altında aşağıdaki üçüncü taraf
+        hizmetler kullanılır:
+      </p>
+      <ul class="list-disc pl-6 space-y-2">
+        <li>
+          <strong>Google Analytics</strong> (Google LLC) – ölçüm kimliği
+          <code>G-EJTF3W7YNW</code>. Sayfa görüntülemeleri, oturum süresi ve ziyaretçi
+          davranışlarını analiz etmek için kullanılır.
+        </li>
+        <li>
+          <strong>Yandex Metrica</strong> (Yandex LLC) – sayaç numarası
+          <code>108330484</code>. Kullanıcı etkileşimi ve trafik analizini gerçekleştirir.
+        </li>
+      </ul>
+
+      <h3 class="text-lg font-semibold text-[var(--color-text)] mt-6">3. Reklam Çerezleri</h3>
+      <p>
+        Size ilgi alanlarınıza uygun reklamlar gösterebilmek için kullanılan çerezlerdir.
+        Sitemizde kullanılan reklam hizmeti:
+      </p>
+      <ul class="list-disc pl-6 space-y-2">
+        <li>
+          <strong>Google AdSense</strong> (Google LLC) – yayıncı kimliği
+          <code>ca-pub-9110547384071189</code>. Google ve iş ortakları, ilgi alanlarınıza uygun
+          reklamlar sunmak için çerez kullanabilir. Google’ın reklam çerezleri hakkında ayrıntılı
+          bilgiyi
+          <a
+            href="https://policies.google.com/technologies/ads"
+            class="text-primary-500 hover:text-primary-600 underline"
+            target="_blank"
+            rel="noopener"
+            >Google Reklam Çerezleri</a
+          > sayfasından edinebilirsiniz.
+        </li>
+      </ul>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Çerezlerin Saklama Süresi</h2>
+      <p>
+        Çerezler, türlerine göre oturum süresince ya da belirlenen süre boyunca cihazınızda
+        saklanır. Üçüncü taraf çerezlerinin saklama süreleri ilgili sağlayıcının kendi
+        politikalarına göre belirlenir.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">
+        Çerez Tercihlerinizi Nasıl Yönetirsiniz?
+      </h2>
+      <p>
+        Sitemizi ilk ziyaret ettiğinizde gösterilen çerez bildirim bandı üzerinden zorunlu olmayan
+        çerezleri kabul edebilir veya reddedebilirsiniz. Tercihlerinizi her zaman tarayıcınızın
+        ayarlarından değiştirebilir, mevcut çerezleri silebilir veya yeni çerezlerin
+        kaydedilmesini engelleyebilirsiniz. Tarayıcı bazlı yönlendirmeler için aşağıdaki
+        bağlantıları kullanabilirsiniz:
+      </p>
+      <ul class="list-disc pl-6 space-y-2">
+        <li>
+          <a
+            href="https://support.google.com/chrome/answer/95647"
+            class="text-primary-500 hover:text-primary-600 underline"
+            target="_blank"
+            rel="noopener">Google Chrome</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://support.mozilla.org/tr/kb/cerezler-bilgi-depolar-web-sitelerinin-bilgisayariniza"
+            class="text-primary-500 hover:text-primary-600 underline"
+            target="_blank"
+            rel="noopener">Mozilla Firefox</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://support.apple.com/tr-tr/guide/safari/sfri11471/mac"
+            class="text-primary-500 hover:text-primary-600 underline"
+            target="_blank"
+            rel="noopener">Apple Safari</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://support.microsoft.com/tr-tr/microsoft-edge/microsoft-edge-de-tan%C4%B1mlama-bilgilerini-silme-63947406-40ac-c3b8-57b9-2a946a29ae09"
+            class="text-primary-500 hover:text-primary-600 underline"
+            target="_blank"
+            rel="noopener">Microsoft Edge</a
+          >
+        </li>
+      </ul>
+      <p>
+        Reklam çerezlerini, ek olarak
+        <a
+          href="https://www.youronlinechoices.com/tr/reklam-tercihleri"
+          class="text-primary-500 hover:text-primary-600 underline"
+          target="_blank"
+          rel="noopener">Your Online Choices</a
+        >
+        üzerinden de yönetebilirsiniz.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Haklarınız</h2>
+      <p>
+        KVKK Madde 11 kapsamında; kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse
+        buna ilişkin bilgi talep etme, işlenme amacını ve amacına uygun kullanılıp kullanılmadığını
+        öğrenme, eksik veya yanlış işlenmişse düzeltilmesini isteme, silinmesini veya yok
+        edilmesini talep etme, otomatik sistemler aracılığıyla analiz edilmesi nedeniyle
+        aleyhinize bir sonuç doğmuşsa buna itiraz etme ve zarara uğramanız hâlinde tazminat
+        isteme haklarına sahipsiniz.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">İlgili Politikalar</h2>
+      <p>
+        Kişisel verilerinizin işlenmesine ilişkin ayrıntılı bilgi için
+        <a href="/gizlilik-politikasi/" class="text-primary-500 hover:text-primary-600 underline"
+          >Gizlilik Politikamızı</a
+        > inceleyebilirsiniz.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">İletişim</h2>
+      <p>
+        Çerez politikamız hakkında sorularınız için
+        <a href="/iletisim/" class="text-primary-500 hover:text-primary-600 underline"
+          >iletişim sayfamızdan</a
+        > bize ulaşabilirsiniz.
+      </p>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
