@@ -14,7 +14,7 @@ interface Props {
 const { cityName, weather, isDistrict = false, provinceName } = Astro.props;
 const { current, daily } = weather;
 
-const todayDesc = getWeatherDescription(daily.weatherCode[0]);
+const todayDesc = getWeatherDescription(current.weatherCode);
 const tomorrowDesc = getWeatherDescription(daily.weatherCode[1]);
 const todayMax = Math.round(daily.temperatureMax[0]);
 const todayMin = Math.round(daily.temperatureMin[0]);
@@ -67,11 +67,10 @@ const faqSchemaJson = generateFAQSchema(faqs);
   <section class="weather-card">
     <h2 class="text-lg font-semibold mb-3">{cityName} Hava Durumu</h2>
     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
-      {fullName} için güncel hava durumu bilgilerine göre bugün hava {todayDesc.toLowerCase()} olarak
-      gözlemlenmektedir. Sıcaklık en yüksek {todayMax}°C, en düşük {todayMin}°C olarak tahmin
-      edilmektedir. Nem oranı %{current.humidity} seviyesinde olup, rüzgar {Math.round(current.windSpeed)} km/s
-      hızla esmektedir. {fullName} ve çevresi için 15 günlük detaylı hava tahmini, saatlik sıcaklık
-      değişimleri ve yağış olasılıklarını bu sayfadan takip edebilirsiniz.
+      {fullName} için güncel hava durumu bilgilerine göre şu an hava {todayDesc.toLowerCase()} olarak
+      gözlemlenmektedir. Bugün için en yüksek {todayMax}°C, en düşük {todayMin}°C bekleniyor.
+      {fullName} ve çevresi için 15 günlük detaylı hava tahmini, saatlik sıcaklık değişimleri ve
+      yağış olasılıklarını bu sayfadan takip edebilirsiniz.
     </p>
   </section>
 
