@@ -37,6 +37,17 @@ const {
   links = [], relatedLinks = [],
 } = Astro.props;
 
+// Page-specific H1 reflecting the period
+const headingMap: Record<string, string> = {
+  'bugun': `${cityName} Bugünkü Hava Durumu`,
+  'yarin': `${cityName} Yarınki Hava Durumu`,
+  '7gun': `${cityName} 7 Günlük Hava Durumu`,
+  '10gun': `${cityName} 10 Günlük Hava Durumu`,
+  '15gun': `${cityName} 15 Günlük Hava Durumu`,
+  'saatlik': `${cityName} Saatlik Hava Durumu`,
+};
+const heading = headingMap[period] || `${cityName} Hava Durumu`;
+
 // Determine which days to show based on period
 const dayCount = period === 'bugun' ? 1 : period === 'yarin' ? 2 : period === '7gun' ? 7 : period === '10gun' ? 10 : 16;
 const startDay = period === 'yarin' ? 1 : 0;
@@ -86,7 +97,7 @@ const periodDaily = {
   <div class="max-w-4xl mx-auto px-4 py-6">
     <Breadcrumb items={breadcrumbs} />
 
-    <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} />
+    <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} heading={heading} />
 
     <AdSlot id="city-top" />
 

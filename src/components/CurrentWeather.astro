@@ -8,9 +8,11 @@ interface Props {
   cityName: string;
   current: CW;
   daily: DailyForecast;
+  heading?: string;
 }
 
-const { cityName, current, daily } = Astro.props;
+const { cityName, current, daily, heading } = Astro.props;
+const h1Text = heading || `${cityName} Hava Durumu`;
 const description = getWeatherDescription(current.weatherCode);
 const tempClass = getTempColorClass(current.temperature);
 const windDir = getWindDirection(current.windDirection);
@@ -26,7 +28,7 @@ const todayMin = daily.temperatureMin[0];
     <div class="relative flex flex-col md:flex-row items-center md:items-start gap-6">
       <!-- Left: City + temp -->
       <div class="text-center md:text-left flex-1">
-        <h1 class="text-2xl md:text-3xl font-bold mb-1">{cityName} Hava Durumu</h1>
+        <h1 class="text-2xl md:text-3xl font-bold mb-1">{h1Text}</h1>
         <p id="weather-desc" class="text-[var(--color-text-secondary)] text-sm mb-4">{description}</p>
 
         <div class="flex items-center justify-center md:justify-start gap-4">
