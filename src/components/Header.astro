@@ -8,7 +8,7 @@ const popularCities = provinces.filter((p: any) => p.popular).slice(0, 6);
 // Only pass province search data inline (81 items), districts loaded on-demand
 const provinceSearch = provinces.map((p: any) => ({
   n: p.name,
-  u: `/${p.slug}-hava-durumu`,
+  u: `/${p.slug}-hava-durumu/`,
   t: 'il'
 }));
 ---
@@ -57,15 +57,16 @@ const provinceSearch = provinces.map((p: any) => ({
       </a>
 
       <!-- Search -->
-      <div class="flex-1 max-w-md relative" id="search-container">
+      <div class="flex-1 max-w-md relative" id="search-container" role="search">
         <div class="relative">
-          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
           <input
             type="text"
             id="city-search"
             placeholder="Şehir veya ilçe ara..."
+            aria-label="Şehir veya ilçe ara"
             autocomplete="off"
             class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-sm"
           />

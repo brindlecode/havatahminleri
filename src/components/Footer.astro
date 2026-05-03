@@ -19,7 +19,7 @@ const regionGroups = regions.map((r: any) => ({
           <div class="flex flex-wrap gap-x-3 gap-y-1">
             {region.provinces.map((p: any) => (
               <a
-                href={`/${p.slug}-hava-durumu`}
+                href={`/${p.slug}-hava-durumu/`}
                 class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors"
               >
                 {p.name}
@@ -54,19 +54,31 @@ const regionGroups = regions.map((r: any) => ({
           <path d="M16 33 L21 38 L21 43" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           <path d="M26 33 L21 38" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         </svg>
-        <span>© {new Date().getFullYear()} yarınhava.com — Tüm hakları saklıdır.</span>
+        <span>
+          © {new Date().getFullYear()} yarınhava.com — Tüm hakları saklıdır.
+          Veri kaynağı:
+          <a
+            href="https://open-meteo.com/"
+            target="_blank"
+            rel="noopener"
+            class="hover:text-primary-500 transition-colors underline"
+          >Open-Meteo</a>.
+        </span>
       </div>
       <nav class="flex items-center gap-4">
-        <a href="/hakkimizda" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+        <a href="/hakkimizda/" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
           Hakkımızda
         </a>
-        <a href="/gizlilik-politikasi" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+        <a href="/gizlilik-politikasi/" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
           Gizlilik Politikası
         </a>
-        <a href="/kullanim-sartlari" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+        <a href="/cerez-politikasi/" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+          Çerez Politikası
+        </a>
+        <a href="/kullanim-sartlari/" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
           Kullanım Şartları
         </a>
-        <a href="/iletisim" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+        <a href="/iletisim/" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
           İletişim
         </a>
       </nav>

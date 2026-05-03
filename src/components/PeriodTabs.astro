@@ -1,0 +1,61 @@
+---
+interface Props {
+  links: { label: string; href: string }[];
+  activeLabel: string;
+}
+
+const { links, activeLabel } = Astro.props;
+---
+
+<div class="weather-card my-4">
+  <div class="period-tabs relative">
+    <div class="period-tabs-scroll flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
+      {links.map((link) => {
+        const isActive = link.label === activeLabel;
+        return (
+          <a
+            href={link.href}
+            data-period-tab-active={isActive ? 'true' : 'false'}
+            class:list={[
+              'px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-2 shadow-sm',
+              isActive
+                ? 'bg-blue-500 text-white border-blue-500 shadow-blue-200'
+                : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg)] hover:text-blue-500 hover:border-blue-400',
+            ]}
+          >
+            {link.label}
+          </a>
+        );
+      })}
+    </div>
+    <div class="period-tabs-fade pointer-events-none absolute right-0 top-0 bottom-0 w-8" aria-hidden="true"></div>
+  </div>
+</div>
+
+<style>
+  .period-tabs-fade {
+    background: linear-gradient(to left, var(--color-surface), transparent);
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    function scrollActiveIntoView() {
+      document.querySelectorAll('.period-tabs').forEach(function (container) {
+        const active = container.querySelector('[data-period-tab-active="true"]');
+        if (active && typeof active.scrollIntoView === 'function') {
+          try {
+            active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'instant' });
+          } catch (e) {
+            active.scrollIntoView({ inline: 'center', block: 'nearest' });
+          }
+        }
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', scrollActiveIntoView);
+    } else {
+      scrollActiveIntoView();
+    }
+  })();
+</script>

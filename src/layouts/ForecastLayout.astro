@@ -7,6 +7,7 @@ import CurrentWeather from '../components/CurrentWeather.astro';
 import HourlyForecast from '../components/HourlyForecast.astro';
 import DailyForecast from '../components/DailyForecast.astro';
 import ForecastTabs from '../components/ForecastTabs.astro';
+import PeriodTabs from '../components/PeriodTabs.astro';
 import WeatherDetails from '../components/WeatherDetails.astro';
 import WeatherSummary from '../components/WeatherSummary.astro';
 import AdSlot from '../components/AdSlot.astro';
@@ -37,10 +38,21 @@ const {
   links = [], relatedLinks = [],
 } = Astro.props;
 
+// Page-specific H1 reflecting the period
+const headingMap: Record<string, string> = {
+  'bugun': `${cityName} Bugünkü Hava Durumu`,
+  'yarin': `${cityName} Yarınki Hava Durumu`,
+  '7gun': `${cityName} 7 Günlük Hava Durumu`,
+  '10gun': `${cityName} 10 Günlük Hava Durumu`,
+  '15gun': `${cityName} 15 Günlük Hava Durumu`,
+  'saatlik': `${cityName} Saatlik Hava Durumu`,
+};
+const heading = headingMap[period] || `${cityName} Hava Durumu`;
+
 // Determine which days to show based on period
 const dayCount = period === 'bugun' ? 1 : period === 'yarin' ? 2 : period === '7gun' ? 7 : period === '10gun' ? 10 : 16;
 const startDay = period === 'yarin' ? 1 : 0;
-const showHourly = period === 'bugun' || period === 'yarin' || period === 'saatlik' || period === '15gun';
+const showHourly = period === 'bugun' || period === 'yarin' || period === 'saatlik';
 
 // Dynamic title for DailyForecast based on period
 const dailyTitleMap: Record<string, string> = {
@@ -86,28 +98,12 @@ const periodDaily = {
   <div class="max-w-4xl mx-auto px-4 py-6">
     <Breadcrumb items={breadcrumbs} />
 
-    <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} />
+    <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} heading={heading} />
 
     <AdSlot id="city-top" />
 
     <!-- Period Navigation -->
-    <div class="weather-card my-4">
-      <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
-        {links.map(link => (
-          <a
-            href={link.href}
-            class:list={[
-              'px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-2 shadow-sm',
-              link.label === periodLabel
-                ? 'bg-blue-500 text-white border-blue-500 shadow-blue-200'
-                : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg)] hover:text-blue-500 hover:border-blue-400'
-            ]}
-          >
-            {link.label}
-          </a>
-        ))}
-      </div>
-    </div>
+    <PeriodTabs links={links} activeLabel={periodLabel} />
 
     {showHourly && (
       <div class="mt-4">

@@ -9,6 +9,7 @@ import DailyForecast from '../../components/DailyForecast.astro';
 
 import WeatherDetails from '../../components/WeatherDetails.astro';
 import WeatherSummary from '../../components/WeatherSummary.astro';
+import PeriodTabs from '../../components/PeriodTabs.astro';
 import AdSlot from '../../components/AdSlot.astro';
 import { getDistrictSEO, generateStructuredData } from '../../lib/seo';
 import { fetchWeatherData } from '../../lib/weather';
@@ -97,23 +98,7 @@ const yarinDaily = {
     <AdSlot id="district-top" />
 
     <!-- Period Navigation Links -->
-    <div class="weather-card my-4">
-      <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
-        {periodLinks.map(link => (
-          <a
-            href={link.href}
-            class:list={[
-              'px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border-2 shadow-sm',
-              link.label === 'Yarın'
-                ? 'bg-blue-500 text-white border-blue-500 shadow-blue-200'
-                : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-bg)] hover:text-blue-500 hover:border-blue-400'
-            ]}
-          >
-            {link.label}
-          </a>
-        ))}
-      </div>
-    </div>
+    <PeriodTabs links={periodLinks} activeLabel="Yarın" />
 
     <div class="mt-4">
       <HourlyForecast hourly={weather.hourly} startIndex={24} endIndex={48} title="Yarın Saatlik Tahmin" />
@@ -137,7 +122,7 @@ const yarinDaily = {
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           {siblingDistricts.map((d: any) => (
             <a
-              href={`/${province.slug}/${d.slug}-hava-durumu`}
+              href={`/${province.slug}/${d.slug}-hava-durumu/`}
               class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors"
             >
               <svg class="w-3.5 h-3.5 text-[var(--color-text-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,7 +133,7 @@ const yarinDaily = {
           ))}
         </div>
         <a
-          href={`/${province.slug}-hava-durumu`}
+          href={`/${province.slug}-hava-durumu/`}
           class="block text-center text-sm text-primary-500 hover:text-primary-600 mt-4 font-medium"
         >
           ← {province.name} Hava Durumuna Dön
