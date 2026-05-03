@@ -92,6 +92,12 @@ const { analytics, verification, ads } = siteConfig;
         document.documentElement.classList.add('dark');
       }
     </script>
+
+    {ads.adsensePublisherId && (
+      <script is:inline async
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ads.adsensePublisherId}`}
+        crossorigin="anonymous"></script>
+    )}
   </head>
   <body class="min-h-screen flex flex-col">
     <slot name="header" />
@@ -99,10 +105,6 @@ const { analytics, verification, ads } = siteConfig;
       <slot />
     </main>
     <slot name="footer" />
-
-    {ads.enabled && ads.adsensePublisherId && (
-      <script is:inline async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ads.adsensePublisherId}`} crossorigin="anonymous"></script>
-    )}
 
     {analytics.yandexMetricaId && (
       <Fragment>
