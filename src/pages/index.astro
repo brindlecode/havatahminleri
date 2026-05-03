@@ -106,23 +106,22 @@ const regionGroups = regions.map((r: any) => ({
               {region.name}
             </h3>
             <div class="grid grid-cols-2 gap-2">
-              {region.provinces.slice(0, 8).map((p: any) => (
-                <a
-                  href={`/${p.slug}-hava-durumu/`}
-                  class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[var(--color-bg)] transition-colors"
-                >
-                  <svg class="w-3.5 h-3.5 text-[var(--color-text-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                  </svg>
-                  <span class="text-sm">{p.name}</span>
-                </a>
-              ))}
+              {(() => {
+                const popular = region.provinces.filter((p: any) => p.popular);
+                const featured = (popular.length >= 4 ? popular : region.provinces).slice(0, 6);
+                return featured.map((p: any) => (
+                  <a
+                    href={`/${p.slug}-hava-durumu/`}
+                    class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[var(--color-bg)] transition-colors"
+                  >
+                    <svg class="w-3.5 h-3.5 text-[var(--color-text-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    </svg>
+                    <span class="text-sm">{p.name}</span>
+                  </a>
+                ));
+              })()}
             </div>
-            {region.provinces.length > 8 && (
-              <p class="text-xs text-[var(--color-text-secondary)] mt-2 text-center">
-                ve {region.provinces.length - 8} il daha...
-              </p>
-            )}
           </div>
         ))}
       </div>
