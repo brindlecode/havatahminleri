@@ -1,0 +1,92 @@
+---
+// CookieBanner.astro - KVKK ve GDPR uyumlu çerez onay bileşeni
+---
+
+<div id="cookie-banner" class="fixed bottom-0 left-0 right-0 z-[100] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-2xl translate-y-full transition-transform duration-300" role="dialog" aria-labelledby="cookie-title" aria-describedby="cookie-desc">
+  <div class="max-w-7xl mx-auto px-4 py-4 sm:py-5">
+    <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+      <div class="flex-1">
+        <h3 id="cookie-title" class="text-base font-semibold text-slate-900 dark:text-white mb-1">
+          🍪 Çerez Kullanımı Hakkında
+        </h3>
+        <p id="cookie-desc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          YarınHava.com olarak, deneyiminizi iyileştirmek, site trafiğini analiz etmek ve kişiselleştirilmiş reklamlar sunmak için çerezler kullanıyoruz. Google AdSense ve Google Analytics gibi üçüncü taraf hizmetler de çerez kullanabilir. Detaylı bilgi için
+          <a href="/gizlilik-politikasi" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">Gizlilik Politikamızı</a>
+          inceleyebilirsiniz.
+        </p>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-2 shrink-0">
+        <button id="cookie-reject" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+          Reddet
+        </button>
+        <button id="cookie-accept" class="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm">
+          Tümünü Kabul Et
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    const KEY = 'yh_cookie_consent_v1';
+    const banner = document.getElementById('cookie-banner');
+    const acceptBtn = document.getElementById('cookie-accept');
+    const rejectBtn = document.getElementById('cookie-reject');
+
+    function setConsent(granted) {
+      const value = granted ? 'granted' : 'denied';
+      try {
+        localStorage.setItem(KEY, JSON.stringify({
+          status: value,
+          timestamp: Date.now()
+        }));
+      } catch(e) {}
+
+      if (typeof gtag === 'function') {
+        gtag('consent', 'update', {
+          'ad_storage': value,
+          'ad_user_data': value,
+          'ad_personalization': value,
+          'analytics_storage': value
+        });
+      }
+
+      hideBanner();
+    }
+
+    function hideBanner() {
+      if (banner) {
+        banner.style.transform = 'translateY(100%)';
+        setTimeout(function() { banner.remove(); }, 300);
+      }
+    }
+
+    function showBanner() {
+      if (banner) {
+        setTimeout(function() {
+          banner.style.transform = 'translateY(0)';
+        }, 100);
+      }
+    }
+
+    let stored = null;
+    try {
+      stored = JSON.parse(localStorage.getItem(KEY));
+    } catch(e) {}
+
+    if (!stored || !stored.status) {
+      showBanner();
+    } else if (typeof gtag === 'function') {
+      gtag('consent', 'update', {
+        'ad_storage': stored.status,
+        'ad_user_data': stored.status,
+        'ad_personalization': stored.status,
+        'analytics_storage': stored.status
+      });
+    }
+
+    if (acceptBtn) acceptBtn.addEventListener('click', function() { setConsent(true); });
+    if (rejectBtn) rejectBtn.addEventListener('click', function() { setConsent(false); });
+  })();
+</script>

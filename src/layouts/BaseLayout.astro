@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import siteConfig from '../data/site-config.json';
+import CookieBanner from '../components/CookieBanner.astro';
 
 interface Props {
   title: string;
@@ -73,6 +74,14 @@ const { analytics, verification, ads } = siteConfig;
         <script is:inline define:vars={{ gaId: analytics.googleAnalyticsId }}>
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
+          gtag('consent', 'default', {
+            'ad_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'analytics_storage': 'denied',
+            'wait_for_update': 500,
+            'region': ['TR', 'EU']
+          });
           gtag('js', new Date());
           gtag('config', gaId);
         </script>
@@ -105,6 +114,7 @@ const { analytics, verification, ads } = siteConfig;
       <slot />
     </main>
     <slot name="footer" />
+    <CookieBanner />
 
     {analytics.yandexMetricaId && (
       <Fragment>
