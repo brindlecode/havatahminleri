@@ -53,10 +53,10 @@ const range = globalMax - globalMin || 1;
 
           {/* Precip probability */}
           <div class="w-10 shrink-0 text-center">
-            {day.precipProb > 0 ? (
+            {day.precipProb != null && day.precipProb > 0 ? (
               <span class="text-xs text-blue-400 font-medium">%{day.precipProb}</span>
             ) : (
-              <span class="text-xs text-transparent">-</span>
+              <span class="text-xs text-transparent" aria-label="Yağış olasılığı verisi yok">—</span>
             )}
           </div>
 
