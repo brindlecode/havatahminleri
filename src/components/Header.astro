@@ -8,7 +8,7 @@ const popularCities = provinces.filter((p: any) => p.popular).slice(0, 6);
 // Only pass province search data inline (81 items), districts loaded on-demand
 const provinceSearch = provinces.map((p: any) => ({
   n: p.name,
-  u: `/${p.slug}-hava-durumu`,
+  u: `/${p.slug}-hava-durumu/`,
   t: 'il'
 }));
 ---

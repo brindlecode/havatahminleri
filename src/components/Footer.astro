@@ -19,7 +19,7 @@ const regionGroups = regions.map((r: any) => ({
           <div class="flex flex-wrap gap-x-3 gap-y-1">
             {region.provinces.map((p: any) => (
               <a
-                href={`/${p.slug}-hava-durumu`}
+                href={`/${p.slug}-hava-durumu/`}
                 class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors"
               >
                 {p.name}
@@ -57,16 +57,16 @@ const regionGroups = regions.map((r: any) => ({
         <span>© {new Date().getFullYear()} yarınhava.com — Tüm hakları saklıdır.</span>
       </div>
       <nav class="flex items-center gap-4">
-        <a href="/hakkimizda" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+        <a href="/hakkimizda/" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
           Hakkımızda
         </a>
-        <a href="/gizlilik-politikasi" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+        <a href="/gizlilik-politikasi/" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
           Gizlilik Politikası
         </a>
-        <a href="/kullanim-sartlari" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+        <a href="/kullanim-sartlari/" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
           Kullanım Şartları
         </a>
-        <a href="/iletisim" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
+        <a href="/iletisim/" class="text-xs text-[var(--color-text-secondary)] hover:text-primary-500 transition-colors">
           İletişim
         </a>
       </nav>

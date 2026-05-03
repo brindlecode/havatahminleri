@@ -29,7 +29,7 @@ const { cities } = Astro.props;
   <div id="popular-cities-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
     {cities.map((city) => (
       <a
-        href={`/${city.slug}-hava-durumu`}
+        href={`/${city.slug}-hava-durumu/`}
         class="weather-card group cursor-pointer flex flex-col items-center text-center p-4 hover:scale-[1.02] transition-transform"
         data-city-slug={city.slug}
         data-lat={city.lat}
