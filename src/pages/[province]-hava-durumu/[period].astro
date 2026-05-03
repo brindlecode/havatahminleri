@@ -1,6 +1,6 @@
 ---
 import ForecastLayout from '../../layouts/ForecastLayout.astro';
-import { getProvinceSEO, generateStructuredData } from '../../lib/seo';
+import { generateStructuredData, PERIOD_META } from '../../lib/seo';
 import { fetchWeatherData } from '../../lib/weather';
 import { PERIODS } from '../../lib/periods';
 import provinces from '../../data/provinces.json';
@@ -23,18 +23,12 @@ export function getStaticPaths() {
 const { province, periodInfo } = Astro.props;
 const weather = await fetchWeatherData(province.lat, province.lon);
 
-const periodTitleMap: Record<string, string> = {
-  'bugun': 'Bugünkü',
-  'yarin': 'Yarınki',
-  '7gun': '7 Günlük',
-  '10gun': '10 Günlük',
-  '15gun': '15 Günlük',
-  'saatlik': 'Saatlik',
-};
-
-const titlePrefix = periodTitleMap[periodInfo.id] || '';
+const meta = PERIOD_META[periodInfo.id];
+const titlePrefix = meta?.titlePrefix ?? '';
 const title = `${province.name} ${titlePrefix} Hava Durumu | Yarın Hava`;
-const description = `${province.name} ${periodInfo.label.toLowerCase()} hava durumu tahmini. Detaylı sıcaklık, yağış ve rüzgar bilgileri.`;
+const description = meta
+  ? meta.description(province.name)
+  : `${province.name} ${periodInfo.label.toLowerCase()} hava durumu tahmini. Detaylı sıcaklık, yağış ve rüzgar bilgileri.`;
 const canonical = `https://yarinhava.com/${province.slug}-hava-durumu/${periodInfo.slug}/`;
 
 const region = regions.find((r: any) => r.id === province.region);
@@ -80,11 +74,8 @@ const provinceDistricts = districts.filter((d: any) => d.province === province.s
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
         {provinceDistricts.map((d: any) => (
           <a href={`/${province.slug}/${d.slug}-hava-durumu/`}
-            class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors">
-            <svg class="w-3.5 h-3.5 text-[var(--color-text-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-            </svg>
-            <span class="text-sm">{d.name}</span>
+            class="px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors text-sm">
+            {d.name}
           </a>
         ))}
       </div>

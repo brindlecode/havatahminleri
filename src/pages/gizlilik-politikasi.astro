@@ -2,16 +2,21 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { generateLegalPageStructuredData } from '../lib/seo';
 
-const title = 'Gizlilik Politikası | Yarın Hava';
-const description = 'Yarın Hava gizlilik politikası. Kişisel verilerinizin nasıl toplandığı, kullanıldığı ve korunduğu hakkında bilgi.';
+const pageName = 'Gizlilik Politikası';
+const title = 'Gizlilik Politikası - Yarın Hava | KVKK Aydınlatma Metni';
+const description = 'Yarın Hava gizlilik politikası ve KVKK aydınlatma metni. Kişisel verilerinizin nasıl toplandığı, hangi amaçla işlendiği, nasıl korunduğu ve haklarınız hakkında bilgi.';
 const canonical = 'https://yarinhava.com/gizlilik-politikasi/';
+const structuredData = generateLegalPageStructuredData(pageName, description, canonical);
 ---
 
-<BaseLayout title={title} description={description} canonical={canonical}>
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData}>
   <Header slot="header" />
 
   <div class="max-w-3xl mx-auto px-4 py-10">
+    <Breadcrumb items={[{ name: pageName, url: canonical }]} />
     <h1 class="text-3xl font-bold mb-6">Gizlilik Politikası</h1>
     <p class="text-sm text-[var(--color-text-secondary)] mb-8">Son güncelleme: {new Date().toLocaleDateString('tr-TR')}</p>
 

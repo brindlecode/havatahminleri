@@ -80,6 +80,9 @@ const regionGroups = regions.map((r: any) => ({
           placeholder="Şehir veya ilçe ara..."
           aria-label="Şehir veya ilçe ara"
           autocomplete="off"
+          data-search-input
+          data-search-target="hero-search-results"
+          data-search-theme="hero"
           class="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white/95 dark:bg-slate-800/95 text-slate-900 dark:text-white placeholder:text-slate-400 shadow-lg text-base focus:outline-none focus:ring-2 focus:ring-white/50"
         />
         <div id="hero-search-results" class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden hidden z-50 max-h-60 overflow-y-auto border border-slate-200 dark:border-slate-700">
@@ -112,12 +115,9 @@ const regionGroups = regions.map((r: any) => ({
                 return featured.map((p: any) => (
                   <a
                     href={`/${p.slug}-hava-durumu/`}
-                    class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[var(--color-bg)] transition-colors"
+                    class="px-2 py-1.5 rounded-lg hover:bg-[var(--color-bg)] transition-colors text-sm"
                   >
-                    <svg class="w-3.5 h-3.5 text-[var(--color-text-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    </svg>
-                    <span class="text-sm">{p.name}</span>
+                    {p.name}
                   </a>
                 ));
               })()}
@@ -130,14 +130,30 @@ const regionGroups = regions.map((r: any) => ({
     <AdSlot id="home-bottom" />
 
     <!-- SEO content -->
-    <section class="mt-10 prose prose-slate dark:prose-invert max-w-none">
-      <h2 class="text-xl font-bold mb-4">Türkiye Hava Durumu Tahmini</h2>
+    <section class="mt-10 max-w-none space-y-4">
+      <h2 class="text-xl font-bold">Türkiye Hava Durumu Tahmini</h2>
       <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
         YarınHava.com olarak Türkiye'nin 81 ili ve tüm ilçeleri için güncel hava durumu
-        bilgilerini ve 15 günlük detaylı hava tahminlerini sunuyoruz. Saatlik sıcaklık değişimleri,
-        yağış olasılıkları, rüzgar hızı ve yönü, nem oranı, UV indeksi gibi kapsamlı meteorolojik
-        verilere anında erişebilirsiniz. İster tatil planı yapıyor olun, ister günlük aktivitelerinizi
-        planlayın — doğru hava tahmini ile her zaman hazırlıklı olun.
+        bilgilerini ve 16 günlük detaylı tahminleri sunuyoruz.
+      </p>
+
+      <h3 class="text-base font-semibold mt-6">Hangi verileri sunuyoruz?</h3>
+      <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+        Saatlik sıcaklık değişimleri, yağış olasılıkları, rüzgar hızı ve yönü, nem oranı,
+        UV indeksi, basınç ve görüş mesafesi gibi kapsamlı meteorolojik verilere anında
+        erişebilirsiniz.
+      </p>
+
+      <h3 class="text-base font-semibold mt-6">Veri Kaynaklarımız</h3>
+      <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+        Hava durumu verileri NOAA GFS, DWD ICON ve ECMWF IFS gibi dünya çapında kabul görmüş
+        meteorolojik tahmin modellerinden alınmaktadır.
+      </p>
+
+      <h3 class="text-base font-semibold mt-6">Kim için faydalı?</h3>
+      <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+        İster tatil planı yapıyor olun, ister günlük aktivitelerinizi planlayın — doğru hava
+        tahmini ile her zaman hazırlıklı olun.
       </p>
     </section>
   </div>
@@ -145,63 +161,7 @@ const regionGroups = regions.map((r: any) => ({
   <Footer slot="footer" />
 </BaseLayout>
 
-<script is:inline>
-  // Hero search - loads provinces inline + districts from search-index.json
-  let heroItems = [];
-  let heroDistrictsLoaded = false;
-  const heroInput = document.getElementById('hero-search');
-  const heroResults = document.getElementById('hero-search-results');
-
-  function normalize(str) {
-    return str.toLowerCase()
-      .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
-      .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
-      .replace(/â/g, 'a').replace(/î/g, 'i').replace(/û/g, 'u');
-  }
-
-  async function loadHeroSearch() {
-    if (heroDistrictsLoaded) return;
-    try {
-      const res = await fetch('/search-index.json');
-      if (res.ok) {
-        const districts = await res.json();
-        heroItems = districts;
-        heroDistrictsLoaded = true;
-      }
-    } catch {}
-  }
-
-  heroInput.addEventListener('focus', loadHeroSearch);
-
-  heroInput.addEventListener('input', async (e) => {
-    const query = normalize(e.target.value.trim());
-    if (query.length < 2) { heroResults.classList.add('hidden'); return; }
-
-    await loadHeroSearch();
-
-    const matches = heroItems.filter(c => normalize(c.n).includes(query)).slice(0, 8);
-    if (matches.length === 0) {
-      heroResults.innerHTML = '<div class="px-4 py-3 text-sm text-slate-400">Sonuç bulunamadı</div>';
-    } else {
-      heroResults.innerHTML = matches.map(c =>
-        `<a href="${c.u}" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200">
-          <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-          <div>
-            <span class="text-sm font-medium">${c.n}</span>
-            <span class="text-xs text-slate-400 ml-1">${c.t === 'ilce' ? '(İlçe)' : '(İl)'}</span>
-          </div>
-        </a>`
-      ).join('');
-    }
-    heroResults.classList.remove('hidden');
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!heroInput.parentElement.contains(e.target)) {
-      heroResults.classList.add('hidden');
-    }
-  });
-</script>
+<!-- Hero search behavior is handled by /scripts/search.js (loaded in Header.astro). -->
 
 <script is:inline>
   // Client-side weather refresh for popular cities

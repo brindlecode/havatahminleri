@@ -12,11 +12,11 @@ export function getProvinceSEO(name: string, slug: string, temp?: number, weathe
   const weatherDesc = weatherCode !== undefined ? getWeatherDescription(weatherCode) : '';
   const tempStr = temp !== undefined ? `${Math.round(temp)}°C` : '';
 
-  let description = `${name} hava durumu ve 15 günlük hava tahmini.`;
+  let description: string;
   if (tempStr && weatherDesc) {
-    description += ` Bugün ${tempStr}, ${weatherDesc.toLowerCase()}. Saatlik ve günlük detaylı tahminler.`;
+    description = `${name} hava durumu ve 15 günlük tahmin. Şu an ${tempStr}, ${weatherDesc.toLowerCase()}. Saatlik sıcaklık, yağış olasılığı, rüzgar ve nem bilgileriyle hava nasıl olacak öğrenin.`;
   } else {
-    description += ` Saatlik ve günlük detaylı hava tahminleri, sıcaklık, yağış ve rüzgar bilgileri.`;
+    description = `${name} hava durumu ve 15 günlük detaylı tahmin. Saatlik sıcaklık, yağış olasılığı, rüzgar ve nem bilgileriyle hava nasıl olacak öğrenin.`;
   }
 
   return {
@@ -37,13 +37,15 @@ export function getDistrictSEO(
   const weatherDesc = weatherCode !== undefined ? getWeatherDescription(weatherCode) : '';
   const tempStr = temp !== undefined ? `${Math.round(temp)}°C` : '';
 
-  let description = `${districtName}, ${provinceName} hava durumu ve 15 günlük tahmin.`;
+  let description: string;
   if (tempStr && weatherDesc) {
-    description += ` Bugün ${tempStr}, ${weatherDesc.toLowerCase()}.`;
+    description = `${districtName} (${provinceName}) hava durumu ve 15 günlük tahmin. Şu an ${tempStr}, ${weatherDesc.toLowerCase()}. Saatlik sıcaklık, yağış olasılığı ve detaylı bilgiler.`;
+  } else {
+    description = `${districtName} (${provinceName}) hava durumu ve 15 günlük tahmin. Saatlik sıcaklık, yağış olasılığı, rüzgar ve nem bilgileriyle ${districtName} havası.`;
   }
 
   return {
-    title: `${districtName} (${provinceName}) Hava Durumu | Yarın Hava`,
+    title: `${districtName} ${provinceName} Hava Durumu | Yarın Hava`,
     description,
     canonical: `https://yarinhava.com/${provinceSlug}/${districtSlug}-hava-durumu/`,
   };
@@ -53,10 +55,88 @@ export function getHomeSEO(): SEOData {
   return {
     title: 'Yarın Hava - Türkiye Hava Durumu ve 15 Günlük Tahmin',
     description:
-      'Türkiye geneli hava durumu ve 15 günlük hava tahmini. 81 il ve tüm ilçeler için saatlik ve günlük detaylı hava tahminleri, sıcaklık, yağış ve rüzgar bilgileri.',
+      'Türkiye hava durumu ve 15 günlük detaylı tahmin. 81 il ve tüm ilçeler için saatlik sıcaklık, yağış, rüzgar ve nem bilgileri. Bugün, yarın ve sonraki günler.',
     canonical: 'https://yarinhava.com/',
   };
 }
+
+export function generateLegalPageStructuredData(
+  pageTitle: string,
+  pageDescription: string,
+  canonical: string,
+): string {
+  const today = new Date().toISOString().split('T')[0];
+  const items = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: pageTitle,
+      description: pageDescription,
+      url: canonical,
+      inLanguage: 'tr-TR',
+      dateModified: today,
+      publisher: {
+        '@type': 'Organization',
+        name: 'Yarın Hava',
+        url: 'https://yarinhava.com/',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://yarinhava.com/' },
+        { '@type': 'ListItem', position: 2, name: pageTitle, item: canonical },
+      ],
+    },
+  ];
+  return items.map((i) => JSON.stringify(i)).join('\n');
+}
+
+export interface PeriodMeta {
+  titlePrefix: string;
+  shortLabel: string;
+  description: (city: string) => string;
+}
+
+export const PERIOD_META: Record<string, PeriodMeta> = {
+  bugun: {
+    titlePrefix: 'Bugünkü',
+    shortLabel: 'bugünkü',
+    description: (city) =>
+      `${city} bugünkü hava durumu. Saatlik tahmin, sıcaklık değişimleri, yağış ve rüzgar bilgileri. ${city}'de bugün hava nasıl, ne giyilir öğrenin.`,
+  },
+  yarin: {
+    titlePrefix: 'Yarınki',
+    shortLabel: 'yarınki',
+    description: (city) =>
+      `${city} yarınki hava durumu tahmini. Saatlik sıcaklık değişimleri, yağış olasılığı, rüzgar ve nem bilgileri. Yarın hava nasıl olacak?`,
+  },
+  saatlik: {
+    titlePrefix: 'Saatlik',
+    shortLabel: 'saatlik',
+    description: (city) =>
+      `${city} saatlik hava durumu - 48 saat ileriye dönük tahmin. Sıcaklık, yağış olasılığı, rüzgar ve nem saat saat görüntüleyin.`,
+  },
+  '7gun': {
+    titlePrefix: '7 Günlük',
+    shortLabel: '7 günlük',
+    description: (city) =>
+      `${city} 7 günlük hava durumu tahmini. Haftalık sıcaklık eğilimi, yağışlı günler ve hafta sonu havası. 7 günlük tahmini görün.`,
+  },
+  '10gun': {
+    titlePrefix: '10 Günlük',
+    shortLabel: '10 günlük',
+    description: (city) =>
+      `${city} 10 günlük hava durumu tahmini. Önümüzdeki 10 gün için sıcaklık, yağış olasılığı ve hava değişimleri. ${city} meteorolojik veri.`,
+  },
+  '15gun': {
+    titlePrefix: '15 Günlük',
+    shortLabel: '15 günlük',
+    description: (city) =>
+      `${city} 15 günlük hava durumu tahmini. 16 gün ileriye dönük günlük sıcaklık, yağış ve hava değişimleri. ${city} uzun vadeli hava planı.`,
+  },
+};
 
 export function generateStructuredData(
   type: 'home' | 'province' | 'district',

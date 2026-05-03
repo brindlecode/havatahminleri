@@ -2,16 +2,21 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { generateLegalPageStructuredData } from '../lib/seo';
 
-const title = 'İletişim | Yarın Hava';
-const description = 'Yarın Hava ile iletişime geçin. Sorularınız, önerileriniz ve geri bildirimleriniz için bize ulaşın.';
+const pageName = 'İletişim';
+const title = 'İletişim - Yarın Hava | Bize Ulaşın, Önerilerinizi Paylaşın';
+const description = 'Yarın Hava ile iletişime geçin. Sorularınız, önerileriniz, hata bildirimleri ve reklam iş birlikleri için iletisim@yarinhava.com adresinden veya formdan bize ulaşın.';
 const canonical = 'https://yarinhava.com/iletisim/';
+const structuredData = generateLegalPageStructuredData(pageName, description, canonical);
 ---
 
-<BaseLayout title={title} description={description} canonical={canonical}>
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData}>
   <Header slot="header" />
 
   <div class="max-w-3xl mx-auto px-4 py-10">
+    <Breadcrumb items={[{ name: pageName, url: canonical }]} />
     <h1 class="text-3xl font-bold mb-6">İletişim</h1>
 
     <div class="space-y-6 text-[var(--color-text-secondary)] leading-relaxed">
@@ -38,7 +43,9 @@ const canonical = 'https://yarinhava.com/iletisim/';
         <h2 class="text-lg font-semibold text-[var(--color-text)] mb-4">Bize Yazın</h2>
         <form id="contact-form" class="space-y-4" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
           <input type="hidden" name="form-name" value="contact" />
-          <p class="hidden"><label>Bunu doldurmayın: <input name="bot-field" /></label></p>
+          <p class="hidden" aria-hidden="true">
+            <label>Bunu doldurmayın: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+          </p>
           <div>
             <label for="name" class="block text-sm font-medium text-[var(--color-text)] mb-1">
               Adınız

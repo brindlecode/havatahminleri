@@ -2,16 +2,21 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { generateLegalPageStructuredData } from '../lib/seo';
 
-const title = 'Kullanım Şartları | Yarın Hava';
-const description = 'Yarın Hava kullanım şartları. Sitemizi ziyaret eden ve hizmetlerimizden yararlanan tüm kullanıcılar için geçerli olan kurallar.';
+const pageName = 'Kullanım Şartları';
+const title = 'Kullanım Şartları - Yarın Hava | Site Kullanım Koşulları';
+const description = 'Yarın Hava kullanım şartları ve site kullanım koşulları. Sitemizi ziyaret eden ve hizmetlerimizden yararlanan tüm kullanıcılar için geçerli olan kurallar.';
 const canonical = 'https://yarinhava.com/kullanim-sartlari/';
+const structuredData = generateLegalPageStructuredData(pageName, description, canonical);
 ---
 
-<BaseLayout title={title} description={description} canonical={canonical}>
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData}>
   <Header slot="header" />
 
   <div class="max-w-3xl mx-auto px-4 py-10">
+    <Breadcrumb items={[{ name: pageName, url: canonical }]} />
     <h1 class="text-3xl font-bold mb-6">Kullanım Şartları</h1>
     <p class="text-sm text-[var(--color-text-secondary)] mb-8">Son güncelleme: {new Date().toLocaleDateString('tr-TR')}</p>
 
