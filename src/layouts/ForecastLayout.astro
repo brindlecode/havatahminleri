@@ -51,7 +51,7 @@ const heading = headingMap[period] || `${cityName} Hava Durumu`;
 // Determine which days to show based on period
 const dayCount = period === 'bugun' ? 1 : period === 'yarin' ? 2 : period === '7gun' ? 7 : period === '10gun' ? 10 : 16;
 const startDay = period === 'yarin' ? 1 : 0;
-const showHourly = period === 'bugun' || period === 'yarin' || period === 'saatlik' || period === '15gun';
+const showHourly = period === 'bugun' || period === 'yarin' || period === 'saatlik';
 
 // Dynamic title for DailyForecast based on period
 const dailyTitleMap: Record<string, string> = {
