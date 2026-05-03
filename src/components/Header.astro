@@ -1,16 +1,5 @@
 ---
-import provinces from '../data/provinces.json';
-import districts from '../data/districts.json';
-
-const popularCities = provinces.filter((p: any) => p.popular).slice(0, 6);
-
-// Build search index - compact format to reduce page size
-// Only pass province search data inline (81 items), districts loaded on-demand
-const provinceSearch = provinces.map((p: any) => ({
-  n: p.name,
-  u: `/${p.slug}-hava-durumu/`,
-  t: 'il'
-}));
+// Search behavior is handled by /scripts/search.js using /search-index.json.
 ---
 
 <header class="sticky top-0 z-50 glass border-b border-[var(--color-border)]">
@@ -68,6 +57,9 @@ const provinceSearch = provinces.map((p: any) => ({
             placeholder="Şehir veya ilçe ara..."
             aria-label="Şehir veya ilçe ara"
             autocomplete="off"
+            data-search-input
+            data-search-target="search-results"
+            data-search-theme="header"
             class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-sm"
           />
         </div>
@@ -92,79 +84,12 @@ const provinceSearch = provinces.map((p: any) => ({
   </div>
 </header>
 
-<script is:inline define:vars={{ provData: JSON.stringify(provinceSearch) }}>
+<script is:inline>
   // Theme toggle
   document.getElementById('theme-toggle').addEventListener('click', () => {
     const html = document.documentElement;
     const isDark = html.classList.toggle('dark');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
   });
-
-  // Search - provinces inline, districts loaded from separate file on first search
-  const provinces = JSON.parse(provData);
-  let districtData = null;
-  let allItems = provinces;
-  const searchInput = document.getElementById('city-search');
-  const searchResults = document.getElementById('search-results');
-
-  function normalize(str) {
-    return str.toLowerCase()
-      .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
-      .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
-      .replace(/â/g, 'a').replace(/î/g, 'i').replace(/û/g, 'u');
-  }
-
-  async function loadDistricts() {
-    if (districtData) return;
-    try {
-      const res = await fetch('/search-index.json');
-      if (res.ok) {
-        districtData = await res.json();
-        allItems = [...provinces, ...districtData];
-      }
-    } catch {}
-  }
-
-  searchInput.addEventListener('focus', () => {
-    loadDistricts(); // Preload on focus
-  });
-
-  searchInput.addEventListener('input', async (e) => {
-    const query = normalize(e.target.value.trim());
-    if (query.length < 2) {
-      searchResults.classList.add('hidden');
-      return;
-    }
-
-    // Ensure districts are loaded
-    await loadDistricts();
-
-    const matches = allItems.filter(c => normalize(c.n).includes(query)).slice(0, 10);
-    if (matches.length === 0) {
-      searchResults.innerHTML = '<div class="px-4 py-3 text-sm text-[var(--color-text-secondary)]">Sonuç bulunamadı</div>';
-    } else {
-      searchResults.innerHTML = matches.map(c =>
-        `<a href="${c.u}" class="flex items-center gap-3 px-4 py-3 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors border-b border-[var(--color-border)] last:border-0">
-          <svg class="w-4 h-4 text-[var(--color-text-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          <div>
-            <span class="text-sm font-medium">${c.n}</span>
-            <span class="text-xs text-[var(--color-text-secondary)] ml-1">${c.t === 'ilce' ? '(İlçe)' : '(İl)'}</span>
-          </div>
-        </a>`
-      ).join('');
-    }
-    searchResults.classList.remove('hidden');
-  });
-
-  searchInput.addEventListener('focus', () => {
-    if (searchInput.value.trim().length >= 2) {
-      searchResults.classList.remove('hidden');
-    }
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!document.getElementById('search-container').contains(e.target)) {
-      searchResults.classList.add('hidden');
-    }
-  });
 </script>
+<script is:inline src="/scripts/search.js" defer></script>
