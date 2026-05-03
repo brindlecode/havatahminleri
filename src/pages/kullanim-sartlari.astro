@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Kullanım Şartları | Yarın Hava';
+const description = 'Yarın Hava kullanım şartları. Sitemizi ziyaret eden ve hizmetlerimizden yararlanan tüm kullanıcılar için geçerli olan kurallar.';
+const canonical = 'https://yarinhava.com/kullanim-sartlari/';
+---
+
+<BaseLayout title={title} description={description} canonical={canonical}>
+  <Header slot="header" />
+
+  <div class="max-w-3xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-bold mb-6">Kullanım Şartları</h1>
+    <p class="text-sm text-[var(--color-text-secondary)] mb-8">Son güncelleme: {new Date().toLocaleDateString('tr-TR')}</p>
+
+    <div class="space-y-6 text-[var(--color-text-secondary)] leading-relaxed">
+      <p>
+        YarınHava.com'a hoş geldiniz. Bu Kullanım Şartları, sitemizi ziyaret eden ve
+        hizmetlerimizden yararlanan tüm kullanıcılar için geçerlidir. Sitemize erişerek
+        aşağıdaki şartları kabul etmiş sayılırsınız.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Hizmetin Kapsamı</h2>
+      <p>
+        YarınHava.com, Türkiye'nin 81 ili ve ilçeleri için hava durumu tahmin verilerini
+        ücretsiz olarak sunan bir bilgilendirme platformudur. Site içeriği, ziyaretçilerin
+        kişisel bilgilendirme amacıyla kullanımı için tasarlanmıştır.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Veri Doğruluğu ve Sorumluluk Reddi</h2>
+      <p>
+        Sitemizde yer alan hava durumu bilgileri NOAA GFS, DWD ICON ve ECMWF IFS gibi
+        uluslararası meteorolojik tahmin modellerinden alınmaktadır. Tahminler "olduğu gibi"
+        sunulmakta olup, %100 doğruluk garantisi verilmemektedir. Hava durumu doğası gereği
+        değişkendir ve kısa sürede güncellenebilir.
+      </p>
+      <p>
+        YarınHava.com, sitede yer alan bilgilerin kullanımından doğabilecek doğrudan veya
+        dolaylı zararlardan sorumlu tutulamaz. Tarımsal faaliyet, ulaşım, denizcilik, havacılık
+        veya can ve mal güvenliği gibi kritik kararlar için yalnızca sitemizdeki verilere
+        dayanmamanızı, resmi meteoroloji kurumlarına başvurmanızı öneririz.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Fikri Mülkiyet Hakları</h2>
+      <p>
+        Sitede yer alan logo, tasarım, metinler ve grafikler YarınHava.com'a aittir.
+        İçeriklerin izinsiz kopyalanması, çoğaltılması veya ticari amaçla kullanılması
+        yasaktır. Hava durumu verileri ilgili meteorolojik kaynakların lisansları çerçevesinde
+        gösterilmektedir.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Kullanıcı Yükümlülükleri</h2>
+      <p>Siteyi kullanırken aşağıdaki kurallara uymayı kabul edersiniz:</p>
+      <ul class="list-disc pl-6 space-y-2">
+        <li>Siteye otomatik araçlarla (bot, scraper) aşırı istek göndermemek</li>
+        <li>Sitenin altyapısına zarar verecek girişimlerde bulunmamak</li>
+        <li>İçerikleri yasalara aykırı amaçlarla kullanmamak</li>
+        <li>Üçüncü tarafların haklarını ihlal eden faaliyetlerde bulunmamak</li>
+      </ul>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Üçüncü Taraf Bağlantılar ve Reklamlar</h2>
+      <p>
+        Sitemizde Google AdSense aracılığıyla reklamlar gösterilmektedir. Reklam verenlerin
+        sayfalarındaki içeriklerden veya uygulamalarından YarınHava.com sorumlu değildir.
+        Üçüncü taraf bağlantılar bilgilendirme amaçlıdır.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Hizmette Değişiklik Yapma Hakkı</h2>
+      <p>
+        YarınHava.com, herhangi bir bildirimde bulunmaksızın hizmetlerini, içeriklerini veya
+        bu Kullanım Şartlarını değiştirme hakkını saklı tutar. Güncel şartları takip etmek
+        kullanıcının sorumluluğundadır.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Hizmetin Askıya Alınması</h2>
+      <p>
+        Bakım, teknik arıza veya öngörülemeyen durumlar nedeniyle hizmet geçici olarak askıya
+        alınabilir. Bu durumlarda kullanıcılara karşı bir yükümlülüğümüz bulunmamaktadır.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Uygulanacak Hukuk ve Yetkili Mahkeme</h2>
+      <p>
+        Bu Kullanım Şartları Türkiye Cumhuriyeti yasalarına tabidir. Şartlardan doğan
+        uyuşmazlıklarda İstanbul Mahkemeleri ve İcra Daireleri yetkilidir.
+      </p>
+
+      <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">İletişim</h2>
+      <p>
+        Kullanım Şartları hakkında sorularınız için
+        <a href="/iletisim" class="text-primary-500 hover:text-primary-600 underline">iletişim sayfamızdan</a>
+        bize ulaşabilirsiniz.
+      </p>
+    </div>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
