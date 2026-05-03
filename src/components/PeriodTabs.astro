@@ -28,6 +28,7 @@ const { links, activeLabel } = Astro.props;
         );
       })}
     </div>
+    <div class="period-tabs-fade-left pointer-events-none absolute left-0 top-0 bottom-0 w-6 opacity-0 transition-opacity" aria-hidden="true"></div>
     <div class="period-tabs-fade pointer-events-none absolute right-0 top-0 bottom-0 w-8" aria-hidden="true"></div>
   </div>
 </div>
@@ -36,26 +37,38 @@ const { links, activeLabel } = Astro.props;
   .period-tabs-fade {
     background: linear-gradient(to left, var(--color-surface), transparent);
   }
+  .period-tabs-fade-left {
+    background: linear-gradient(to right, var(--color-surface), transparent);
+  }
 </style>
 
 <script is:inline>
   (function () {
-    function scrollActiveIntoView() {
+    function alignActiveToStart() {
       document.querySelectorAll('.period-tabs').forEach(function (container) {
+        const scroller = container.querySelector('.period-tabs-scroll');
         const active = container.querySelector('[data-period-tab-active="true"]');
-        if (active && typeof active.scrollIntoView === 'function') {
-          try {
-            active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'instant' });
-          } catch (e) {
-            active.scrollIntoView({ inline: 'center', block: 'nearest' });
-          }
+        if (scroller && active) {
+          // Align active tab to the left edge (with a small gutter) so the
+          // following tabs are still discoverable and previous tabs can be
+          // reached by scrolling left.
+          scroller.scrollLeft = Math.max(0, active.offsetLeft - 8);
+          updateLeftFade(scroller, container);
+          scroller.addEventListener('scroll', function () {
+            updateLeftFade(scroller, container);
+          });
         }
       });
     }
+    function updateLeftFade(scroller, container) {
+      const fade = container.querySelector('.period-tabs-fade-left');
+      if (!fade) return;
+      fade.style.opacity = scroller.scrollLeft > 4 ? '1' : '0';
+    }
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', scrollActiveIntoView);
+      document.addEventListener('DOMContentLoaded', alignActiveToStart);
     } else {
-      scrollActiveIntoView();
+      alignActiveToStart();
     }
   })();
 </script>
