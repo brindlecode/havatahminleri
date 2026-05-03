@@ -70,14 +70,15 @@ const regionGroups = regions.map((r: any) => ({
       <p class="text-lg md:text-xl opacity-90 mb-6">
         81 il ve tüm ilçeler için 15 günlük detaylı hava tahmini
       </p>
-      <div class="max-w-md mx-auto relative">
-        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="max-w-md mx-auto relative" role="search">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
         <input
           type="text"
           id="hero-search"
           placeholder="Şehir veya ilçe ara..."
+          aria-label="Şehir veya ilçe ara"
           autocomplete="off"
           class="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white/95 dark:bg-slate-800/95 text-slate-900 dark:text-white placeholder:text-slate-400 shadow-lg text-base focus:outline-none focus:ring-2 focus:ring-white/50"
         />
