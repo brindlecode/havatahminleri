@@ -1,11 +1,16 @@
 ---
+import { getWeatherDescription } from '../lib/weatherCodes';
+
 interface Props {
   code: number;
   isDay?: boolean;
   size?: string;
+  label?: string;
+  decorative?: boolean;
 }
 
-const { code, isDay = true, size = 'w-12 h-12' } = Astro.props;
+const { code, isDay = true, size = 'w-12 h-12', label, decorative = false } = Astro.props;
+const accessibleLabel = decorative ? null : (label ?? getWeatherDescription(code));
 
 function getIconSVG(code: number, isDay: boolean): string {
   // Clear
@@ -58,11 +63,23 @@ function getIconSVG(code: number, isDay: boolean): string {
 const svgContent = getIconSVG(code, isDay);
 ---
 
-<svg
-  class={size}
-  viewBox="0 0 48 48"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
-  aria-hidden="true"
-  set:html={svgContent}
-/>
+{accessibleLabel ? (
+  <svg
+    class={size}
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-label={accessibleLabel}
+    set:html={`<title>${accessibleLabel}</title>${svgContent}`}
+  />
+) : (
+  <svg
+    class={size}
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    set:html={svgContent}
+  />
+)}

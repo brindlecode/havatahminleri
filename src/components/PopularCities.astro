@@ -39,7 +39,7 @@ const { cities } = Astro.props;
           {city.name}
         </h3>
         <div data-city-icon={city.slug}>
-          <WeatherIcon code={city.weatherCode} size="w-12 h-12" />
+          <WeatherIcon code={city.weatherCode} size="w-12 h-12" decorative />
         </div>
         <p data-city-temp={city.slug} class:list={['text-2xl font-bold mt-1', getTempColorClass(city.temperature)]}>
           {Math.round(city.temperature)}°
