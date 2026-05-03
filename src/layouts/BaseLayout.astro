@@ -120,17 +120,55 @@ const { analytics, verification, ads } = siteConfig;
     {analytics.yandexMetricaId && (
       <Fragment>
         <script is:inline define:vars={{ ymId: analytics.yandexMetricaId }}>
-          (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-          m[i].l=1*new Date();
-          for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r)return;}
-          k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-          (window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
-          ym(ymId, "init", {
-            clickmap:true,
-            trackLinks:true,
-            accurateTrackBounce:true,
-            webvisor:true
-          });
+          (function () {
+            var loaded = false;
+            function loadYandex() {
+              if (loaded) return;
+              loaded = true;
+              (function (m, e, t, r, i, k, a) {
+                m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+                m[i].l = 1 * new Date();
+                for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) return; }
+                k = e.createElement(t); a = e.getElementsByTagName(t)[0]; k.async = 1; k.src = r;
+                a.parentNode.insertBefore(k, a);
+              })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js', 'ym');
+              ym(ymId, 'init', {
+                clickmap: true,
+                trackLinks: true,
+                accurateTrackBounce: true,
+                webvisor: true,
+              });
+            }
+            function hasConsent() {
+              try {
+                var raw = localStorage.getItem('yh_cookie_consent_v1');
+                if (!raw) return false;
+                var parsed = JSON.parse(raw);
+                return parsed && parsed.status === 'granted';
+              } catch (e) { return false; }
+            }
+            function scheduleLoad() {
+              if (!hasConsent()) return;
+              var run = function () { loadYandex(); };
+              if (typeof window.requestIdleCallback === 'function') {
+                window.requestIdleCallback(run, { timeout: 3000 });
+              } else {
+                setTimeout(run, 1500);
+              }
+            }
+            if (document.readyState === 'complete') {
+              scheduleLoad();
+            } else {
+              window.addEventListener('load', scheduleLoad, { once: true });
+            }
+            // Re-check when user clicks accept on the cookie banner
+            document.addEventListener('click', function (e) {
+              var t = e.target;
+              if (t && t.id === 'cookie-accept') {
+                setTimeout(scheduleLoad, 50);
+              }
+            });
+          })();
         </script>
         <noscript><div><img src={`https://mc.yandex.ru/watch/${analytics.yandexMetricaId}`} style="position:absolute;left:-9999px;" alt="" /></div></noscript>
       </Fragment>
