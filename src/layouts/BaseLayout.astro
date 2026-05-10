@@ -75,14 +75,19 @@ const { analytics, verification, ads } = siteConfig;
         <script is:inline define:vars={{ gaId: analytics.googleAnalyticsId }}>
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
+          // First-party analytics: granted by default (KVKK legitimate interest).
+          // Advertising signals stay denied until the user opts in via the cookie banner.
+          // url_passthrough + ads_data_redaction keep cookieless pings flowing if a
+          // visitor later revokes consent.
           gtag('consent', 'default', {
             'ad_storage': 'denied',
             'ad_user_data': 'denied',
             'ad_personalization': 'denied',
-            'analytics_storage': 'denied',
-            'wait_for_update': 500,
-            'region': ['TR', 'EU']
+            'analytics_storage': 'granted',
+            'wait_for_update': 500
           });
+          gtag('set', 'url_passthrough', true);
+          gtag('set', 'ads_data_redaction', true);
           gtag('js', new Date());
           gtag('config', gaId);
         </script>
@@ -121,10 +126,7 @@ const { analytics, verification, ads } = siteConfig;
       <Fragment>
         <script is:inline define:vars={{ ymId: analytics.yandexMetricaId }}>
           (function () {
-            var loaded = false;
             function loadYandex() {
-              if (loaded) return;
-              loaded = true;
               (function (m, e, t, r, i, k, a) {
                 m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
                 m[i].l = 1 * new Date();
@@ -139,21 +141,11 @@ const { analytics, verification, ads } = siteConfig;
                 webvisor: true,
               });
             }
-            function hasConsent() {
-              try {
-                var raw = localStorage.getItem('yh_cookie_consent_v1');
-                if (!raw) return false;
-                var parsed = JSON.parse(raw);
-                return parsed && parsed.status === 'granted';
-              } catch (e) { return false; }
-            }
             function scheduleLoad() {
-              if (!hasConsent()) return;
-              var run = function () { loadYandex(); };
               if (typeof window.requestIdleCallback === 'function') {
-                window.requestIdleCallback(run, { timeout: 3000 });
+                window.requestIdleCallback(loadYandex, { timeout: 3000 });
               } else {
-                setTimeout(run, 1500);
+                setTimeout(loadYandex, 1500);
               }
             }
             if (document.readyState === 'complete') {
@@ -161,13 +153,6 @@ const { analytics, verification, ads } = siteConfig;
             } else {
               window.addEventListener('load', scheduleLoad, { once: true });
             }
-            // Re-check when user clicks accept on the cookie banner
-            document.addEventListener('click', function (e) {
-              var t = e.target;
-              if (t && t.id === 'cookie-accept') {
-                setTimeout(scheduleLoad, 50);
-              }
-            });
           })();
         </script>
         <noscript><div><img src={`https://mc.yandex.ru/watch/${analytics.yandexMetricaId}`} style="position:absolute;left:-9999px;" alt="" /></div></noscript>
