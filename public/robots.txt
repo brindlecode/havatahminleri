@@ -7,6 +7,14 @@ User-agent: Googlebot
 Allow: /
 Disallow: /admin/
 
+User-agent: Mediapartners-Google
+Allow: /
+Disallow: /admin/
+
+User-agent: AdsBot-Google
+Allow: /
+Disallow: /admin/
+
 User-agent: Yandex
 Allow: /
 Disallow: /admin/
