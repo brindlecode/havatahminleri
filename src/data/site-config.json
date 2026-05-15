@@ -9,7 +9,7 @@
     "bing": ""
   },
   "ads": {
-    "enabled": false,
+    "enabled": true,
     "provider": "adsense",
     "adsensePublisherId": "ca-pub-9110547384071189",
     "adsenseSlots": {

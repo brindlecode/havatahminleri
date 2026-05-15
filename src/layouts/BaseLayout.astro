@@ -108,7 +108,7 @@ const { analytics, verification, ads } = siteConfig;
       }
     </script>
 
-    {ads.adsensePublisherId && (
+    {ads.enabled && ads.adsensePublisherId && (
       <script is:inline async
         src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ads.adsensePublisherId}`}
         crossorigin="anonymous"></script>
