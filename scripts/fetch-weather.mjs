@@ -13,8 +13,40 @@ const INITIAL_BATCH_DELAY_MS = 2500;
 const TIMEOUT_MS = 12000;
 const MAX_RETRIES = 2;
 const CONSECUTIVE_FAIL_LIMIT = 15; // Stop after this many consecutive fails
+const MIN_COVERAGE = 0.5; // Refuse to publish if fewer locations than this have fresh data
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const TIMEZONE = 'Europe/Istanbul';
+
+// Today's date as YYYY-MM-DD in the forecast timezone
+function today() {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+}
+
+// A cached entry is only usable while its forecast still starts today -
+// otherwise the site would publish past dates labelled "Bugün".
+function isFresh(entry, day) {
+  return entry?.daily?.time?.[0] === day;
+}
+
+function readCache() {
+  if (!existsSync(CACHE_PATH)) return null;
+  try {
+    return JSON.parse(readFileSync(CACHE_PATH, 'utf-8'));
+  } catch {
+    return null;
+  }
+}
+
+function freshCount(cache, day) {
+  return Object.values(cache?.data ?? {}).filter((entry) => isFresh(entry, day)).length;
+}
 
 const API_FIELDS = {
   current:
@@ -23,7 +55,7 @@ const API_FIELDS = {
     'temperature_2m,weather_code,relative_humidity_2m,precipitation_probability,wind_speed_10m,is_day,dew_point_2m,visibility,surface_pressure,cloud_cover',
   daily:
     'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset',
-  timezone: 'Europe/Istanbul',
+  timezone: TIMEZONE,
   forecast_days: '16',
   forecast_hours: '48',
 };
@@ -103,7 +135,8 @@ async function fetchOne(lat, lon) {
 
 async function main() {
   const t0 = Date.now();
-  console.log('[WEATHER] Pre-build fetch starting...');
+  const day = today();
+  console.log(`[WEATHER] Pre-build fetch starting for ${day}...`);
 
   const provinces = JSON.parse(
     readFileSync(join(__dirname, '..', 'src', 'data', 'provinces.json'), 'utf-8'),
@@ -191,29 +224,53 @@ async function main() {
   }
   console.log('');
 
-  // If API completely unreachable, try existing cache
+  // If API completely unreachable, the previous cache may only be reused
+  // while it still covers today - never publish a forecast that starts in
+  // the past.
   if (ok === 0) {
-    if (existsSync(CACHE_PATH)) {
-      console.log('[WEATHER] API unreachable - reusing existing cache');
+    const usable = freshCount(readCache(), day);
+    if (usable > 0) {
+      console.log(`[WEATHER] API unreachable - reusing today's cache (${usable} locations)`);
       return;
     }
-    console.error('[WEATHER] FATAL: No data fetched and no existing cache');
+    console.error(
+      `[WEATHER] FATAL: no data fetched and no cached forecast for ${day} - refusing to publish stale dates`,
+    );
     process.exit(1);
   }
 
-  // Fill gaps from existing cache
-  if (fail > 0 && existsSync(CACHE_PATH)) {
-    try {
-      const old = JSON.parse(readFileSync(CACHE_PATH, 'utf-8'));
+  // Fill gaps from existing cache, skipping anything that is no longer current
+  if (fail > 0) {
+    const old = readCache();
+    if (old) {
       let filled = 0;
+      let stale = 0;
       for (const [key] of locations) {
-        if (!results[key] && old.data?.[key]) {
-          results[key] = old.data[key];
+        if (results[key]) continue;
+        const prev = old.data?.[key];
+        if (isFresh(prev, day)) {
+          results[key] = prev;
           filled++;
+        } else if (prev) {
+          stale++;
         }
       }
       if (filled) console.log(`[WEATHER] Filled ${filled} gaps from previous cache`);
-    } catch {}
+      if (stale) console.log(`[WEATHER] Dropped ${stale} stale cache entries (not from ${day})`);
+    }
+  }
+
+  // A heavily degraded fetch would fall back to far-away locations for most
+  // cities. Fail the build instead so the outage is visible and the last
+  // good deploy stays up.
+  const covered = Object.keys(results).length;
+  const coverage = covered / locations.length;
+  if (coverage < MIN_COVERAGE) {
+    console.error(
+      `[WEATHER] FATAL: only ${covered}/${locations.length} locations ` +
+        `(${(coverage * 100).toFixed(1)}%) have current data - refusing to publish a degraded build`,
+    );
+    process.exit(1);
   }
 
   writeFileSync(
@@ -227,9 +284,12 @@ async function main() {
 
 main().catch((err) => {
   console.error('[WEATHER] Error:', err.message);
-  if (existsSync(CACHE_PATH)) {
-    console.log('[WEATHER] Falling back to existing cache');
+  const day = today();
+  const usable = freshCount(readCache(), day);
+  if (usable > 0) {
+    console.log(`[WEATHER] Falling back to today's existing cache (${usable} locations)`);
   } else {
+    console.error(`[WEATHER] No cached forecast for ${day} - aborting build`);
     process.exit(1);
   }
 });
