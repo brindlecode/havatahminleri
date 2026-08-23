@@ -1,7 +1,7 @@
       const REPO_OWNER = 'ilkukaya';
       const REPO_NAME = 'havatahminleri';
       const CONFIG_PATH = 'src/data/site-config.json';
-      const WORKFLOW_FILE = 'scheduled-build.yml';
+      const WORKFLOW_FILE = 'build-deploy.yml';
       const WORKFLOW_BRANCH = 'claude/weather-forecast-site-JpQxB';
       const ADMIN_USERS = ['ilkukaya'];
       const TOKEN_KEY = 'admin_gh_token';

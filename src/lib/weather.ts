@@ -58,6 +58,12 @@ try {
   const count = Object.keys(weatherCache).length;
   if (count > 0) {
     console.log(`[WEATHER] Cache loaded: ${count} locations (fetched: ${parsed.fetchedAt})`);
+    const ageHours = (Date.now() - new Date(parsed.fetchedAt).getTime()) / 3_600_000;
+    if (!(ageHours < 24)) {
+      console.warn(
+        `[WEATHER] WARNING: cache is ${Math.round(ageHours)}h old - the build is publishing outdated forecasts`,
+      );
+    }
   }
 } catch {
   console.warn('[WEATHER] No pre-built cache found');
