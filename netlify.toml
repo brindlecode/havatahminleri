@@ -1,5 +1,14 @@
-# Build is handled by GitHub Actions — this no-op overrides Netlify app settings
+# The site is built and deployed by GitHub Actions
+# (.github/workflows/build-deploy.yml), which uploads dist/ with netlify-cli.
+#
+# Netlify also starts its own build on every push, and that build has nothing
+# to run: the command below is a no-op, so no dist/ is produced and the build
+# fails with "Deploy directory 'dist' does not exist". The `ignore` command
+# stops it before it starts — exit code 0 means "skip this build" — so pushes
+# no longer raise failed builds. It has no effect on the CLI deploy from
+# GitHub Actions, which uploads files directly without a Netlify build.
 [build]
+  ignore = "exit 0"
   command = "echo 'Build handled by GitHub Actions'"
   publish = "dist"
 
