@@ -1,0 +1,60 @@
+---
+import { getPeriodSummary, getPeriodFAQs } from '../lib/periodSummary';
+import type { PeriodId } from '../lib/periods';
+import type { WeatherData } from '../lib/weather';
+
+interface Props {
+  cityName: string;
+  weather: WeatherData;
+  period: PeriodId;
+}
+
+const { cityName, weather, period } = Astro.props;
+
+const blocks = getPeriodSummary(weather, period, cityName);
+const faqs = getPeriodFAQs(weather, period, cityName);
+---
+
+<div class="space-y-6 mt-6">
+  {blocks.map((block) => (
+    <section class="weather-card">
+      <h2 class="text-lg font-semibold mb-3">{block.heading}</h2>
+      {block.stats && block.stats.length > 0 && (
+        <dl class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
+          {block.stats.map((stat) => (
+            <div class="bg-[var(--color-bg)] rounded-xl px-3 py-2">
+              <dt class="text-xs text-[var(--color-text-secondary)]">{stat.label}</dt>
+              <dd class="text-base font-semibold">{stat.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{block.paragraph}</p>
+    </section>
+  ))}
+
+  {faqs.length > 0 && (
+    <section class="weather-card">
+      <h2 class="text-lg font-semibold mb-4">Sık Sorulan Sorular</h2>
+      <div class="space-y-4">
+        {faqs.map((faq) => (
+          <details class="group" open>
+            <summary class="flex items-center justify-between cursor-pointer text-sm font-medium text-[var(--color-text)] hover:text-primary-500 transition-colors">
+              <span>{faq.question}</span>
+              <svg class="w-4 h-4 shrink-0 ml-2 transition-transform group-open:rotate-180 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </summary>
+            <p class="mt-2 text-sm text-[var(--color-text-secondary)] leading-relaxed">{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+      <p class="text-xs text-[var(--color-text-secondary)] mt-6 leading-relaxed">
+        Tahminler <a href="https://open-meteo.com/" target="_blank" rel="noopener" class="text-primary-500 hover:text-primary-600 underline">Open-Meteo</a>
+        meteoroloji modellerinden üretilir. Resmi hava uyarıları için
+        <a href="https://www.mgm.gov.tr/" target="_blank" rel="noopener" class="text-primary-500 hover:text-primary-600 underline">Meteoroloji Genel Müdürlüğü</a>
+        kaynağını takip edin.
+      </p>
+    </section>
+  )}
+</div>
