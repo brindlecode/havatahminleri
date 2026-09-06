@@ -1,20 +1,46 @@
 ---
+import siteConfig from '../data/site-config.json';
+
+type SlotName = 'header' | 'sidebar' | 'inContent' | 'footer';
+
 interface Props {
+  /** Which configured AdSense unit to render. */
+  slot: SlotName;
+  /** Stable DOM id, useful for measuring placements in analytics. */
   id: string;
   className?: string;
 }
 
-const { id, className = '' } = Astro.props;
+const { slot, id, className = '' } = Astro.props;
+const { ads } = siteConfig;
+
+/**
+ * This component used to emit an empty <div> at four points on every page
+ * whether or not an ad unit existed - roughly 7,300 pages x 4 dead nodes,
+ * with no <ins class="adsbygoogle"> for AdSense to fill. Monetization was
+ * therefore entirely dependent on Auto Ads.
+ *
+ * Now nothing is emitted unless a real slot id is configured in
+ * src/data/site-config.json. When one is, a proper AdSense unit is rendered
+ * inside a container with a reserved height so filling it cannot shift the
+ * layout (CLS).
+ */
+const slotId = ads.enabled ? (ads.adsenseSlots as Record<string, string>)[slot] : '';
+const active = Boolean(slotId && ads.adsensePublisherId);
 ---
 
-<!-- Ad Unit: {id} -->
-<div
-  id={`ad-${id}`}
-  class:list={[
-    'my-4',
-    className,
-  ]}
-  data-ad-slot={id}
->
-  <!-- Google AdSense / Ezoic unit will be injected here when active -->
-</div>
+{active && (
+  <div id={`ad-${id}`} class:list={['my-4 min-h-[280px] flex justify-center', className]} data-ad-slot={id}>
+    <ins
+      class="adsbygoogle block w-full"
+      style="display:block"
+      data-ad-client={ads.adsensePublisherId}
+      data-ad-slot={slotId}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    ></ins>
+    <script is:inline>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+)}
