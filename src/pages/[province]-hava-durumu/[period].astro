@@ -1,8 +1,9 @@
 ---
 import ForecastLayout from '../../layouts/ForecastLayout.astro';
-import { generateStructuredData, PERIOD_META } from '../../lib/seo';
+import RelatedForecasts from '../../components/RelatedForecasts.astro';
+import { getPeriodSEO, generateStructuredData, buildBreadcrumbs, getLocationNames } from '../../lib/seo';
 import { fetchWeatherData } from '../../lib/weather';
-import { PERIODS } from '../../lib/periods';
+import { PERIODS, getLocationPath } from '../../lib/periods';
 import provinces from '../../data/provinces.json';
 import districts from '../../data/districts.json';
 import regions from '../../data/regions.json';
@@ -12,74 +13,75 @@ export function getStaticPaths() {
   for (const prov of provinces) {
     for (const period of PERIODS) {
       paths.push({
-        params: { 'province': `${prov.slug}`, period: period.slug },
-        props: { province: prov, periodInfo: period },
+        params: { province: prov.slug, period: period.slug },
+        props: { province: prov, periodId: period.id },
       });
     }
   }
   return paths;
 }
 
-const { province, periodInfo } = Astro.props;
+const { province, periodId } = Astro.props;
 const weather = await fetchWeatherData(province.lat, province.lon);
 
-const meta = PERIOD_META[periodInfo.id];
-const titlePrefix = meta?.titlePrefix ?? '';
-const title = `${province.name} ${titlePrefix} Hava Durumu | Yarın Hava`;
-const description = meta
-  ? meta.description(province.name)
-  : `${province.name} ${periodInfo.label.toLowerCase()} hava durumu tahmini. Detaylı sıcaklık, yağış ve rüzgar bilgileri.`;
-const canonical = `https://yarinhava.com/${province.slug}-hava-durumu/${periodInfo.slug}/`;
-
-const region = regions.find((r: any) => r.id === province.region);
-const breadcrumbs = [
-  { name: region?.name || '', url: '/' },
-  { name: province.name, url: `/${province.slug}-hava-durumu/` },
-  { name: `${periodInfo.label} Tahmin`, url: canonical },
-];
-
-const structuredData = generateStructuredData('province', {
-  name: `${province.name} ${titlePrefix} Hava Durumu`,
-  description,
-  url: canonical,
+const loc = {
+  provinceName: province.name,
+  provinceSlug: province.slug,
   lat: province.lat,
   lon: province.lon,
-  breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://yarinhava.com/' }, ...breadcrumbs],
+};
+
+const names = getLocationNames(loc);
+const seo = getPeriodSEO(loc, periodId, {
+  temperature: weather.current.temperature,
+  weatherCode: weather.current.weatherCode,
+  maxTemp: weather.daily.temperatureMax[0],
+  minTemp: weather.daily.temperatureMin[0],
 });
 
-import { getPeriodLinks } from '../../lib/periods';
-const baseUrl = `/${province.slug}-hava-durumu`;
-const links = getPeriodLinks(baseUrl);
+const region = regions.find((r: any) => r.id === province.region);
+const breadcrumbs = buildBreadcrumbs(loc, periodId, region?.name);
+
+const structuredData = generateStructuredData('location', {
+  name: seo.heading,
+  description: seo.description,
+  url: seo.canonical,
+  lat: province.lat,
+  lon: province.lon,
+  breadcrumbs,
+});
 
 const provinceDistricts = districts.filter((d: any) => d.province === province.slug);
+const basePath = getLocationPath(province.slug).replace(/\/$/, '');
 ---
 
 <ForecastLayout
-  title={title}
-  description={description}
-  canonical={canonical}
+  title={seo.title}
+  description={seo.description}
+  canonical={seo.canonical}
   structuredData={structuredData}
-  cityName={province.name}
+  cityName={names.short}
+  heading={seo.heading}
   weather={weather}
   breadcrumbs={breadcrumbs}
-  period={periodInfo.id}
-  periodLabel={periodInfo.label}
+  period={periodId}
+  basePath={basePath}
   lat={province.lat}
   lon={province.lon}
-  links={links}
 >
   {provinceDistricts.length > 0 && (
     <section class="weather-card mt-6">
-      <h2 class="text-lg font-semibold mb-4">{province.name} İlçeleri</h2>
+      <h2 class="text-lg font-semibold mb-4">{province.name} İlçeleri Hava Durumu</h2>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
         {provinceDistricts.map((d: any) => (
           <a href={`/${province.slug}/${d.slug}-hava-durumu/`}
             class="px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors text-sm">
-            {d.name}
+            {d.name === 'Merkez' ? `${province.name} Merkez` : d.name}
           </a>
         ))}
       </div>
     </section>
   )}
 
+  <RelatedForecasts cityName={names.short} basePath={basePath} current={periodId} />
 </ForecastLayout>

@@ -1,0 +1,37 @@
+---
+import { getPeriodLinks, type PeriodId } from '../lib/periods';
+
+interface Props {
+  /** Name used in the anchor text ("Kocaeli", "İzmit", "Adıyaman Merkez"). */
+  cityName: string;
+  /** Location path without a trailing slash. */
+  basePath: string;
+  /** The period this page already is - it is not linked to itself. */
+  current: PeriodId;
+}
+
+const { cityName, basePath, current } = Astro.props;
+
+// Descriptive anchor text for each period page. The tab strip above uses
+// short labels for mobile; this block carries the full query-shaped phrasing
+// ("Kocaeli 15 Günlük Hava Durumu"). Self-links are dropped so each intent
+// points at exactly one target and no page links to itself.
+const links = getPeriodLinks(basePath).filter((l) => l.id !== current);
+---
+
+<section class="weather-card mt-6">
+  <h2 class="text-lg font-semibold mb-3">{cityName} İçin Diğer Hava Tahminleri</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+    {links.map((link) => (
+      <a
+        href={link.href}
+        class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)] hover:text-primary-500 transition-colors"
+      >
+        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        {cityName} {link.label} Hava Durumu
+      </a>
+    ))}
+  </div>
+</section>

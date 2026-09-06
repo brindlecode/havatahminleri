@@ -1,0 +1,26 @@
+---
+import { getForecastFreshness } from '../lib/freshness';
+
+/**
+ * Visible "last updated" line.
+ *
+ * The value is the moment the forecast was fetched from Open-Meteo, taken
+ * from weather-cache.json. It is never the browser clock and never the build
+ * clock: between mid-July and 23 August 2026 the site served five-week-old
+ * forecasts labelled "Bugün" with nothing on the page to reveal it, and this
+ * line exists so that failure mode is visible to readers and to us.
+ */
+const freshness = getForecastFreshness();
+---
+
+{freshness && (
+  <p class="text-xs text-[var(--color-text-secondary)] mt-3 flex items-center gap-1.5 flex-wrap">
+    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <span>
+      Son güncelleme: <time datetime={freshness.iso}>{freshness.label}</time> (TSİ)
+    </span>
+    <span class="opacity-70">&middot; Tahminler günde iki kez yenilenir.</span>
+  </p>
+)}

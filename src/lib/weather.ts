@@ -50,14 +50,41 @@ import { resolve } from 'node:path';
 
 let weatherCache: Record<string, WeatherData> = {};
 
+/**
+ * When the forecast data behind this build was actually fetched from
+ * Open-Meteo. Every "last updated" signal on the site - the visible timestamp,
+ * JSON-LD dateModified and sitemap lastmod - is derived from this single
+ * value so they can never drift apart or claim a freshness the data lacks.
+ */
+export interface WeatherCacheMeta {
+  /** ISO-8601 instant the forecast was fetched, or null when unknown. */
+  fetchedAt: string | null;
+  /** Number of locations in the cache. */
+  locationCount: number;
+  /** True when the cache was produced by scripts/make-fixture-cache.mjs. */
+  synthetic: boolean;
+}
+
+export const weatherCacheMeta: WeatherCacheMeta = {
+  fetchedAt: null,
+  locationCount: 0,
+  synthetic: false,
+};
+
 try {
   const cachePath = resolve(process.cwd(), 'src/data/weather-cache.json');
   const raw = readFileSync(cachePath, 'utf-8');
   const parsed = JSON.parse(raw);
   weatherCache = parsed.data || {};
   const count = Object.keys(weatherCache).length;
+  weatherCacheMeta.locationCount = count;
+  weatherCacheMeta.fetchedAt = parsed.fetchedAt ?? null;
+  weatherCacheMeta.synthetic = parsed.synthetic === true;
   if (count > 0) {
     console.log(`[WEATHER] Cache loaded: ${count} locations (fetched: ${parsed.fetchedAt})`);
+    if (weatherCacheMeta.synthetic) {
+      console.warn('[WEATHER] WARNING: cache is SYNTHETIC fixture data - do not deploy this build');
+    }
     const ageHours = (Date.now() - new Date(parsed.fetchedAt).getTime()) / 3_600_000;
     if (!(ageHours < 24)) {
       console.warn(

@@ -6,11 +6,12 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 import CurrentWeather from '../components/CurrentWeather.astro';
 import HourlyForecast from '../components/HourlyForecast.astro';
 import DailyForecast from '../components/DailyForecast.astro';
-import ForecastTabs from '../components/ForecastTabs.astro';
 import PeriodTabs from '../components/PeriodTabs.astro';
 import WeatherDetails from '../components/WeatherDetails.astro';
-import WeatherSummary from '../components/WeatherSummary.astro';
+import PeriodInsights from '../components/PeriodInsights.astro';
+import ForecastFreshness from '../components/ForecastFreshness.astro';
 import AdSlot from '../components/AdSlot.astro';
+import { getPeriodForecastData, getPeriodLinks, type PeriodId } from '../lib/periods';
 import type { WeatherData } from '../lib/weather';
 
 interface Props {
@@ -18,169 +19,85 @@ interface Props {
   description: string;
   canonical: string;
   structuredData: string;
+  /** Name used in the H1 and in prose ("İzmit", "Adıyaman Merkez", "Kocaeli"). */
   cityName: string;
+  heading: string;
   weather: WeatherData;
   breadcrumbs: { name: string; url: string }[];
-  period: string; // 'bugun' | 'yarin' | '7gun' | '10gun' | '15gun' | 'saatlik'
-  periodLabel: string;
+  period: PeriodId;
+  /** Location path without a trailing slash, e.g. "/kocaeli-hava-durumu". */
+  basePath: string;
   lat: number;
   lon: number;
-  isDistrict?: boolean;
-  provinceName?: string;
-  links?: { label: string; href: string }[];
-  relatedLinks?: { name: string; href: string }[];
 }
 
 const {
   title, description, canonical, structuredData,
-  cityName, weather, breadcrumbs, period, periodLabel,
-  lat, lon, isDistrict = false, provinceName,
-  links = [], relatedLinks = [],
+  cityName, heading, weather, breadcrumbs, period, basePath, lat, lon,
 } = Astro.props;
 
-// Page-specific H1 reflecting the period
-const headingMap: Record<string, string> = {
-  'bugun': `${cityName} Bugünkü Hava Durumu`,
-  'yarin': `${cityName} Yarınki Hava Durumu`,
-  '7gun': `${cityName} 7 Günlük Hava Durumu`,
-  '10gun': `${cityName} 10 Günlük Hava Durumu`,
-  '15gun': `${cityName} 15 Günlük Hava Durumu`,
-  'saatlik': `${cityName} Saatlik Hava Durumu`,
-};
-const heading = headingMap[period] || `${cityName} Hava Durumu`;
+// One source of truth for how many days/hours this period shows. The
+// "15 Günlük" page used to slice `slice(0, 16)` and render 16 rows.
+const { daily, showHourly, hourlyStart, hourlyEnd, period: def } = getPeriodForecastData(
+  weather,
+  period,
+);
 
-// Determine which days to show based on period
-const dayCount = period === 'bugun' ? 1 : period === 'yarin' ? 2 : period === '7gun' ? 7 : period === '10gun' ? 10 : 16;
-const startDay = period === 'yarin' ? 1 : 0;
-const showHourly = period === 'bugun' || period === 'yarin' || period === 'saatlik';
-
-// Dynamic title for DailyForecast based on period
-const dailyTitleMap: Record<string, string> = {
-  'bugun': 'Bugünkü Hava Durumu',
-  'yarin': 'Yarınki Hava Durumu',
-  '7gun': '7 Günlük Hava Tahmini',
-  '10gun': '10 Günlük Hava Tahmini',
-  '15gun': '15 Günlük Hava Tahmini',
-  'saatlik': 'Saatlik Hava Tahmini',
-};
-const dailyTitle = dailyTitleMap[period] || '15 Günlük Hava Tahmini';
-
-// Hourly section title and range based on period
-const hourlyTitleMap: Record<string, string> = {
-  'bugun': 'Bugün Saatlik Tahmin',
-  'yarin': 'Yarın Saatlik Tahmin',
-  'saatlik': '48 Saatlik Tahmin',
-  '15gun': 'Saatlik Tahmin',
-};
-const hourlyTitle = hourlyTitleMap[period] || 'Saatlik Tahmin';
-const hourlyStart = period === 'yarin' ? 24 : 0;
-const hourlyEnd = period === 'bugun' ? 24 : period === 'yarin' ? 48 : 48;
-
-// Slice daily data for this period
-const periodDaily = {
-  ...weather.daily,
-  time: weather.daily.time.slice(startDay, dayCount),
-  weatherCode: weather.daily.weatherCode.slice(startDay, dayCount),
-  temperatureMax: weather.daily.temperatureMax.slice(startDay, dayCount),
-  temperatureMin: weather.daily.temperatureMin.slice(startDay, dayCount),
-  precipitationSum: weather.daily.precipitationSum.slice(startDay, dayCount),
-  precipitationProbabilityMax: weather.daily.precipitationProbabilityMax.slice(startDay, dayCount),
-  windSpeedMax: weather.daily.windSpeedMax.slice(startDay, dayCount),
-  uvIndexMax: weather.daily.uvIndexMax.slice(startDay, dayCount),
-  sunrise: weather.daily.sunrise.slice(startDay, dayCount),
-  sunset: weather.daily.sunset.slice(startDay, dayCount),
-};
+const links = getPeriodLinks(basePath);
+const activeId: PeriodId = period === 'base' ? 'yarin' : period;
 ---
 
-<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData}>
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  structuredData={structuredData}
+  lat={lat}
+  lon={lon}
+>
   <Header slot="header" />
 
   <div class="max-w-4xl mx-auto px-4 py-6">
     <Breadcrumb items={breadcrumbs} />
 
-    <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} heading={heading} />
+    <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} heading={heading}>
+      <ForecastFreshness />
+    </CurrentWeather>
 
-    <AdSlot id="city-top" />
+    <AdSlot slot="header" id="forecast-top" />
 
-    <!-- Period Navigation -->
-    <PeriodTabs links={links} activeLabel={periodLabel} />
+    <PeriodTabs links={links} activeId={activeId} />
 
-    {showHourly && (
+    {showHourly && def.hourlyTitle && (
       <div class="mt-4">
-        <HourlyForecast hourly={weather.hourly} startIndex={hourlyStart} endIndex={hourlyEnd} title={hourlyTitle} />
+        <HourlyForecast
+          hourly={weather.hourly}
+          startIndex={hourlyStart}
+          endIndex={hourlyEnd}
+          title={def.hourlyTitle}
+        />
       </div>
     )}
 
-    {period !== 'saatlik' && (
+    {daily.time.length > 0 && (
       <div class="mt-4">
-        <DailyForecast daily={periodDaily} title={dailyTitle} />
+        <DailyForecast daily={daily} title={def.dailyTitle} />
       </div>
     )}
 
-    <AdSlot id="city-mid" />
+    <AdSlot slot="inContent" id="forecast-mid" />
 
     <div class="mt-4">
       <WeatherDetails current={weather.current} daily={weather.daily} />
     </div>
 
-    <AdSlot id="city-details" />
-
-    <!-- Related links -->
+    <!-- Location links (districts / siblings), supplied by the page. -->
     <slot />
 
-    <WeatherSummary cityName={cityName} weather={weather} isDistrict={isDistrict} provinceName={provinceName} />
+    <PeriodInsights cityName={cityName} weather={weather} period={period} />
 
-    <AdSlot id="city-bottom" />
+    <AdSlot slot="footer" id="forecast-bottom" />
   </div>
 
   <Footer slot="footer" />
 </BaseLayout>
-
-<script is:inline define:vars={{ lat, lon }}>
-  (function() {
-    var CACHE_KEY = 'weather_' + lat + '_' + lon;
-    var CACHE_MS = 30 * 60 * 1000;
-    var WIND_DIRS = ['K','KD','D','GD','G','GB','B','KB'];
-    var WMO = {0:'Açık',1:'Az Bulutlu',2:'Parçalı Bulutlu',3:'Bulutlu',45:'Sisli',48:'Kırağılı Sis',51:'Hafif Çisenti',53:'Çisenti',55:'Yoğun Çisenti',61:'Hafif Yağmur',63:'Yağmurlu',65:'Şiddetli Yağmur',71:'Hafif Kar',73:'Kar Yağışlı',75:'Yoğun Kar',77:'Kar Taneleri',80:'Hafif Sağanak',81:'Sağanak Yağış',82:'Şiddetli Sağanak',85:'Hafif Kar Sağanağı',86:'Kar Sağanağı',95:'Gök Gürültülü Fırtına',96:'Dolu ile Fırtına',99:'Şiddetli Dolu Fırtınası'};
-
-    function getCached() {
-      try { var c = localStorage.getItem(CACHE_KEY); if (!c) return null; var p = JSON.parse(c); if (Date.now() - p.ts > CACHE_MS) return null; return p.d; } catch(e) { return null; }
-    }
-
-    function updateDOM(d) {
-      try {
-        var el;
-        el = document.getElementById('weather-temp'); if (el) el.textContent = Math.round(d.current.temperature_2m) + '°';
-        el = document.getElementById('weather-desc'); if (el) el.textContent = WMO[d.current.weather_code] || '';
-        el = document.getElementById('weather-feels'); if (el) el.textContent = Math.round(d.current.apparent_temperature);
-        el = document.getElementById('weather-humidity'); if (el) el.textContent = d.current.relative_humidity_2m;
-        el = document.getElementById('weather-wind'); if (el) el.textContent = Math.round(d.current.wind_speed_10m);
-        el = document.getElementById('weather-winddir'); if (el) el.textContent = WIND_DIRS[Math.round(d.current.wind_direction_10m / 45) % 8];
-        el = document.getElementById('weather-high'); if (el) el.textContent = Math.round(d.daily.temperature_2m_max[0]);
-        el = document.getElementById('weather-low'); if (el) el.textContent = Math.round(d.daily.temperature_2m_min[0]);
-        el = document.getElementById('weather-uv'); if (el) el.textContent = Math.round(d.daily.uv_index_max[0]);
-        el = document.getElementById('weather-precip'); if (el) el.textContent = d.daily.precipitation_sum[0];
-      } catch(e) {}
-    }
-
-    function refresh() {
-      var cached = getCached();
-      if (cached) { updateDOM(cached); return; }
-      var p = new URLSearchParams({
-        latitude: String(lat), longitude: String(lon),
-        current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,is_day,surface_pressure,cloud_cover,visibility',
-        hourly: 'temperature_2m,weather_code,relative_humidity_2m,precipitation_probability,wind_speed_10m,is_day,dew_point_2m,visibility,surface_pressure,cloud_cover',
-        daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset',
-        timezone: 'Europe/Istanbul', forecast_days: '16', forecast_hours: '48'
-      });
-      fetch('https://api.open-meteo.com/v1/forecast?' + p)
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ d: d, ts: Date.now() }));
-          updateDOM(d);
-        })
-        .catch(function() {});
-    }
-    refresh();
-  })();
-</script>

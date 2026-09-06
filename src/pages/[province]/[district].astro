@@ -1,18 +1,10 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import Breadcrumb from '../../components/Breadcrumb.astro';
-import CurrentWeather from '../../components/CurrentWeather.astro';
-import HourlyForecast from '../../components/HourlyForecast.astro';
-import DailyForecast from '../../components/DailyForecast.astro';
-
-import WeatherDetails from '../../components/WeatherDetails.astro';
-import WeatherSummary from '../../components/WeatherSummary.astro';
-import PeriodTabs from '../../components/PeriodTabs.astro';
-import AdSlot from '../../components/AdSlot.astro';
-import { getDistrictSEO, generateStructuredData } from '../../lib/seo';
+import ForecastLayout from '../../layouts/ForecastLayout.astro';
+import RelatedForecasts from '../../components/RelatedForecasts.astro';
+import DistrictSiblings from '../../components/DistrictSiblings.astro';
+import { getPeriodSEO, generateStructuredData, buildBreadcrumbs, getLocationNames } from '../../lib/seo';
 import { fetchWeatherData } from '../../lib/weather';
+import { getLocationPath } from '../../lib/periods';
 import provinces from '../../data/provinces.json';
 import districts from '../../data/districts.json';
 import regions from '../../data/regions.json';
@@ -33,182 +25,52 @@ export function getStaticPaths() {
 const { district, province } = Astro.props;
 const weather = await fetchWeatherData(district.lat, district.lon);
 
-const seo = getDistrictSEO(
-  district.name,
-  province.name,
-  province.slug,
-  district.slug,
-  weather.current.temperature,
-  weather.current.weatherCode,
-);
+const loc = {
+  provinceName: province.name,
+  provinceSlug: province.slug,
+  districtName: district.name,
+  districtSlug: district.slug,
+  lat: district.lat,
+  lon: district.lon,
+};
+
+const names = getLocationNames(loc);
+const seo = getPeriodSEO(loc, 'base', {
+  temperature: weather.current.temperature,
+  weatherCode: weather.current.weatherCode,
+  maxTemp: weather.daily.temperatureMax[1],
+  minTemp: weather.daily.temperatureMin[1],
+});
 
 const region = regions.find((r: any) => r.id === province.region);
-const breadcrumbs = [
-  { name: region?.name || '', url: '/' },
-  { name: province.name, url: `/${province.slug}-hava-durumu/` },
-  { name: `${district.name} Hava Durumu`, url: seo.canonical },
-];
+const breadcrumbs = buildBreadcrumbs(loc, 'base', region?.name);
 
-const structuredData = generateStructuredData('district', {
-  name: `${district.name} (${province.name}) Hava Durumu`,
+const structuredData = generateStructuredData('location', {
+  name: `${names.qualified} Hava Durumu`,
   description: seo.description,
   url: seo.canonical,
   lat: district.lat,
   lon: district.lon,
-  breadcrumbs: [{ name: 'Ana Sayfa', url: 'https://yarinhava.com/' }, ...breadcrumbs],
+  breadcrumbs,
 });
 
-const siblingDistricts = districts
-  .filter((d: any) => d.province === province.slug && d.slug !== district.slug)
-  .slice(0, 20);
-
-import { getPeriodLinks } from '../../lib/periods';
-const baseUrl = `/${province.slug}/${district.slug}-hava-durumu`;
-const periodLinks = getPeriodLinks(baseUrl);
-
-// Default view: Yarın (tomorrow) - slice daily data to show only tomorrow
-const yarinDaily = {
-  ...weather.daily,
-  time: weather.daily.time.slice(1, 2),
-  weatherCode: weather.daily.weatherCode.slice(1, 2),
-  temperatureMax: weather.daily.temperatureMax.slice(1, 2),
-  temperatureMin: weather.daily.temperatureMin.slice(1, 2),
-  precipitationSum: weather.daily.precipitationSum.slice(1, 2),
-  precipitationProbabilityMax: weather.daily.precipitationProbabilityMax.slice(1, 2),
-  windSpeedMax: weather.daily.windSpeedMax.slice(1, 2),
-  uvIndexMax: weather.daily.uvIndexMax.slice(1, 2),
-  sunrise: weather.daily.sunrise.slice(1, 2),
-  sunset: weather.daily.sunset.slice(1, 2),
-};
+const basePath = getLocationPath(province.slug, district.slug).replace(/\/$/, '');
 ---
 
-<BaseLayout
+<ForecastLayout
   title={seo.title}
   description={seo.description}
   canonical={seo.canonical}
   structuredData={structuredData}
+  cityName={names.short}
+  heading={seo.heading}
+  weather={weather}
+  breadcrumbs={breadcrumbs}
+  period="base"
+  basePath={basePath}
+  lat={district.lat}
+  lon={district.lon}
 >
-  <Header slot="header" />
-
-  <div class="max-w-4xl mx-auto px-4 py-6">
-    <Breadcrumb items={breadcrumbs} />
-
-    <CurrentWeather cityName={`${district.name}, ${province.name}`} current={weather.current} daily={weather.daily} />
-
-    <AdSlot id="district-top" />
-
-    <!-- Period Navigation Links -->
-    <PeriodTabs links={periodLinks} activeLabel="Yarın" />
-
-    <div class="mt-4">
-      <HourlyForecast hourly={weather.hourly} startIndex={24} endIndex={48} title="Yarın Saatlik Tahmin" />
-    </div>
-
-    <div class="mt-4">
-      <DailyForecast daily={yarinDaily} title="Yarınki Hava Durumu" />
-    </div>
-
-    <AdSlot id="district-mid" />
-
-    <div class="mt-4">
-      <WeatherDetails current={weather.current} daily={weather.daily} />
-    </div>
-
-    <AdSlot id="district-details" />
-
-    {siblingDistricts.length > 0 && (
-      <section class="weather-card mt-6">
-        <h2 class="text-lg font-semibold mb-4">{province.name} Diğer İlçeler</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          {siblingDistricts.map((d: any) => (
-            <a
-              href={`/${province.slug}/${d.slug}-hava-durumu/`}
-              class="px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors text-sm"
-            >
-              {d.name}
-            </a>
-          ))}
-        </div>
-        <a
-          href={`/${province.slug}-hava-durumu/`}
-          class="block text-center text-sm text-primary-500 hover:text-primary-600 mt-4 font-medium"
-        >
-          ← {province.name} Hava Durumuna Dön
-        </a>
-      </section>
-    )}
-
-    <WeatherSummary cityName={district.name} weather={weather} isDistrict={true} provinceName={province.name} />
-
-    <!-- Internal Linking: Popular Search Patterns -->
-    <section class="weather-card mt-6">
-      <h2 class="text-lg font-semibold mb-3">Sık Aranan {district.name} Hava Tahminleri</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {periodLinks.map(link => (
-          <a
-            href={link.href}
-            class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)] hover:text-primary-500 transition-colors"
-          >
-            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-            {district.name} {link.label} Hava Durumu
-          </a>
-        ))}
-      </div>
-    </section>
-
-    <AdSlot id="district-bottom" />
-  </div>
-
-  <Footer slot="footer" />
-</BaseLayout>
-
-<script is:inline define:vars={{ lat: district.lat, lon: district.lon }}>
-  (function() {
-    var CACHE_KEY = 'weather_' + lat + '_' + lon;
-    var CACHE_MS = 30 * 60 * 1000;
-    var WIND_DIRS = ['K','KD','D','GD','G','GB','B','KB'];
-    var WMO = {0:'Açık',1:'Az Bulutlu',2:'Parçalı Bulutlu',3:'Bulutlu',45:'Sisli',48:'Kırağılı Sis',51:'Hafif Çisenti',53:'Çisenti',55:'Yoğun Çisenti',61:'Hafif Yağmur',63:'Yağmurlu',65:'Şiddetli Yağmur',71:'Hafif Kar',73:'Kar Yağışlı',75:'Yoğun Kar',77:'Kar Taneleri',80:'Hafif Sağanak',81:'Sağanak Yağış',82:'Şiddetli Sağanak',85:'Hafif Kar Sağanağı',86:'Kar Sağanağı',95:'Gök Gürültülü Fırtına',96:'Dolu ile Fırtına',99:'Şiddetli Dolu Fırtınası'};
-
-    function getCached() {
-      try { var c = localStorage.getItem(CACHE_KEY); if (!c) return null; var p = JSON.parse(c); if (Date.now() - p.ts > CACHE_MS) return null; return p.d; } catch(e) { return null; }
-    }
-
-    function updateDOM(d) {
-      try {
-        var el;
-        el = document.getElementById('weather-temp'); if (el) el.textContent = Math.round(d.current.temperature_2m) + '°';
-        el = document.getElementById('weather-desc'); if (el) el.textContent = WMO[d.current.weather_code] || '';
-        el = document.getElementById('weather-feels'); if (el) el.textContent = Math.round(d.current.apparent_temperature);
-        el = document.getElementById('weather-humidity'); if (el) el.textContent = d.current.relative_humidity_2m;
-        el = document.getElementById('weather-wind'); if (el) el.textContent = Math.round(d.current.wind_speed_10m);
-        el = document.getElementById('weather-winddir'); if (el) el.textContent = WIND_DIRS[Math.round(d.current.wind_direction_10m / 45) % 8];
-        el = document.getElementById('weather-high'); if (el) el.textContent = Math.round(d.daily.temperature_2m_max[0]);
-        el = document.getElementById('weather-low'); if (el) el.textContent = Math.round(d.daily.temperature_2m_min[0]);
-        el = document.getElementById('weather-uv'); if (el) el.textContent = Math.round(d.daily.uv_index_max[0]);
-        el = document.getElementById('weather-precip'); if (el) el.textContent = d.daily.precipitation_sum[0];
-      } catch(e) {}
-    }
-
-    function refresh() {
-      var cached = getCached();
-      if (cached) { updateDOM(cached); return; }
-      var p = new URLSearchParams({
-        latitude: String(lat), longitude: String(lon),
-        current: 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,is_day,surface_pressure,cloud_cover,visibility',
-        hourly: 'temperature_2m,weather_code,relative_humidity_2m,precipitation_probability,wind_speed_10m,is_day,dew_point_2m,visibility,surface_pressure,cloud_cover',
-        daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset',
-        timezone: 'Europe/Istanbul', forecast_days: '16', forecast_hours: '48'
-      });
-      fetch('https://api.open-meteo.com/v1/forecast?' + p)
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ d: d, ts: Date.now() }));
-          updateDOM(d);
-        })
-        .catch(function() {});
-    }
-    refresh();
-  })();
-</script>
+  <DistrictSiblings province={province} currentSlug={district.slug} districts={districts} />
+  <RelatedForecasts cityName={names.short} basePath={basePath} current="base" />
+</ForecastLayout>

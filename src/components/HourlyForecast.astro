@@ -20,6 +20,7 @@ const allHours = hourly.time.slice(0, 48).map((time, i) => ({
   precip: hourly.precipitationProbability[i],
   isDay: hourly.isDay[i] === 1,
   originalIndex: i,
+  raw: time,
 }));
 const hours = allHours.slice(startIndex, endIndex);
 ---
@@ -28,7 +29,7 @@ const hours = allHours.slice(startIndex, endIndex);
   <h2 class="text-lg font-semibold mb-4 px-2">{title}</h2>
   <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
     {hours.map((h, i) => (
-      <div data-hour-index={h.originalIndex} class="flex flex-col items-center gap-1.5 min-w-[70px] shrink-0 py-2 px-1">
+      <div data-hour-index={h.originalIndex} data-time={h.raw} class="flex flex-col items-center gap-1.5 min-w-[70px] shrink-0 py-2 px-1">
         <span class="text-xs text-[var(--color-text-secondary)]">
           {startIndex === 0 && i === 0 ? 'Şimdi' : h.time}
         </span>

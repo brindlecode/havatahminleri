@@ -39,7 +39,7 @@ const range = globalMax - globalMin || 1;
       const widthPct = ((day.max - day.min) / range) * 100;
 
       return (
-        <div data-day-index={index} class="flex items-center gap-2 py-3 px-2 hover:bg-[var(--color-bg)] rounded-lg transition-colors group">
+        <div data-day-index={index} data-date={day.date} class="flex items-center gap-2 py-3 px-2 hover:bg-[var(--color-bg)] rounded-lg transition-colors group">
           {/* Day name */}
           <div class="w-20 shrink-0">
             <p class="text-sm font-medium">{day.dayName}</p>

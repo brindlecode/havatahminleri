@@ -1,17 +1,21 @@
 ---
+import type { PeriodId } from '../lib/periods';
+
 interface Props {
-  links: { label: string; href: string }[];
-  activeLabel: string;
+  links: { label: string; href: string; id: PeriodId }[];
+  /** Matched by period id, not by label - "Yarın" is both a label and the
+   *  intent the base location page owns. */
+  activeId: PeriodId;
 }
 
-const { links, activeLabel } = Astro.props;
+const { links, activeId } = Astro.props;
 ---
 
 <div class="weather-card my-4">
   <div class="period-tabs relative">
     <div class="period-tabs-scroll flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
       {links.map((link) => {
-        const isActive = link.label === activeLabel;
+        const isActive = link.id === activeId;
         return (
           <a
             href={link.href}

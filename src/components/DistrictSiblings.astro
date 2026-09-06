@@ -1,0 +1,36 @@
+---
+interface Props {
+  province: { name: string; slug: string };
+  currentSlug: string;
+  districts: any[];
+  limit?: number;
+}
+
+const { province, currentSlug, districts, limit = 20 } = Astro.props;
+
+const siblings = districts
+  .filter((d: any) => d.province === province.slug && d.slug !== currentSlug)
+  .slice(0, limit);
+---
+
+{siblings.length > 0 && (
+  <section class="weather-card mt-6">
+    <h2 class="text-lg font-semibold mb-4">{province.name} Diğer İlçeler</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+      {siblings.map((d: any) => (
+        <a
+          href={`/${province.slug}/${d.slug}-hava-durumu/`}
+          class="px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors text-sm"
+        >
+          {d.name === 'Merkez' ? `${province.name} Merkez` : d.name}
+        </a>
+      ))}
+    </div>
+    <a
+      href={`/${province.slug}-hava-durumu/`}
+      class="block text-center text-sm text-primary-500 hover:text-primary-600 mt-4 font-medium"
+    >
+      &larr; {province.name} Hava Durumuna Dön
+    </a>
+  </section>
+)}

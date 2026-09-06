@@ -47,6 +47,8 @@ const todayMin = daily.temperatureMin[0];
           <span>↑ <span id="weather-high">{Math.round(todayMax)}</span>°</span>
           <span>↓ <span id="weather-low">{Math.round(todayMin)}</span>°</span>
         </div>
+
+        <slot />
       </div>
 
       <!-- Right: Details grid -->
