@@ -1,0 +1,95 @@
+name: Production health check
+
+# An independent watchdog on the LIVE site.
+#
+# build-deploy.yml can only report a failure when it runs. Between 2026-07-14
+# and 2026-08-23 it did not run at all - GitHub had disabled the schedule after
+# 60 days of repository inactivity - so there was no failure to report, and the
+# site quietly served five-week-old forecasts labelled "Bugün".
+#
+# This workflow exists so that the *symptom* is detected even when the whole
+# build pipeline is gone: it fetches real pages from yarinhava.com and fails if
+# the forecast on them is not current.
+#
+# It cannot protect itself from the same 60-day deactivation, which is why
+# build-deploy.yml still pushes a weekly keep-alive commit (repository activity
+# re-arms every schedule in the repo, including this one).
+
+on:
+  schedule:
+    # Every 6 hours. The forecast is rebuilt twice a day, so anything older
+    # than ~26 hours means at least two consecutive builds were missed.
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      base:
+        description: 'Base URL to check'
+        required: false
+        default: 'https://yarinhava.com'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Probe production
+        run: node scripts/smoke-test.mjs --base "${{ inputs.base || 'https://yarinhava.com' }}" --max-age-hours 26
+
+      - name: Open an issue when production is unhealthy
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Production health check failed - yarinhava.com may be serving stale forecasts';
+            const body = [
+              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              '',
+              'The live site failed at least one health check. The most likely causes, in order:',
+              '',
+              '1. **The scheduled build stopped running.** Open the Actions tab and confirm',
+              '   `Build & Deploy` has a run in the last 24 hours. GitHub disables cron',
+              '   schedules after 60 days of repository inactivity.',
+              '2. **The build ran but refused to deploy** because the forecast data was stale',
+              '   or coverage was too low - check that run\'s logs.',
+              '3. **The deploy did not reach Netlify** - check app.netlify.com/projects/yarinhava.',
+              '',
+              'Until this is fixed the site is showing past dates as "Bugün", which is what',
+              'preceded the ~75% organic traffic loss in August 2026.',
+            ].join('\n');
+
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'production-stale',
+            });
+
+            if (existing.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['production-stale'],
+              });
+            }

@@ -13,7 +13,17 @@ const INITIAL_BATCH_DELAY_MS = 2500;
 const TIMEOUT_MS = 12000;
 const MAX_RETRIES = 2;
 const CONSECUTIVE_FAIL_LIMIT = 15; // Stop after this many consecutive fails
-const MIN_COVERAGE = 0.5; // Refuse to publish if fewer locations than this have fresh data
+
+/**
+ * Refuse to publish unless this share of locations has data fetched for today.
+ *
+ * Anything missing falls back to the nearest cached location at render time,
+ * so a low-coverage build quietly shows one city's weather on another city's
+ * page. Failing the build instead leaves the last good deploy up, opens an
+ * issue, and lets the health check escalate if the outage persists - all of
+ * which are louder than shipping wrong forecasts.
+ */
+const MIN_COVERAGE = 0.85;
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -166,8 +176,12 @@ async function main() {
   let batchDelay = INITIAL_BATCH_DELAY_MS;
   let throttled = false;
 
-  for (let i = 0; i < locations.length; i += batchSize) {
+  // An explicit cursor: batchSize is adjusted inside the loop by the adaptive
+  // throttle, so `i += batchSize` would skip or re-fetch locations whenever it
+  // changed mid-iteration.
+  for (let i = 0; i < locations.length; ) {
     const batch = locations.slice(i, i + batchSize);
+    const consumed = batch.length;
     const batchResults = await Promise.all(
       batch.map(async ([key, { lat, lon }]) => {
         const result = await fetchOne(lat, lon);
@@ -191,8 +205,8 @@ async function main() {
       }
     }
 
-    const done = Math.min(i + batchSize, locations.length);
-    process.stdout.write(`\r[WEATHER] ${done}/${locations.length} (${ok} ok, ${fail} fail)`);
+    i += consumed;
+    process.stdout.write(`\r[WEATHER] ${i}/${locations.length} (${ok} ok, ${fail} fail)`);
 
     // Adaptive throttling
     if (batchRateLimited) {
@@ -218,7 +232,7 @@ async function main() {
       break;
     }
 
-    if (i + batchSize < locations.length && !batchRateLimited) {
+    if (i < locations.length && !batchRateLimited) {
       await delay(batchDelay);
     }
   }
@@ -228,13 +242,17 @@ async function main() {
   // while it still covers today - never publish a forecast that starts in
   // the past.
   if (ok === 0) {
-    const usable = freshCount(readCache(), day);
-    if (usable > 0) {
+    const cached = readCache();
+    const usable = freshCount(cached, day);
+    // Only reuse a cache that still covers today AND covers enough of the
+    // country; otherwise most pages would render a distant city's forecast.
+    if (usable / locations.length >= MIN_COVERAGE) {
       console.log(`[WEATHER] API unreachable - reusing today's cache (${usable} locations)`);
       return;
     }
     console.error(
-      `[WEATHER] FATAL: no data fetched and no cached forecast for ${day} - refusing to publish stale dates`,
+      `::error::[WEATHER] FATAL: no data fetched and only ${usable}/${locations.length} cached ` +
+        `locations cover ${day} - refusing to publish stale or degraded forecasts`,
     );
     process.exit(1);
   }
@@ -267,29 +285,54 @@ async function main() {
   const coverage = covered / locations.length;
   if (coverage < MIN_COVERAGE) {
     console.error(
-      `[WEATHER] FATAL: only ${covered}/${locations.length} locations ` +
-        `(${(coverage * 100).toFixed(1)}%) have current data - refusing to publish a degraded build`,
+      `::error::[WEATHER] FATAL: only ${covered}/${locations.length} locations ` +
+        `(${(coverage * 100).toFixed(1)}%, minimum ${(MIN_COVERAGE * 100).toFixed(0)}%) have current data - ` +
+        'refusing to publish a degraded build. The last good deploy stays live.',
+    );
+    process.exit(1);
+  }
+
+  // Every entry written must start today. A single stale entry would render a
+  // past date under "Bugün" on that location's pages.
+  const stale = Object.entries(results).filter(([, v]) => !isFresh(v, day));
+  if (stale.length) {
+    console.error(
+      `::error::[WEATHER] FATAL: ${stale.length} entries do not start on ${day} ` +
+        `(e.g. ${stale[0][0]} starts ${stale[0][1]?.daily?.time?.[0]})`,
     );
     process.exit(1);
   }
 
   writeFileSync(
     CACHE_PATH,
-    JSON.stringify({ fetchedAt: new Date().toISOString(), data: results }),
+    JSON.stringify({
+      fetchedAt: new Date().toISOString(),
+      forecastStart: day,
+      coverage: Math.round(coverage * 1000) / 1000,
+      locationCount: covered,
+      data: results,
+    }),
   );
 
   const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
-  console.log(`[WEATHER] Done: ${Object.keys(results).length} locations cached in ${elapsed}s`);
+  console.log(
+    `[WEATHER] Done: ${covered}/${locations.length} locations (${(coverage * 100).toFixed(1)}%) ` +
+      `for ${day} cached in ${elapsed}s`,
+  );
 }
 
 main().catch((err) => {
   console.error('[WEATHER] Error:', err.message);
   const day = today();
-  const usable = freshCount(readCache(), day);
-  if (usable > 0) {
+  const cache = readCache();
+  const usable = freshCount(cache, day);
+  const total = Object.keys(cache?.data ?? {}).length || 1;
+  if (usable / total >= MIN_COVERAGE) {
     console.log(`[WEATHER] Falling back to today's existing cache (${usable} locations)`);
   } else {
-    console.error(`[WEATHER] No cached forecast for ${day} - aborting build`);
+    console.error(
+      `::error::[WEATHER] Only ${usable}/${total} cached locations cover ${day} - aborting build`,
+    );
     process.exit(1);
   }
 });

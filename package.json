@@ -4,7 +4,11 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/fetch-weather.mjs && astro build",
+    "build": "node scripts/fetch-weather.mjs && astro build && node scripts/validate-build.mjs",
+    "build:offline": "node scripts/make-fixture-cache.mjs && astro build && node scripts/validate-build.mjs --allow-synthetic",
+    "validate": "node scripts/validate-build.mjs",
+    "smoke": "node scripts/smoke-test.mjs",
+    "test": "node --experimental-strip-types --test \"tests/*.test.mjs\"",
     "preview": "astro preview"
   },
   "dependencies": {
