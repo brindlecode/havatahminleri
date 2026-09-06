@@ -8,10 +8,14 @@ interface Props {
   description: string;
   canonical: string;
   structuredData?: string;
+  /** Present on forecast pages; enables the client-side "current conditions" refresh. */
+  lat?: number;
+  lon?: number;
 }
 
-const { title, description, canonical, structuredData } = Astro.props;
+const { title, description, canonical, structuredData, lat, lon } = Astro.props;
 const { analytics, verification, ads } = siteConfig;
+const hasCoords = typeof lat === 'number' && typeof lon === 'number';
 ---
 
 <!doctype html>
@@ -63,11 +67,21 @@ const { analytics, verification, ads } = siteConfig;
     <link rel="dns-prefetch" href="https://api.open-meteo.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
 
-    <!-- Font -->
+    <!-- Font: loaded without blocking first render. `display=swap` means text
+         paints immediately in the fallback stack and re-flows to Inter, so LCP
+         no longer waits on a third-party stylesheet round trip. -->
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      />
+    </noscript>
 
     {analytics.googleAnalyticsId && (
       <Fragment>
@@ -75,10 +89,17 @@ const { analytics, verification, ads } = siteConfig;
         <script is:inline define:vars={{ gaId: analytics.googleAnalyticsId }}>
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
-          // First-party analytics: granted by default (KVKK legitimate interest).
-          // Advertising signals stay denied until the user opts in via the cookie banner.
-          // url_passthrough + ads_data_redaction keep cookieless pings flowing if a
-          // visitor later revokes consent.
+          // Consent Mode v2 defaults. Advertising signals stay denied until the
+          // visitor opts in through the cookie banner, which then calls
+          // gtag('consent','update', ...) for all four signals.
+          //
+          // analytics_storage defaults to 'granted'. That is a product and legal
+          // decision, not an engineering one: it was set in May 2026 after a
+          // default of 'denied' silently zeroed out all traffic reporting. It has
+          // NOT been reviewed against KVKK/GDPR - if counsel decides analytics
+          // must also be opt-in, flip this to 'denied' and expect reported
+          // sessions to drop to the consent rate, not to zero (url_passthrough
+          // and ads_data_redaction below keep cookieless pings flowing).
           gtag('consent', 'default', {
             'ad_storage': 'denied',
             'ad_user_data': 'denied',
@@ -114,13 +135,19 @@ const { analytics, verification, ads } = siteConfig;
         crossorigin="anonymous"></script>
     )}
   </head>
-  <body class="min-h-screen flex flex-col">
+  <body
+    class="min-h-screen flex flex-col"
+    data-lat={hasCoords ? String(lat) : undefined}
+    data-lon={hasCoords ? String(lon) : undefined}
+  >
     <slot name="header" />
     <main class="flex-1">
       <slot />
     </main>
     <slot name="footer" />
     <CookieBanner />
+
+    {hasCoords && <script is:inline defer src="/scripts/weather-refresh.js"></script>}
 
     {analytics.yandexMetricaId && (
       <Fragment>
