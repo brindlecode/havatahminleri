@@ -105,15 +105,6 @@ export function getCityLocative(cityName: string): string {
   return getLocativeSuffix(cityName);
 }
 
-export function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/ğ/g, 'g')
-    .replace(/ü/g, 'u')
-    .replace(/ş/g, 's')
-    .replace(/ı/g, 'i')
-    .replace(/ö/g, 'o')
-    .replace(/ç/g, 'c')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-}
+// slugify lives in ./slug so the Turkish İ/I/ı handling has one home and one
+// test suite. Re-exported here for the existing import sites.
+export { slugify, foldTurkish, isLegacyDottedISlug } from './slug.ts';
