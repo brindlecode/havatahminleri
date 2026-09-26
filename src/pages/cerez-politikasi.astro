@@ -20,7 +20,7 @@ const structuredData = generateLegalPageStructuredData(pageName, description, ca
     <Breadcrumb items={[{ name: pageName, url: canonical }]} />
     <h1 class="text-3xl font-bold mb-6">Çerez Politikası</h1>
     <p class="text-sm text-[var(--color-text-secondary)] mb-8">
-      Son güncelleme: {new Date().toLocaleDateString('tr-TR')}
+      Son güncelleme: 26.09.2026
     </p>
 
     <div class="space-y-6 text-[var(--color-text-secondary)] leading-relaxed">
@@ -47,7 +47,7 @@ const structuredData = generateLegalPageStructuredData(pageName, description, ca
       <h3 class="text-lg font-semibold text-[var(--color-text)] mt-6">1. Zorunlu Çerezler</h3>
       <p>
         Sitenin temel işlevlerinin çalışması için gerekli olan çerezlerdir. Bunlar tema tercihiniz
-        (açık/koyu mod), çerez onay tercihiniz ve hava durumu önbelleği gibi ayarlarınızı
+        (açık/koyu mod), ve çerez onay tercihiniz gibi ayarlarınızı
         saklamak için kullanılır. Bu çerezler kapatıldığında site düzgün çalışmayabilir ve onay
         gerektirmez.
       </p>
@@ -55,8 +55,10 @@ const structuredData = generateLegalPageStructuredData(pageName, description, ca
       <h3 class="text-lg font-semibold text-[var(--color-text)] mt-6">2. Analitik Çerezler</h3>
       <p>
         Sitenin nasıl kullanıldığını anlamamıza, istatistik toplamamıza ve deneyimi
-        iyileştirmemize yardımcı olan çerezlerdir. Bu kategori altında aşağıdaki üçüncü taraf
-        hizmetler kullanılır:
+        iyileştirmemize yardımcı olan çerezlerdir. Bu çerezler <strong>yalnızca onay vermeniz
+        hâlinde</strong> etkinleşir; onay vermezseniz Yandex Metrica hiç yüklenmez, Google Analytics
+        ise çerez kullanmadan yalnızca anonim ve toplu ölçüm sinyalleri alır. Bu kategori altında
+        aşağıdaki üçüncü taraf hizmetler kullanılır:
       </p>
       <ul class="list-disc pl-6 space-y-2">
         <li>
@@ -66,14 +68,15 @@ const structuredData = generateLegalPageStructuredData(pageName, description, ca
         </li>
         <li>
           <strong>Yandex Metrica</strong> (Yandex LLC) – sayaç numarası
-          <code>108330484</code>. Kullanıcı etkileşimi ve trafik analizini gerçekleştirir.
+          <code>108330484</code>. Kullanıcı etkileşimi ve trafik analizini gerçekleştirir; onay
+          verdiğinizde sayfa içi etkileşimlerin anonim oturum kaydını (Webvisor) da içerebilir.
         </li>
       </ul>
 
       <h3 class="text-lg font-semibold text-[var(--color-text)] mt-6">3. Reklam Çerezleri</h3>
       <p>
-        Size ilgi alanlarınıza uygun reklamlar gösterebilmek için kullanılan çerezlerdir.
-        Sitemizde kullanılan reklam hizmeti:
+        Size ilgi alanlarınıza uygun reklamlar gösterebilmek için kullanılan çerezlerdir. Onay
+        vermezseniz reklamlar kişiselleştirilmeden gösterilir. Sitemizde kullanılan reklam hizmeti:
       </p>
       <ul class="list-disc pl-6 space-y-2">
         <li>
@@ -103,8 +106,9 @@ const structuredData = generateLegalPageStructuredData(pageName, description, ca
       </h2>
       <p>
         Sitemizi ilk ziyaret ettiğinizde gösterilen çerez bildirim bandı üzerinden zorunlu olmayan
-        çerezleri kabul edebilir veya reddedebilirsiniz. Tercihlerinizi her zaman tarayıcınızın
-        ayarlarından değiştirebilir, mevcut çerezleri silebilir veya yeni çerezlerin
+        çerezleri kabul edebilir veya reddedebilirsiniz. Verdiğiniz onayı istediğiniz zaman, her
+        sayfanın altındaki <strong>"Çerez Tercihleri"</strong> bağlantısından değiştirebilir veya geri
+        çekebilirsiniz. Ayrıca tarayıcınızın ayarlarından mevcut çerezleri silebilir veya yeni çerezlerin
         kaydedilmesini engelleyebilirsiniz. Tarayıcı bazlı yönlendirmeler için aşağıdaki
         bağlantıları kullanabilirsiniz:
       </p>

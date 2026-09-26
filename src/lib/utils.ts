@@ -16,42 +16,62 @@ export function getTempBgGradient(temp: number): string {
   return 'from-indigo-600 to-blue-500';
 }
 
+/**
+ * Forecast timestamps from Open-Meteo are already local Turkey time without an
+ * offset ("2026-09-26" / "2026-09-26T14:00"). They are parsed and formatted as
+ * UTC so the output never depends on the timezone of the machine running the
+ * build; "today" is always computed in Europe/Istanbul.
+ */
+export const TIMEZONE = 'Europe/Istanbul';
+
+function asUtcDate(dateStr: string): Date {
+  const day = dateStr.slice(0, 10);
+  const time = dateStr.length > 10 ? dateStr.slice(11, 16) : '00:00';
+  return new Date(`${day}T${time}:00Z`);
+}
+
+/** Today's date (YYYY-MM-DD) in Turkey, optionally shifted by whole days. */
+export function istanbulDate(offsetDays = 0, now: Date = new Date()): string {
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(now);
+  if (!offsetDays) return today;
+  const d = new Date(`${today}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + offsetDays);
+  return d.toISOString().slice(0, 10);
+}
+
 export function formatDate(dateStr: string, options?: Intl.DateTimeFormatOptions): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('tr-TR', options ?? {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
+  return asUtcDate(dateStr).toLocaleDateString('tr-TR', {
+    ...(options ?? { weekday: 'long', day: 'numeric', month: 'long' }),
+    timeZone: 'UTC',
   });
 }
 
 export function formatShortDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('tr-TR', {
+  return asUtcDate(dateStr).toLocaleDateString('tr-TR', {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
+    timeZone: 'UTC',
   });
 }
 
 export function formatHour(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleTimeString('tr-TR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  // "2026-09-26T14:00" -> "14:00"; the value is already Turkey local time.
+  return dateStr.length >= 16 ? dateStr.slice(11, 16) : '';
 }
 
-export function getDayName(dateStr: string): string {
-  const date = new Date(dateStr);
-  const today = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(today.getDate() + 1);
-
-  if (date.toDateString() === today.toDateString()) return 'Bugün';
-  if (date.toDateString() === tomorrow.toDateString()) return 'Yarın';
-
-  return date.toLocaleDateString('tr-TR', { weekday: 'long' });
+/**
+ * "Bugün" / "Yarın" / weekday name, relative to today in Turkey. These labels
+ * are baked into static HTML; public/scripts/weather-now.js re-labels them in
+ * the browser if the page is viewed on a later day than it was built.
+ */
+export function getDayName(dateStr: string, now: Date = new Date()): string {
+  const day = dateStr.slice(0, 10);
+  if (day === istanbulDate(0, now)) return 'Bugün';
+  if (day === istanbulDate(1, now)) return 'Yarın';
+  return asUtcDate(day).toLocaleDateString('tr-TR', { weekday: 'long', timeZone: 'UTC' });
 }
 
 export function getWindDirection(degrees: number): string {

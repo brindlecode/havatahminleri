@@ -18,7 +18,7 @@ const structuredData = generateLegalPageStructuredData(pageName, description, ca
   <div class="max-w-3xl mx-auto px-4 py-10">
     <Breadcrumb items={[{ name: pageName, url: canonical }]} />
     <h1 class="text-3xl font-bold mb-6">Gizlilik Politikası</h1>
-    <p class="text-sm text-[var(--color-text-secondary)] mb-8">Son güncelleme: {new Date().toLocaleDateString('tr-TR')}</p>
+    <p class="text-sm text-[var(--color-text-secondary)] mb-8">Son güncelleme: 26.09.2026</p>
 
     <div class="space-y-6 text-[var(--color-text-secondary)] leading-relaxed">
       <p>
@@ -33,7 +33,7 @@ const structuredData = generateLegalPageStructuredData(pageName, description, ca
         <li>Tarayıcı türü ve sürümü</li>
         <li>İşletim sistemi</li>
         <li>Ziyaret edilen sayfalar ve tarih/saat bilgileri</li>
-        <li>Konum bilgisi (yalnızca izin verildiğinde, hava durumu tahmini için)</li>
+        <li>İletişim formunu kullanırsanız adınız, e-posta adresiniz ve mesajınız</li>
       </ul>
 
       <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Çerezler (Cookies)</h2>
@@ -44,18 +44,18 @@ const structuredData = generateLegalPageStructuredData(pageName, description, ca
       </p>
       <p>Kullandığımız çerez türleri:</p>
       <ul class="list-disc pl-6 space-y-2">
-        <li><strong>Zorunlu çerezler:</strong> Site işlevselliği için gerekli (tema tercihi vb.)</li>
-        <li><strong>Analiz çerezleri:</strong> Site kullanımını anlamamıza yardımcı olur</li>
-        <li><strong>Reklam çerezleri:</strong> Üçüncü taraf reklam hizmetleri tarafından kullanılır</li>
+        <li><strong>Zorunlu çerezler / yerel depolama:</strong> Site işlevselliği için gerekli (tema tercihi, çerez tercihiniz). Onay gerektirmez.</li>
+        <li><strong>Analiz çerezleri:</strong> Site kullanımını anlamamıza yardımcı olur. Yalnızca onay verirseniz etkinleşir.</li>
+        <li><strong>Reklam çerezleri:</strong> Üçüncü taraf reklam hizmetleri tarafından kullanılır. Yalnızca onay verirseniz kişiselleştirilmiş reklam için kullanılır.</li>
       </ul>
 
       <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Çerez Tercihlerinizi Yönetme</h2>
       <p>
         Sitemize ilk girişinizde çerez kullanımı hakkında bilgilendirme bandı görüntülenir.
-        Bu banttan çerez tercihlerinizi belirleyebilir, "Tümünü Kabul Et" veya "Reddet"
+        Bu banttan çerez tercihlerinizi belirleyebilir, "Kabul Et" veya "Reddet"
         seçeneklerinden birini seçebilirsiniz. Tercihinizi daha sonra değiştirmek
-        isterseniz, tarayıcınızın çerez ayarlarından site verilerini temizleyerek banner'ı
-        yeniden görüntüleyebilirsiniz.
+        veya onayınızı geri çekmek isterseniz, her sayfanın altındaki <strong>"Çerez Tercihleri"</strong>
+        bağlantısını kullanabilirsiniz.
       </p>
       <p>Tarayıcı bazlı çerez yönetimi için tarayıcınızın yardım sayfalarından detaylı bilgi alabilirsiniz:</p>
       <ul class="list-disc pl-6 space-y-2">
@@ -68,13 +68,17 @@ const structuredData = generateLegalPageStructuredData(pageName, description, ca
       <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Üçüncü Taraf Hizmetler</h2>
       <p>Sitemizde aşağıdaki üçüncü taraf hizmetler kullanılabilir:</p>
       <ul class="list-disc pl-6 space-y-2">
-        <li><strong>Google AdSense / Ezoic:</strong> Reklam gösterimi için</li>
-        <li><strong>Google Analytics:</strong> Site trafiği analizi için</li>
-        <li><strong>Open-Meteo:</strong> Hava durumu verileri için</li>
+        <li><strong>Google AdSense:</strong> Reklam gösterimi için</li>
+        <li><strong>Google Analytics:</strong> Site trafiği analizi için (yalnızca onay ile)</li>
+        <li><strong>Yandex Metrica:</strong> Site trafiği ve kullanım analizi için (yalnızca onay ile)</li>
+        <li><strong>Google Fonts:</strong> Yazı tiplerinin yüklenmesi için</li>
+        <li><strong>Netlify:</strong> Sitenin barındırılması ve iletişim formu mesajlarının iletilmesi için</li>
+        <li><strong>Open-Meteo:</strong> Hava durumu verileri için (tarayıcınızdan Open-Meteo'ya bağlantı kurulmaz)</li>
       </ul>
       <p>
         Bu hizmetlerin kendi gizlilik politikaları bulunmaktadır ve kişisel verilerinizi kendi
-        politikalarına uygun olarak işleyebilirler.
+        politikalarına uygun olarak işleyebilirler. Bu hizmet sağlayıcıların sunucuları yurt dışında
+        bulunabilir; analiz ve reklam çerezleri yalnızca açık onayınızla etkinleştirilir.
       </p>
 
       <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Veri Güvenliği</h2>
@@ -95,6 +99,9 @@ const structuredData = generateLegalPageStructuredData(pageName, description, ca
         <li>Yurt içinde/dışında aktarıldığı üçüncü kişileri bilme</li>
         <li>Eksik veya yanlış işlenmişse düzeltilmesini isteme</li>
         <li>Silinmesini veya yok edilmesini isteme</li>
+        <li>Düzeltme, silme veya yok etme işlemlerinin verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme</li>
+        <li>Münhasıran otomatik sistemlerle analiz edilmesi sonucu aleyhinize bir sonuç çıkmasına itiraz etme</li>
+        <li>Kanuna aykırı işleme sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme</li>
       </ul>
 
       <h2 class="text-xl font-semibold text-[var(--color-text)] mt-8">Değişiklikler</h2>

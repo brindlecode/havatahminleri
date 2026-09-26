@@ -6,14 +6,16 @@ import CookieBanner from '../components/CookieBanner.astro';
 interface Props {
   title: string;
   description: string;
-  canonical: string;
+  /** Omitted only on pages that must not be indexed (the 404 page). */
+  canonical?: string;
+  noindex?: boolean;
   structuredData?: string;
   /** Present on forecast pages; enables the client-side "current conditions" refresh. */
   lat?: number;
   lon?: number;
 }
 
-const { title, description, canonical, structuredData, lat, lon } = Astro.props;
+const { title, description, canonical, structuredData, lat, lon, noindex = false } = Astro.props;
 const { analytics, verification, ads } = siteConfig;
 const hasCoords = typeof lat === 'number' && typeof lon === 'number';
 ---
@@ -24,20 +26,19 @@ const hasCoords = typeof lat === 'number' && typeof lon === 'number';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <meta name="robots" content="index, follow" />
-    <meta name="language" content="Turkish" />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
     <meta name="author" content="Yarın Hava" />
     <!-- Search Engine Verification -->
     {verification.google && <meta name="google-site-verification" content={verification.google} />}
     {verification.yandex && <meta name="yandex-verification" content={verification.yandex} />}
     {verification.bing && <meta name="msvalidate.01" content={verification.bing} />}
-    <link rel="canonical" href={canonical} />
+    {canonical && <link rel="canonical" href={canonical} />}
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
+    {canonical && <meta property="og:url" content={canonical} />}
     <meta property="og:site_name" content="Yarın Hava" />
     <meta property="og:locale" content="tr_TR" />
     <meta property="og:image" content="https://yarinhava.com/og-image.png" />
@@ -51,10 +52,6 @@ const hasCoords = typeof lat === 'number' && typeof lon === 'number';
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content="https://yarinhava.com/og-image.png" />
 
-    <!-- hreflang -->
-    <link rel="alternate" hreflang="tr" href={canonical} />
-    <link rel="alternate" hreflang="x-default" href={canonical} />
-
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -64,7 +61,6 @@ const hasCoords = typeof lat === 'number' && typeof lon === 'number';
     <!-- Preconnect & DNS Prefetch -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="dns-prefetch" href="https://api.open-meteo.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
 
     <!-- Font: loaded without blocking first render. `display=swap` means text
@@ -83,32 +79,44 @@ const hasCoords = typeof lat === 'number' && typeof lon === 'number';
       />
     </noscript>
 
+    <!-- Consent Mode v2. Everything defaults to denied (KVKK/GDPR: analytics
+         and advertising cookies are opt-in). A visitor who already chose is
+         read from localStorage HERE, before any tag fires, so a returning
+         visitor who accepted is measured from the first hit and one who
+         declined is never measured. The banner (CookieBanner.astro) stores
+         the choice and sends gtag('consent','update') plus a `yh:consent`
+         event that Yandex Metrica waits for. With the defaults denied, GA4
+         still receives cookieless pings (advanced consent mode), so traffic
+         reporting drops to modelled numbers rather than to zero. -->
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      (function () {
+        // The admin panel keeps its GitHub token in sessionStorage. Public
+        // pages load third-party scripts (ads, analytics) on the same origin,
+        // so drop the token before any of them run if the admin navigated
+        // here in the same tab.
+        try { sessionStorage.removeItem('admin_gh_token'); } catch (e) {}
+        var stored = null;
+        try { stored = JSON.parse(localStorage.getItem('yh_cookie_consent_v1')); } catch (e) {}
+        var v = stored && stored.status === 'granted' ? 'granted' : 'denied';
+        window.yhConsentStatus = stored && stored.status ? stored.status : null;
+        gtag('consent', 'default', {
+          'ad_storage': v,
+          'ad_user_data': v,
+          'ad_personalization': v,
+          'analytics_storage': v,
+          'wait_for_update': 500
+        });
+        gtag('set', 'url_passthrough', true);
+        gtag('set', 'ads_data_redaction', v === 'denied');
+      })();
+    </script>
+
     {analytics.googleAnalyticsId && (
       <Fragment>
         <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${analytics.googleAnalyticsId}`}></script>
         <script is:inline define:vars={{ gaId: analytics.googleAnalyticsId }}>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          // Consent Mode v2 defaults. Advertising signals stay denied until the
-          // visitor opts in through the cookie banner, which then calls
-          // gtag('consent','update', ...) for all four signals.
-          //
-          // analytics_storage defaults to 'granted'. That is a product and legal
-          // decision, not an engineering one: it was set in May 2026 after a
-          // default of 'denied' silently zeroed out all traffic reporting. It has
-          // NOT been reviewed against KVKK/GDPR - if counsel decides analytics
-          // must also be opt-in, flip this to 'denied' and expect reported
-          // sessions to drop to the consent rate, not to zero (url_passthrough
-          // and ads_data_redaction below keep cookieless pings flowing).
-          gtag('consent', 'default', {
-            'ad_storage': 'denied',
-            'ad_user_data': 'denied',
-            'ad_personalization': 'denied',
-            'analytics_storage': 'granted',
-            'wait_for_update': 500
-          });
-          gtag('set', 'url_passthrough', true);
-          gtag('set', 'ads_data_redaction', true);
           gtag('js', new Date());
           gtag('config', gaId);
         </script>
@@ -123,10 +131,12 @@ const hasCoords = typeof lat === 'number' && typeof lon === 'number';
 
     <!-- Dark mode init (prevent flash) -->
     <script is:inline>
-      if (localStorage.getItem('theme') === 'dark' ||
-        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      }
+      try {
+        if (localStorage.getItem('theme') === 'dark' ||
+          (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
     </script>
 
     {ads.enabled && ads.adsensePublisherId && (
@@ -147,7 +157,7 @@ const hasCoords = typeof lat === 'number' && typeof lon === 'number';
     <slot name="footer" />
     <CookieBanner />
 
-    {hasCoords && <script is:inline defer src="/scripts/weather-refresh.js"></script>}
+    {hasCoords && <script is:inline defer src="/scripts/weather-now.js"></script>}
 
     {analytics.yandexMetricaId && (
       <Fragment>
@@ -175,14 +185,24 @@ const hasCoords = typeof lat === 'number' && typeof lon === 'number';
                 setTimeout(loadYandex, 1500);
               }
             }
-            if (document.readyState === 'complete') {
-              scheduleLoad();
+            // Yandex Metrica (incl. Webvisor session recording) only runs
+            // after the visitor accepts analytics cookies.
+            function whenLoaded() {
+              if (document.readyState === 'complete') {
+                scheduleLoad();
+              } else {
+                window.addEventListener('load', scheduleLoad, { once: true });
+              }
+            }
+            if (window.yhConsentStatus === 'granted') {
+              whenLoaded();
             } else {
-              window.addEventListener('load', scheduleLoad, { once: true });
+              window.addEventListener('yh:consent', function (e) {
+                if (e.detail === 'granted') whenLoaded();
+              });
             }
           })();
         </script>
-        <noscript><div><img src={`https://mc.yandex.ru/watch/${analytics.yandexMetricaId}`} style="position:absolute;left:-9999px;" alt="" /></div></noscript>
       </Fragment>
     )}
   </body>

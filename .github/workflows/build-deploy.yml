@@ -4,35 +4,40 @@ name: Build & Deploy
 # GitHub disables scheduled workflows after 60 days without repository
 # activity, and a workflow in that state can only be re-activated manually.
 # Renaming the file registered a brand new (active) workflow, and the
-# keep-alive step below stops the 60-day timer from ever expiring again.
+# keep-alive job below stops the 60-day timer from ever expiring again.
 #
 # That is exactly how the site broke: the last commit before the incident was
 # 2026-05-15, the schedule was switched off around 2026-07-14, and the site
 # then served the 2026-07-15 forecast labelled "Bugün" until 2026-08-23.
 #
-# Two independent safety nets now exist:
+# Two independent safety nets exist:
 #   1. This pipeline refuses to deploy stale or degraded data (fetch-weather
 #      exits non-zero, validate-build gates the upload) and opens an issue on
 #      any failure.
 #   2. .github/workflows/health-check.yml probes the LIVE site on its own
 #      schedule, so a pipeline that stops running entirely is still caught.
+#
+# Once a day: the forecast is fetched from Open-Meteo ONCE per day, just after
+# midnight Turkey time, so every page shows the right "Bugün" from the first
+# minute of the day and the free API budget is barely touched (~2,500 of the
+# 10,000 daily calls). The pages carry the full hourly series for today and
+# tomorrow; public/scripts/weather-now.js shows the visitor's current hour
+# from it without any API call.
 
 on:
   push:
     branches:
       - claude/weather-forecast-site-JpQxB
   schedule:
-    # 03:00 UTC = 06:00 Turkey. GitHub delays scheduled runs under load - the
-    # observed lag on this repo is 1.5-4.5 hours - so treat these as "morning"
-    # and "evening" rather than exact times. health-check.yml is what enforces
-    # the actual freshness SLA.
-    - cron: '0 3 * * *'
-    # 17:00 UTC = 20:00 Turkey.
-    - cron: '0 17 * * *'
+    # 21:05 UTC = 00:05 Turkey: the daily build. GitHub may start it late.
+    - cron: '5 21 * * *'
+    # 02:30 UTC = 05:30 Turkey: backup. Builds ONLY if production does not
+    # already show today's forecast (the first run was dropped or failed).
+    - cron: '30 2 * * *'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   issues: write
 
 concurrency:
@@ -40,16 +45,46 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Is today's forecast already live?
+        id: live
+        if: github.event_name == 'schedule' && github.event.schedule == '30 2 * * *'
+        run: node scripts/check-live-fresh.mjs
+
+      - name: Decide
+        id: decide
+        run: |
+          if [ "${{ steps.live.outputs.fresh }}" = "true" ]; then
+            echo "Today's forecast is already live - skipping the backup build."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
   build-and-deploy:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -63,7 +98,7 @@ jobs:
         run: npm test
 
       # Exits non-zero if the API is unreachable AND no cache covers today, or
-      # if fewer than 50% of locations have current data.
+      # if fewer than 85% of locations have current data.
       - name: Fetch weather data
         run: node scripts/fetch-weather.mjs
 
@@ -76,8 +111,11 @@ jobs:
       - name: Validate build
         run: node scripts/validate-build.mjs
 
+      # Pinned so a new netlify-cli release cannot change the deploy under us.
+      # "Unauthorized: could not retrieve project" here means the
+      # NETLIFY_AUTH_TOKEN repository secret has expired or been revoked.
       - name: Deploy to Netlify
-        run: npx netlify-cli deploy --prod --dir=dist --message "Deploy from GitHub Actions (${{ github.run_id }})"
+        run: npx --yes netlify-cli@27.10.0 deploy --prod --dir=dist --message "Deploy from GitHub Actions (${{ github.run_id }})"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -90,16 +128,95 @@ jobs:
       - name: Smoke test production
         run: node scripts/smoke-test.mjs
 
-      # GitHub deactivates cron schedules after 60 days of repository
-      # inactivity. A small commit at most once a week keeps the repository
-      # "active" so the schedule above never gets switched off. Pushes made
-      # with GITHUB_TOKEN do not re-trigger workflows, so this cannot loop.
-      #
-      # This is no longer `continue-on-error`: a keep-alive that quietly stops
-      # working is the exact failure that caused the incident, so it now fails
-      # the job and opens an issue.
+      - name: Close the failure issue after a successful deploy
+        if: success()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const open = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: 'deploy-failure',
+            });
+            for (const issue of open.data) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.number,
+                body: `Resolved: run ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId} deployed successfully.`,
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.number,
+                state: 'closed', state_reason: 'completed',
+              });
+            }
+
+      # Fail loudly. A scheduled workflow that fails silently is invisible:
+      # nobody watches the Actions tab, and that is why five weeks of stale
+      # forecasts went unnoticed. The @-mention makes GitHub e-mail the owner.
+      - name: Report failure
+        if: failure()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const title = 'Build & Deploy failed - production may be serving stale forecasts';
+            const body = [
+              `@${context.repo.owner} the daily forecast build failed.`,
+              '',
+              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              `Trigger: \`${context.eventName}\``,
+              '',
+              'Production is still serving the previous deploy, which starts showing past dates',
+              'as "Bugün" if this is not fixed within ~24 hours.',
+              '',
+              'Check, in order:',
+              '1. `Deploy to Netlify` - "Unauthorized" means the NETLIFY_AUTH_TOKEN secret must be renewed.',
+              '2. `Fetch weather data` - Open-Meteo unreachable or rate limiting.',
+              '3. `Validate build` - the build produced stale or structurally broken pages.',
+              '4. `Smoke test production` - the deploy did not reach the CDN.',
+            ].join('\n');
+
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'deploy-failure',
+            });
+
+            if (existing.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['deploy-failure'],
+              });
+            }
+
+  # GitHub deactivates cron schedules after 60 days of repository inactivity.
+  # A small commit at most once a week keeps the repository "active" so the
+  # schedules never get switched off. Pushes made with GITHUB_TOKEN do not
+  # re-trigger workflows, so this cannot loop.
+  #
+  # This is its own job with `if: always()`: it used to be the last step of the
+  # deploy job, so a broken deploy (Sept 2026: expired Netlify token) also
+  # stopped the keep-alive and started the 60-day countdown.
+  keep-alive:
+    needs: [gate, build-and-deploy]
+    if: always() && github.ref_name == 'claude/weather-forecast-site-JpQxB'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
       - name: Keep schedule alive
-        if: github.ref_name == 'claude/weather-forecast-site-JpQxB'
         env:
           STAMP_FILE: .github/last-build.txt
           MAX_AGE_SECONDS: 604800 # 7 days
@@ -140,49 +257,15 @@ jobs:
           echo "::error::Could not push the keep-alive stamp - the cron schedule will expire 60 days from the last commit."
           exit 1
 
-      # Fail loudly. A scheduled workflow that fails silently is invisible:
-      # nobody watches the Actions tab, and that is why five weeks of stale
-      # forecasts went unnoticed.
       - name: Report failure
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
-            const title = 'Build & Deploy failed - production may be serving stale forecasts';
-            const body = [
-              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-              `Trigger: \`${context.eventName}\``,
-              '',
-              'The scheduled forecast build did not complete. Production is still serving the previous deploy,',
-              'which will start showing past dates as "Bugün" if this is not fixed within ~24 hours.',
-              '',
-              'Check, in order:',
-              '1. `Fetch weather data` - Open-Meteo unreachable or rate limiting.',
-              '2. `Validate build` - the build produced stale or structurally broken pages.',
-              '3. `Smoke test production` - the deploy did not reach the CDN.',
-              '4. `Keep schedule alive` - the cron schedule is at risk of being disabled by GitHub.',
-            ].join('\n');
-
-            const existing = await github.rest.issues.listForRepo({
+            await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              state: 'open',
-              labels: 'deploy-failure',
+              title: 'Keep-alive failed - GitHub may disable the daily build schedule',
+              body: `@${context.repo.owner} the weekly keep-alive commit could not be pushed.\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              labels: ['deploy-failure'],
             });
-
-            if (existing.data.length > 0) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: existing.data[0].number,
-                body,
-              });
-            } else {
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title,
-                body,
-                labels: ['deploy-failure'],
-              });
-            }

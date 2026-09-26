@@ -26,13 +26,11 @@ const hours = allHours.slice(startIndex, endIndex);
 ---
 
 <section class="weather-card" id="hourly-forecast">
-  <h2 class="text-lg font-semibold mb-4 px-2">{title}</h2>
-  <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
-    {hours.map((h, i) => (
+  <h2 class="text-lg font-semibold mb-4 px-2" id="hourly-forecast-title">{title}</h2>
+  <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1" tabindex="0" role="region" aria-labelledby="hourly-forecast-title">
+    {hours.map((h) => (
       <div data-hour-index={h.originalIndex} data-time={h.raw} class="flex flex-col items-center gap-1.5 min-w-[70px] shrink-0 py-2 px-1">
-        <span class="text-xs text-[var(--color-text-secondary)]">
-          {startIndex === 0 && i === 0 ? 'Şimdi' : h.time}
-        </span>
+        <span class="text-xs text-[var(--color-text-secondary)]" data-hour-label>{h.time}</span>
         <WeatherIcon code={h.code} isDay={h.isDay} size="w-8 h-8" />
         <span class:list={['text-sm font-semibold', getTempColorClass(h.temp)]}>
           {h.temp}°

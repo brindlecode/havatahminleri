@@ -255,7 +255,7 @@ function todayBlocks(weather: WeatherData, city: string): SummaryBlock[] {
   const stats: SummaryStat[] = [
     { label: 'En yüksek', value: `${hi}°C` },
     { label: 'En düşük', value: `${lo}°C` },
-    { label: 'Hissedilen', value: `${round(current.apparentTemperature)}°C` },
+    { label: 'Hissedilen (12:00)', value: `${round(current.apparentTemperature)}°C` },
   ];
   if (sunrise) stats.push({ label: 'Gün doğumu', value: sunrise });
   if (sunset) stats.push({ label: 'Gün batımı', value: sunset });
@@ -265,8 +265,8 @@ function todayBlocks(weather: WeatherData, city: string): SummaryBlock[] {
       heading: `${loc} bugün hava nasıl?`,
       paragraph:
         `${dayMonth(daily.time[0])} ${weekdayName(daily.time[0])} günü ${loc} hava ${desc}. ` +
-        `Gün içinde sıcaklık ${lo}°C ile ${hi}°C arasında seyredecek; şu anda ölçülen ${round(current.temperature)}°C, ` +
-        `hissedilen sıcaklık ${round(current.apparentTemperature)}°C.` +
+        `Gün içinde sıcaklık ${lo}°C ile ${hi}°C arasında seyredecek; öğle saatlerinde (12:00) ${round(current.temperature)}°C, ` +
+        `hissedilen sıcaklık ${round(current.apparentTemperature)}°C bekleniyor.` +
         (sunrise && sunset ? ` Güneş ${sunrise}'da doğuyor, ${sunset}'da batıyor.` : ''),
       stats,
     },
@@ -494,7 +494,7 @@ function fifteenDayBlocks(weather: WeatherData, city: string): SummaryBlock[] {
       paragraph:
         'Meteorolojik modellerin isabet oranı gün sayısı arttıkça düşer. İlk 3-5 günün tahminleri genellikle yüksek ' +
         'doğrulukta olurken, 8. günden sonrası bir kesin tahminden çok genel bir eğilim göstergesi olarak okunmalıdır. ' +
-        'Bu sayfa günde iki kez güncellenir; planlarınızı yaparken tarihe yaklaştıkça tahmini yeniden kontrol edin.',
+        'Bu sayfa her gün güncellenir; planlarınızı yaparken tarihe yaklaştıkça tahmini yeniden kontrol edin.',
     },
   ];
 }
@@ -528,7 +528,7 @@ function hourlyBlocks(weather: WeatherData, city: string): SummaryBlock[] {
     {
       heading: `${loc} önümüzdeki 48 saat`,
       paragraph:
-        `Saatlik tahmin önümüzdeki ${hours} saati kapsıyor. Bu süre içinde en yüksek sıcaklık ` +
+        `Saatlik tahmin bugün ve yarın için ${hours} saati kapsıyor. Bu süre içinde en yüksek sıcaklık ` +
         `${dayMonth(weather.hourly.time[maxI].slice(0, 10))} ${pad2(hourOf(weather.hourly.time[maxI]))}:00'da ${round(temps[maxI])}°C, ` +
         `en düşük sıcaklık ${dayMonth(weather.hourly.time[minI].slice(0, 10))} ${pad2(hourOf(weather.hourly.time[minI]))}:00'da ${round(temps[minI])}°C olarak bekleniyor.`,
       stats: [
@@ -550,7 +550,7 @@ function hourlyBlocks(weather: WeatherData, city: string): SummaryBlock[] {
         `Rüzgar en yüksek hızına ${pad2(hourOf(weather.hourly.time[windPeakI]))}:00'da ` +
         `${round(weather.hourly.windSpeed[windPeakI])} km/s ile ulaşıyor.` +
         (sunrise && sunset
-          ? ` Bugün güneş ${sunrise}'da doğdu ve ${sunset}'da batıyor; gece saatlerinde sıcaklık düşüşü tabloda takip edilebilir.`
+          ? ` Bugün gün doğumu ${sunrise}, gün batımı ${sunset}; gece saatlerinde sıcaklık düşüşü tabloda takip edilebilir.`
           : ''),
     },
   ];
@@ -676,7 +676,7 @@ export function getPeriodFAQs(
       return [
         {
           question: `${cityName} saatlik hava durumu kaç saati kapsıyor?`,
-          answer: `Bu sayfadaki saatlik tahmin, içinde bulunulan saatten itibaren ${hours} saati kapsar ve günde iki kez güncellenir.`,
+          answer: `Bu sayfadaki saatlik tahmin bugün 00:00'dan itibaren ${hours} saati kapsar ve her gün yenilenir; geçmiş saatler sayfada otomatik olarak gizlenir.`,
         },
         {
           question: `${loc} önümüzdeki 48 saatte kaç saat yağış bekleniyor?`,

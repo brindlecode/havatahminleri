@@ -90,10 +90,12 @@ function buildEntry(key, day) {
   const hourly = {
     time: [],
     temperature: [],
+    apparentTemperature: [],
     weatherCode: [],
     humidity: [],
     precipitationProbability: [],
     windSpeed: [],
+    windDirection: [],
     isDay: [],
     dewPoint: [],
     visibility: [],
@@ -109,10 +111,14 @@ function buildEntry(key, day) {
     hourly.temperature.push(
       Math.round((base + Math.sin(((hourOfDay - 4) / 24) * Math.PI * 2) * 6 + w * 2) * 10) / 10,
     );
+    hourly.apparentTemperature.push(
+      Math.round((hourly.temperature[i] - 1 + w * 3) * 10) / 10,
+    );
     hourly.weatherCode.push(CODES[Math.floor(w * CODES.length)]);
     hourly.humidity.push(Math.round(40 + w * 55));
     hourly.precipitationProbability.push(Math.round(w * 100));
     hourly.windSpeed.push(Math.round((3 + w * 28) * 10) / 10);
+    hourly.windDirection.push(Math.round(w * 359));
     hourly.isDay.push(hourOfDay >= 7 && hourOfDay < 19 ? 1 : 0);
     hourly.dewPoint.push(Math.round((base - 6 + w * 4) * 10) / 10);
     hourly.visibility.push(Math.round(4000 + w * 20000));
@@ -120,18 +126,21 @@ function buildEntry(key, day) {
     hourly.cloudCover.push(Math.round(w * 100));
   }
 
+  // Same derivation as scripts/fetch-weather.mjs: "current" is today's noon.
+  const n = 12;
   return {
     current: {
-      temperature: hourly.temperature[0],
-      weatherCode: daily.weatherCode[0],
-      windSpeed: hourly.windSpeed[0],
-      windDirection: Math.round(r * 359),
-      humidity: hourly.humidity[0],
-      apparentTemperature: Math.round((hourly.temperature[0] - 1 + r * 3) * 10) / 10,
-      isDay: hourly.isDay[0] === 1,
-      pressure: hourly.pressure[0],
-      cloudCover: hourly.cloudCover[0],
-      visibility: hourly.visibility[0],
+      temperature: hourly.temperature[n],
+      weatherCode: hourly.weatherCode[n],
+      windSpeed: hourly.windSpeed[n],
+      windDirection: hourly.windDirection[n],
+      humidity: hourly.humidity[n],
+      apparentTemperature: hourly.apparentTemperature[n],
+      isDay: hourly.isDay[n] === 1,
+      pressure: hourly.pressure[n],
+      cloudCover: hourly.cloudCover[n],
+      visibility: hourly.visibility[n],
+      hour: hourly.time[n],
     },
     hourly,
     daily,
