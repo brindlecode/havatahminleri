@@ -48,7 +48,7 @@ const region = regions.find((r: any) => r.id === province.region);
 const breadcrumbs = buildBreadcrumbs(loc, periodId, region?.name);
 
 const structuredData = generateStructuredData('location', {
-  name: `${names.qualified} ${seo.heading.replace(names.short, '').trim()}`.trim(),
+  name: seo.schemaName ?? seo.heading,
   description: seo.description,
   url: seo.canonical,
   lat: district.lat,
@@ -65,6 +65,9 @@ const basePath = getLocationPath(province.slug, district.slug).replace(/\/$/, ''
   canonical={seo.canonical}
   structuredData={structuredData}
   cityName={names.short}
+  displayName={names.display}
+  provinceSlug={province.slug}
+  districtSlug={district.slug}
   heading={seo.heading}
   weather={weather}
   breadcrumbs={breadcrumbs}

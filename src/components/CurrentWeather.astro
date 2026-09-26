@@ -23,6 +23,12 @@ const todayLabel = daily.time[0] ? formatDate(daily.time[0], { day: 'numeric', m
 const sky = getSkyClass(current.weatherCode, current.isDay);
 const precipProb = daily.precipitationProbabilityMax?.[0];
 
+// Icons for every code/day-night pair in the 48h series, so weather-now.js can
+// show the icon of the visitor's current hour without shipping icon code.
+const iconKeys = hourly
+  ? [...new Set(hourly.weatherCode.slice(0, 48).map((c, i) => `${c}-${hourly.isDay[i] === 1 ? 1 : 0}`))]
+  : [];
+
 // The page is built once a day, so the static numbers describe today at noon.
 // weather-now.js swaps in the forecast for the visitor's current hour from
 // this compact hourly table - no API call from the browser.
@@ -53,9 +59,17 @@ const hourlyJson = hourly
       <h1 class="text-[1.45rem] sm:text-[1.9rem] font-bold leading-tight tracking-tight">{h1Text}</h1>
       {todayLabel && <p class="text-sm text-white/80 mt-1 capitalize">{todayLabel}</p>}
     </div>
-    <div class="shrink-0 -mt-1 drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]">
+    <div id="hero-icon" class="shrink-0 -mt-1 drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]">
       <WeatherIcon code={current.weatherCode} isDay={current.isDay} size="w-16 h-16 sm:w-20 sm:h-20" decorative />
     </div>
+    {iconKeys.length > 0 && (
+      <template id="hero-icons">
+        {iconKeys.map((k) => {
+          const [c, d] = k.split('-').map(Number);
+          return <span data-icon-key={k}><WeatherIcon code={c} isDay={d === 1} size="w-16 h-16 sm:w-20 sm:h-20" decorative /></span>;
+        })}
+      </template>
+    )}
   </div>
 
   <div class="mt-4 sm:mt-6 flex items-end gap-4 sm:gap-6">

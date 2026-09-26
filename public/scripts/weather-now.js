@@ -95,6 +95,12 @@
           }
         }
         setText('weather-desc', d.n[d.c[i]]);
+        var tpl = document.getElementById('hero-icons');
+        var slot = document.getElementById('hero-icon');
+        if (tpl && slot && tpl.content && d.i) {
+          var icon = tpl.content.querySelector('[data-icon-key="' + d.c[i] + '-' + (d.i[i] === 1 ? 1 : 0) + '"]');
+          if (icon) slot.innerHTML = icon.innerHTML;
+        }
         if (d.a[i] !== null && d.a[i] !== undefined) setText('weather-feels', d.a[i]);
         setText('weather-humidity', d.h[i]);
         setText('weather-wind', d.w[i]);

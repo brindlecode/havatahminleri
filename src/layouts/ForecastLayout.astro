@@ -11,6 +11,8 @@ import WeatherDetails from '../components/WeatherDetails.astro';
 import PeriodInsights from '../components/PeriodInsights.astro';
 import ForecastFreshness from '../components/ForecastFreshness.astro';
 import AdSlot from '../components/AdSlot.astro';
+import AnswerSummary from '../components/AnswerSummary.astro';
+import NearbyLocations from '../components/NearbyLocations.astro';
 import { getPeriodForecastData, getPeriodLinks, type PeriodId } from '../lib/periods';
 import type { WeatherData } from '../lib/weather';
 
@@ -21,6 +23,10 @@ interface Props {
   structuredData: string;
   /** Name used in the H1 and in prose ("İzmit", "Adıyaman Merkez", "Kocaeli"). */
   cityName: string;
+  /** Standalone display name; includes the province for shared district names. */
+  displayName?: string;
+  provinceSlug?: string;
+  districtSlug?: string | null;
   heading: string;
   weather: WeatherData;
   breadcrumbs: { name: string; url: string }[];
@@ -33,7 +39,7 @@ interface Props {
 
 const {
   title, description, canonical, structuredData,
-  cityName, heading, weather, breadcrumbs, period, basePath, lat, lon,
+  cityName, displayName, provinceSlug, districtSlug = null, heading, weather, breadcrumbs, period, basePath, lat, lon,
 } = Astro.props;
 
 // One source of truth for how many days/hours this period shows.
@@ -64,6 +70,8 @@ const activeId: PeriodId = period === 'base' ? 'yarin' : period;
         <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} hourly={weather.hourly} heading={heading} />
         <ForecastFreshness />
 
+        <AnswerSummary weather={weather} cityName={displayName ?? cityName} period={period} />
+
         <PeriodTabs links={links} activeId={activeId} />
 
         {showHourly && def.hourlyTitle && (
@@ -86,6 +94,7 @@ const activeId: PeriodId = period === 'base' ? 'yarin' : period;
 
       <aside class="space-y-4 mt-4 lg:mt-0" aria-label="Detaylar ve ilgili sayfalar">
         <AdSlot slot="sidebar" id="forecast-side" />
+        {provinceSlug && <NearbyLocations provinceSlug={provinceSlug} districtSlug={districtSlug} />}
         <slot />
         <AdSlot slot="footer" id="forecast-bottom" />
       </aside>

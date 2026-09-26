@@ -1,0 +1,23 @@
+---
+import { getAnswerSummary } from '../lib/periodSummary';
+import type { PeriodId } from '../lib/periods';
+import type { WeatherData } from '../lib/weather';
+
+interface Props {
+  weather: WeatherData;
+  /** names.display - carries the province for shared district names. */
+  cityName: string;
+  period: PeriodId;
+}
+
+// Direct, fact-dense answer to the page's main question, placed right under
+// the hero: the passage answer engines (AI Overviews, featured snippets,
+// assistants) quote.
+const { weather, cityName, period } = Astro.props;
+const { question, answer } = getAnswerSummary(weather, cityName, period);
+---
+
+<section class="weather-card" aria-labelledby="answer-summary-q">
+  <h2 id="answer-summary-q" class="text-[1.05rem] font-bold tracking-tight">{question}</h2>
+  <p class="prose-text mt-1.5">{answer}</p>
+</section>
