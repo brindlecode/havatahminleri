@@ -97,6 +97,22 @@ jobs:
       - name: Run tests
         run: npm test
 
+      # Same-day cache reuse. The key is the Turkey date, so the nightly 00:05
+      # build (a new date) never finds a cache and always fetches; any later
+      # build on the same date restores the first one's data, and
+      # fetch-weather.mjs skips Open-Meteo when every location is fresh for
+      # today, the cache is real (not synthetic) and fetched < 20h ago.
+      - name: Compute Istanbul date
+        id: date
+        run: echo "day=$(TZ=Europe/Istanbul date +%F)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore today's weather cache
+        id: weather-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: src/data/weather-cache.json
+          key: weather-cache-${{ steps.date.outputs.day }}
+
       # Exits non-zero if the API is unreachable AND no cache covers today, or
       # if fewer than 85% of locations have current data.
       - name: Fetch weather data
@@ -110,6 +126,15 @@ jobs:
       # that the forecast dates rendered into the HTML start today.
       - name: Validate build
         run: node scripts/validate-build.mjs
+
+      # Saved only after the data passed validation, and only once per date
+      # (cache keys are immutable).
+      - name: Save today's weather cache
+        if: success() && steps.weather-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: src/data/weather-cache.json
+          key: weather-cache-${{ steps.date.outputs.day }}
 
       # Pinned so a new netlify-cli release cannot change the deploy under us.
       # "Unauthorized: could not retrieve project" here means the
@@ -127,6 +152,13 @@ jobs:
 
       - name: Smoke test production
         run: node scripts/smoke-test.mjs
+
+      # Tell Bing/Yandex (IndexNow) that every page has a new forecast. Best
+      # effort: a failure here is a warning, never a failed deploy.
+      - name: Submit URLs to IndexNow
+        if: success()
+        continue-on-error: true
+        run: node scripts/indexnow.mjs
 
       - name: Close the failure issue after a successful deploy
         if: success()

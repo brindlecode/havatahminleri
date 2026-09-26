@@ -707,3 +707,172 @@ export function getPeriodFAQs(
     }
   }
 }
+
+// --- AEO: one direct answer per page -----------------------------------------
+
+export interface AnswerSummary {
+  question: string;
+  answer: string;
+}
+
+/** WMO codes whose description is an adjective ("parçalı bulutlu"), not a noun ("hafif yağmur"). */
+const ADJECTIVE_CODES = new Set([0, 1, 2, 3, 45, 48]);
+
+/** "İzmir'de hava parçalı bulutlu" / "İzmir'de hafif yağmur bekleniyor". */
+function conditionClause(loc: string, code: number): string {
+  const desc = getWeatherDescription(code).toLocaleLowerCase('tr-TR');
+  return ADJECTIVE_CODES.has(code) ? `${loc} hava ${desc}` : `${loc} ${desc} bekleniyor`;
+}
+
+/** Turkish decimal comma: 9.6 -> "9,6". */
+function trNum(n: number): string {
+  return String(n).replace('.', ',');
+}
+
+export function wordCount(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+const ANSWER_MAX_WORDS = 60;
+
+/** Required sentences, then optional ones while the answer stays <= 60 words. */
+function composeAnswer(required: string[], optional: string[]): string {
+  let text = required.join(' ');
+  for (const s of optional) {
+    const next = `${text} ${s}`;
+    if (wordCount(next) <= ANSWER_MAX_WORDS) text = next;
+  }
+  return text;
+}
+
+function dayAnswer(weather: WeatherData, loc: string, idx: number, isToday: boolean): string {
+  const { daily } = weather;
+  const date = daily.time[idx];
+  const hi = round(daily.temperatureMax[idx]);
+  const lo = round(daily.temperatureMin[idx]);
+  const prob = round(daily.precipitationProbabilityMax[idx] ?? 0);
+  const wind = round(daily.windSpeedMax[idx] ?? 0);
+  const sunrise = timeOnly(daily.sunrise[idx]);
+  const sunset = timeOnly(daily.sunset[idx]);
+  const windows = rainWindows(weather, idx * 24, idx * 24 + 24);
+  const label = isToday ? 'Bugün' : 'Yarın';
+
+  const required = [
+    `${label} (${dayMonth(date)} ${weekdayName(date)}) ${conditionClause(loc, daily.weatherCode[idx])}; sıcaklık ${lo}°C ile ${hi}°C arasında.`,
+    `Yağış olasılığı %${prob}, rüzgar en fazla ${wind} km/s.`,
+  ];
+  const optional: string[] = [];
+  if (isToday) {
+    const c = weather.current;
+    optional.push(`Öğle saatlerinde ${round(c.temperature)}°C, hissedilen ${round(c.apparentTemperature)}°C bekleniyor.`);
+  } else if (daily.temperatureMax[0] !== undefined) {
+    const delta = round(daily.temperatureMax[idx] - daily.temperatureMax[0]);
+    optional.push(
+      delta === 0 ? 'En yüksek sıcaklık bugünle aynı.' : `En yüksek sıcaklık bugüne göre ${fmtSigned(delta)}.`,
+    );
+  }
+  optional.push(
+    windows.length
+      ? `Yağış ihtimali özellikle ${describeWindows(windows)} yükseliyor.`
+      : "Gün boyunca hiçbir saatte yağış olasılığı %50'yi aşmıyor.",
+  );
+  if (sunrise && sunset) optional.push(`Gün doğumu ${sunrise}, gün batımı ${sunset}.`);
+  return composeAnswer(required, optional);
+}
+
+function rangeAnswer(weather: WeatherData, loc: string, days: number): string {
+  const s = rangeStats(weather, 0, days);
+  const first = weather.daily.time[0];
+  const last = weather.daily.time[s.count - 1];
+  const rain = s.rainyDays.length
+    ? `${s.count} günün ${s.rainyDays.length} gününde yağış bekleniyor${s.totalPrecip > 0 ? ` (toplam ${trNum(s.totalPrecip)} mm)` : ''}.`
+    : `${s.count} gün boyunca kayda değer yağış beklenmiyor.`;
+
+  const required = [
+    `Önümüzdeki ${s.count} günde (${dayMonth(first)} - ${dayMonth(last)}) ${loc} sıcaklık ${s.minTemp}°C ile ${s.maxTemp}°C arasında seyredecek.`,
+    `En sıcak gün ${weekdayName(s.warmest.date)} (${dayMonth(s.warmest.date)}) ${s.warmest.temp}°C, en serin gece ${weekdayName(s.coldest.date)} (${dayMonth(s.coldest.date)}) ${s.coldest.temp}°C.`,
+    rain,
+  ];
+  const optional = [`Günlük en yüksek sıcaklıkların ortalaması ${trNum(s.meanHigh)}°C.`];
+  if (days >= 15) optional.push('8. günden sonraki değerler kesin tahmin değil, eğilim olarak okunmalı.');
+  if (days >= 10 && s.count >= 10) {
+    const delta = rangeStats(weather, 5, 5).meanHigh - rangeStats(weather, 0, 5).meanHigh;
+    optional.push(
+      Math.abs(delta) < 1.5
+        ? 'İlk ve son 5 gün arasında belirgin bir sıcaklık değişimi yok.'
+        : `Son 5 günün en yüksekleri ilk 5 güne göre ortalama ${fmtSigned(delta)}.`,
+    );
+  }
+  return composeAnswer(required, optional);
+}
+
+function hourlyAnswer(weather: WeatherData, loc: string): string {
+  const { hourly } = weather;
+  const hours = Math.min(48, hourly.time.length);
+  let maxI = 0;
+  let minI = 0;
+  let windI = 0;
+  const codeCount = new Map<number, number>();
+  for (let i = 0; i < hours; i++) {
+    if (hourly.temperature[i] > hourly.temperature[maxI]) maxI = i;
+    if (hourly.temperature[i] < hourly.temperature[minI]) minI = i;
+    if (hourly.windSpeed[i] > hourly.windSpeed[windI]) windI = i;
+    codeCount.set(hourly.weatherCode[i], (codeCount.get(hourly.weatherCode[i]) ?? 0) + 1);
+  }
+  const dominant = [...codeCount].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 0;
+  const when = (i: number) => `${dayMonth(hourly.time[i].slice(0, 10))} ${hourly.time[i].slice(11, 16)}`;
+  const windows = rainWindows(weather, 0, hours);
+  const rainyHours = hourly.precipitationProbability.slice(0, hours).filter((p) => (p ?? 0) >= 50).length;
+
+  const required = [
+    `Önümüzdeki ${hours} saatte ${loc} sıcaklık ${round(hourly.temperature[minI])}°C ile ${round(hourly.temperature[maxI])}°C arasında değişecek.`,
+    `En yüksek değer ${when(maxI)}, en düşük değer ${when(minI)} civarında bekleniyor.`,
+    rainyHours
+      ? `${hours} saatin ${rainyHours} saatinde yağış olasılığı %50'nin üzerinde; öne çıkan aralık ${describeWindows(windows.slice(0, 1))}.`
+      : `${hours} saat boyunca hiçbir saatte yağış olasılığı %50'yi aşmıyor.`,
+  ];
+  const optional = [
+    `Rüzgar en fazla ${round(hourly.windSpeed[windI])} km/s ile ${when(windI)} civarında esecek.`,
+    `Saatlerin çoğunda hava ${getWeatherDescription(dominant).toLocaleLowerCase('tr-TR')}.`,
+  ];
+  return composeAnswer(required, optional);
+}
+
+/**
+ * A 35-60 word, fact-dense direct answer to the page's main question, for
+ * answer engines (AI Overviews, ChatGPT, Perplexity) and featured snippets.
+ *
+ * Intended use: render near the top of every location page, directly below
+ * the H1, as a visible question (h2) + answer (p). Pass
+ * `getLocationNames(loc).display` as `cityName`, so district names shared by
+ * several provinces carry their province ("Ortaköy (Çorum)").
+ */
+export function getAnswerSummary(
+  weather: WeatherData,
+  cityName: string,
+  periodId: PeriodId,
+): AnswerSummary {
+  const loc = getCityLocative(cityName);
+  switch (periodId) {
+    case 'bugun':
+      return { question: `Bugün ${loc} hava nasıl?`, answer: dayAnswer(weather, loc, 0, true) };
+    case '7gun':
+    case '10gun':
+    case '15gun': {
+      const days = PERIOD_DEFS[periodId].dayCount;
+      return {
+        question: `${cityName} ${days} günlük hava durumu nasıl olacak?`,
+        answer: rangeAnswer(weather, loc, days),
+      };
+    }
+    case 'saatlik':
+      return {
+        question: `${loc} önümüzdeki saatlerde hava nasıl olacak?`,
+        answer: hourlyAnswer(weather, loc),
+      };
+    case 'base':
+    case 'yarin':
+    default:
+      return { question: `Yarın ${loc} hava nasıl olacak?`, answer: dayAnswer(weather, loc, 1, false) };
+  }
+}
