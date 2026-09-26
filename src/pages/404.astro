@@ -14,7 +14,7 @@ const popularCities = (provinces as any[]).filter((p) => p.popular).slice(0, 8);
   <Header slot="header" />
 
   <div class="max-w-3xl mx-auto px-4 py-16 text-center">
-    <p class="text-7xl font-extrabold text-primary-500 mb-4">404</p>
+    <p class="text-7xl font-extralight tracking-tighter text-[var(--color-accent)] mb-4">404</p>
     <h1 class="text-3xl font-bold mb-4">Sayfa bulunamadı</h1>
     <p class="text-[var(--color-text-secondary)] mb-8">
       Aradığınız sayfa mevcut değil veya taşınmış olabilir. URL'yi kontrol etmenizi ya da
@@ -24,7 +24,7 @@ const popularCities = (provinces as any[]).filter((p) => p.popular).slice(0, 8);
     <div class="flex flex-wrap items-center justify-center gap-3 mb-12">
       <a
         href="/"
-        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-500 text-white font-semibold hover:bg-primary-600 transition-colors shadow-sm"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] font-semibold hover:opacity-90 transition"
       >
         Ana Sayfaya Dön
       </a>
@@ -36,7 +36,7 @@ const popularCities = (provinces as any[]).filter((p) => p.popular).slice(0, 8);
         {popularCities.map((p: any) => (
           <a
             href={`/${p.slug}-hava-durumu/`}
-            class="px-3 py-2 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] hover:bg-[var(--color-bg)] hover:text-primary-500 transition-colors text-sm font-medium text-center"
+            class="px-3 py-2 chip-link justify-center transition-colors text-sm font-medium text-center"
           >
             {p.name}
           </a>

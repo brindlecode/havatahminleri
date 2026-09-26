@@ -1,5 +1,6 @@
 ---
 import ForecastLayout from '../layouts/ForecastLayout.astro';
+import ProvinceDistricts from '../components/ProvinceDistricts.astro';
 import RelatedForecasts from '../components/RelatedForecasts.astro';
 import { getPeriodSEO, generateStructuredData, buildBreadcrumbs, getLocationNames } from '../lib/seo';
 import { fetchWeatherData } from '../lib/weather';
@@ -45,7 +46,6 @@ const structuredData = generateStructuredData('location', {
   breadcrumbs,
 });
 
-const provinceDistricts = districts.filter((d: any) => d.province === province.slug);
 const basePath = getLocationPath(province.slug).replace(/\/$/, '');
 ---
 
@@ -63,21 +63,7 @@ const basePath = getLocationPath(province.slug).replace(/\/$/, '');
   lat={province.lat}
   lon={province.lon}
 >
-  {provinceDistricts.length > 0 && (
-    <section class="weather-card mt-6">
-      <h2 class="text-lg font-semibold mb-4">{province.name} İlçeleri Hava Durumu</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-        {provinceDistricts.map((d: any) => (
-          <a
-            href={`/${province.slug}/${d.slug}-hava-durumu/`}
-            class="px-3 py-2.5 rounded-xl hover:bg-[var(--color-bg)] transition-colors text-sm"
-          >
-            {d.name === 'Merkez' ? `${province.name} Merkez` : d.name}
-          </a>
-        ))}
-      </div>
-    </section>
-  )}
+  <ProvinceDistricts province={province} districts={districts} />
 
   <RelatedForecasts cityName={names.short} basePath={basePath} current="base" />
 </ForecastLayout>

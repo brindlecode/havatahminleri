@@ -1,0 +1,22 @@
+---
+interface Props {
+  province: { name: string; slug: string };
+  districts: any[];
+}
+
+const { province, districts } = Astro.props;
+const list = districts.filter((d: any) => d.province === province.slug);
+---
+
+{list.length > 0 && (
+  <section class="weather-card">
+    <h2 class="section-title">{province.name} İlçeleri Hava Durumu</h2>
+    <div class="grid grid-cols-2 gap-1.5">
+      {list.map((d: any) => (
+        <a href={`/${province.slug}/${d.slug}-hava-durumu/`} class="chip-link !py-2.5 truncate">
+          {d.name === 'Merkez' ? `${province.name} Merkez` : d.name}
+        </a>
+      ))}
+    </div>
+  </section>
+)}

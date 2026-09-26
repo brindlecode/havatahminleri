@@ -36,8 +36,7 @@ const {
   cityName, heading, weather, breadcrumbs, period, basePath, lat, lon,
 } = Astro.props;
 
-// One source of truth for how many days/hours this period shows. The
-// "15 Günlük" page used to slice `slice(0, 16)` and render 16 rows.
+// One source of truth for how many days/hours this period shows.
 const { daily, showHourly, hourlyStart, hourlyEnd, period: def } = getPeriodForecastData(
   weather,
   period,
@@ -57,46 +56,40 @@ const activeId: PeriodId = period === 'base' ? 'yarin' : period;
 >
   <Header slot="header" />
 
-  <div class="max-w-4xl mx-auto px-4 py-6">
+  <div class="max-w-6xl mx-auto px-4 pt-4 pb-8">
     <Breadcrumb items={breadcrumbs} />
 
-    <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} hourly={weather.hourly} heading={heading}>
-      <ForecastFreshness />
-    </CurrentWeather>
+    <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-6 lg:items-start">
+      <div class="space-y-4 min-w-0">
+        <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} hourly={weather.hourly} heading={heading} />
+        <ForecastFreshness />
 
-    <AdSlot slot="header" id="forecast-top" />
+        <PeriodTabs links={links} activeId={activeId} />
 
-    <PeriodTabs links={links} activeId={activeId} />
+        {showHourly && def.hourlyTitle && (
+          <HourlyForecast
+            hourly={weather.hourly}
+            startIndex={hourlyStart}
+            endIndex={hourlyEnd}
+            title={def.hourlyTitle}
+          />
+        )}
 
-    {showHourly && def.hourlyTitle && (
-      <div class="mt-4">
-        <HourlyForecast
-          hourly={weather.hourly}
-          startIndex={hourlyStart}
-          endIndex={hourlyEnd}
-          title={def.hourlyTitle}
-        />
+        {daily.time.length > 0 && <DailyForecast daily={daily} title={def.dailyTitle} />}
+
+        <AdSlot slot="inContent" id="forecast-mid" />
+
+        <WeatherDetails current={weather.current} daily={weather.daily} />
+
+        <PeriodInsights cityName={cityName} weather={weather} period={period} />
       </div>
-    )}
 
-    {daily.time.length > 0 && (
-      <div class="mt-4">
-        <DailyForecast daily={daily} title={def.dailyTitle} />
-      </div>
-    )}
-
-    <AdSlot slot="inContent" id="forecast-mid" />
-
-    <div class="mt-4">
-      <WeatherDetails current={weather.current} daily={weather.daily} />
+      <aside class="space-y-4 mt-4 lg:mt-0" aria-label="Detaylar ve ilgili sayfalar">
+        <AdSlot slot="sidebar" id="forecast-side" />
+        <slot />
+        <AdSlot slot="footer" id="forecast-bottom" />
+      </aside>
     </div>
-
-    <!-- Location links (districts / siblings), supplied by the page. -->
-    <slot />
-
-    <PeriodInsights cityName={cityName} weather={weather} period={period} />
-
-    <AdSlot slot="footer" id="forecast-bottom" />
   </div>
 
   <Footer slot="footer" />

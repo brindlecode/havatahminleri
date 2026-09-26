@@ -1,7 +1,7 @@
 ---
 import WeatherIcon from './WeatherIcon.astro';
 import { getWeatherDescription } from '../lib/weatherCodes';
-import { getTempColorClass, getDayName, formatShortDate } from '../lib/utils';
+import { getDayName, formatShortDate } from '../lib/utils';
 import type { DailyForecast as DF } from '../lib/weather';
 
 interface Props {
@@ -21,69 +21,57 @@ const days = daily.time.map((time, i) => ({
   description: getWeatherDescription(daily.weatherCode[i]),
   precip: daily.precipitationSum[i],
   precipProb: daily.precipitationProbabilityMax[i],
-  wind: Math.round(daily.windSpeedMax[i]),
-  uv: Math.round(daily.uvIndexMax[i]),
 }));
 
-// Find global min/max for bar chart
 const globalMin = Math.min(...days.map((d) => d.min));
 const globalMax = Math.max(...days.map((d) => d.max));
 const range = globalMax - globalMin || 1;
+
+// Colour of a temperature on a cold-to-hot scale, for the range bars.
+function tempColor(t: number): string {
+  const stops: [number, string][] = [
+    [-10, '#6366f1'], [0, '#3b82f6'], [8, '#06b6d4'], [15, '#22c55e'],
+    [22, '#eab308'], [28, '#f97316'], [35, '#ef4444'],
+  ];
+  if (t <= stops[0][0]) return stops[0][1];
+  for (let i = 1; i < stops.length; i++) if (t <= stops[i][0]) return stops[i][1];
+  return stops[stops.length - 1][1];
+}
 ---
 
 <section class="weather-card" id="daily-forecast">
-  <h2 class="text-lg font-semibold mb-4 px-2">{title}</h2>
-  <div class="divide-y divide-[var(--color-border)]">
+  <h2 class="section-label">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path stroke-linecap="round" d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+    {title}
+  </h2>
+  <ul class="divide-y divide-[var(--color-border)] -my-1">
     {days.map((day, index) => {
-      const leftPct = ((day.min - globalMin) / range) * 100;
-      const widthPct = ((day.max - day.min) / range) * 100;
-
+      const left = ((day.min - globalMin) / range) * 100;
+      const width = Math.max(((day.max - day.min) / range) * 100, 6);
       return (
-        <div data-day-index={index} data-date={day.date} class="flex items-center gap-2 py-3 px-2 hover:bg-[var(--color-bg)] rounded-lg transition-colors group">
-          {/* Day name */}
-          <div class="w-20 shrink-0">
-            <p class="text-sm font-medium" data-day-label>{day.dayName}</p>
-            <p class="text-xs text-[var(--color-text-secondary)]">{day.shortDate}</p>
+        <li data-day-index={index} data-date={day.date} class="grid grid-cols-[5.5rem_2.5rem_2rem_1fr_2.25rem] sm:grid-cols-[7.5rem_3rem_2.5rem_1fr_2.5rem_9rem] items-center gap-x-2 sm:gap-x-3 py-2.5">
+          <div class="min-w-0">
+            <p class="text-[0.95rem] font-semibold leading-tight capitalize" data-day-label>{day.dayName}</p>
+            <p class="text-xs text-[var(--color-text-secondary)] tabular">{day.shortDate}</p>
           </div>
-
-          {/* Icon */}
-          <div class="shrink-0">
-            <WeatherIcon code={day.code} size="w-8 h-8" />
+          <div class="flex flex-col items-center leading-none">
+            <WeatherIcon code={day.code} size="w-8 h-8" decorative />
+            <span class:list={['text-[0.68rem] font-semibold tabular mt-0.5', day.precipProb >= 20 ? 'text-sky-700 dark:text-sky-300' : 'invisible']}>
+              %{day.precipProb ?? 0}
+            </span>
           </div>
-
-          {/* Precip probability */}
-          <div class="w-10 shrink-0 text-center">
-            {day.precipProb != null && day.precipProb > 0 ? (
-              <span class="text-xs text-blue-400 font-medium">%{day.precipProb}</span>
-            ) : (
-              <span class="text-xs text-transparent" aria-label="Yağış olasılığı verisi yok">—</span>
-            )}
-          </div>
-
-          {/* Min temp */}
-          <span class:list={['w-8 text-right text-sm shrink-0', getTempColorClass(day.min)]}>
-            {day.min}°
-          </span>
-
-          {/* Temp bar */}
-          <div class="flex-1 h-2 bg-[var(--color-bg)] rounded-full relative mx-2 min-w-[60px]">
+          <span class="text-[0.95rem] text-[var(--color-text-secondary)] tabular text-right">{day.min}°</span>
+          <div class="h-1.5 rounded-full bg-[var(--color-surface-2)] relative mx-1" aria-hidden="true">
             <div
-              class="absolute h-full rounded-full bg-gradient-to-r from-blue-400 via-amber-400 to-orange-500"
-              style={`left: ${leftPct}%; width: ${Math.max(widthPct, 4)}%`}
-            />
+              class="absolute inset-y-0 rounded-full"
+              style={`left:${left}%;width:${width}%;background:linear-gradient(90deg, ${tempColor(day.min)}, ${tempColor(day.max)})`}
+            ></div>
           </div>
-
-          {/* Max temp */}
-          <span class:list={['w-8 text-sm font-semibold shrink-0', getTempColorClass(day.max)]}>
-            {day.max}°
-          </span>
-
-          {/* Description (desktop only) */}
-          <span class="hidden lg:block w-32 text-xs text-[var(--color-text-secondary)] text-right truncate">
-            {day.description}
-          </span>
-        </div>
+          <span class="text-[0.95rem] font-semibold tabular">{day.max}°</span>
+          <span class="hidden sm:block text-xs text-[var(--color-text-secondary)] truncate text-right">{day.description}</span>
+          <span class="sr-only">{day.description}. En düşük {day.min}, en yüksek {day.max} derece.</span>
+        </li>
       );
     })}
-  </div>
+  </ul>
 </section>

@@ -1,6 +1,6 @@
 ---
 import WeatherIcon from './WeatherIcon.astro';
-import { getTempColorClass, formatHour } from '../lib/utils';
+import { formatHour } from '../lib/utils';
 import type { HourlyForecast as HF } from '../lib/weather';
 
 interface Props {
@@ -12,33 +12,71 @@ interface Props {
 
 const { hourly, startIndex = 0, endIndex = 48, title = 'Saatlik Tahmin' } = Astro.props;
 
-// Show hours in the specified range
-const allHours = hourly.time.slice(0, 48).map((time, i) => ({
+const hours = hourly.time.slice(0, 48).map((time, i) => ({
   time: formatHour(time),
   temp: Math.round(hourly.temperature[i]),
   code: hourly.weatherCode[i],
-  precip: hourly.precipitationProbability[i],
+  precip: hourly.precipitationProbability[i] ?? 0,
   isDay: hourly.isDay[i] === 1,
-  originalIndex: i,
+  index: i,
   raw: time,
+})).slice(startIndex, endIndex);
+
+// Temperature line drawn as one SVG under the hour columns. Columns have a
+// fixed width so every point sits exactly over its hour.
+const COL = 60;
+const H = 70;
+const width = hours.length * COL;
+const temps = hours.map((h) => h.temp);
+const tMin = Math.min(...temps);
+const tMax = Math.max(...temps);
+const span = tMax - tMin || 1;
+const pts = hours.map((h, i) => ({
+  x: i * COL + COL / 2,
+  y: 22 + (1 - (h.temp - tMin) / span) * (H - 30),
+  ...h,
 }));
-const hours = allHours.slice(startIndex, endIndex);
+const line = pts.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+const area = pts.length ? `${line} L${pts[pts.length - 1].x} ${H} L${pts[0].x} ${H} Z` : '';
+const gradId = `hourly-grad-${startIndex}`;
 ---
 
-<section class="weather-card" id="hourly-forecast">
-  <h2 class="text-lg font-semibold mb-4 px-2" id="hourly-forecast-title">{title}</h2>
-  <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1" tabindex="0" role="region" aria-labelledby="hourly-forecast-title">
-    {hours.map((h) => (
-      <div data-hour-index={h.originalIndex} data-time={h.raw} class="flex flex-col items-center gap-1.5 min-w-[70px] shrink-0 py-2 px-1">
-        <span class="text-xs text-[var(--color-text-secondary)]" data-hour-label>{h.time}</span>
-        <WeatherIcon code={h.code} isDay={h.isDay} size="w-8 h-8" />
-        <span class:list={['text-sm font-semibold', getTempColorClass(h.temp)]}>
-          {h.temp}°
-        </span>
-        {h.precip > 0 && (
-          <span class="text-xs text-blue-400">%{h.precip}</span>
-        )}
+<section class="weather-card !px-0 !pb-3" id="hourly-forecast">
+  <h2 class="section-label px-5" id="hourly-forecast-title">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 7v5l3 2"/></svg>
+    {title}
+  </h2>
+  <div class="overflow-x-auto scrollbar-hide" data-hourly-scroller tabindex="0" role="region" aria-labelledby="hourly-forecast-title">
+    <div class="relative px-2" style={`width:${width + 16}px`}>
+      <div class="flex">
+        {hours.map((h) => (
+          <div data-hour-index={h.index} data-time={h.raw} class="flex flex-col items-center shrink-0 transition-opacity" style={`width:${COL}px`}>
+            <span class="text-xs font-medium text-[var(--color-text-secondary)] tabular" data-hour-label>{h.time}</span>
+            <WeatherIcon code={h.code} isDay={h.isDay} size="w-8 h-8 my-1.5" decorative />
+            <div style={`height:${H}px`} aria-hidden="true"></div>
+            <span class:list={['text-[0.7rem] font-semibold tabular h-4', h.precip >= 20 ? 'text-sky-700 dark:text-sky-300' : 'text-transparent']}>
+              %{h.precip}
+            </span>
+            <span class="sr-only">Saat {h.time}: {h.temp} derece, yağış olasılığı yüzde {h.precip}</span>
+          </div>
+        ))}
       </div>
-    ))}
+      <svg class="absolute left-2 pointer-events-none" style="top:60px" width={width} height={H} viewBox={`0 0 ${width} ${H}`} aria-hidden="true">
+        <defs>
+          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--color-accent)" stop-opacity="0.22" />
+            <stop offset="100%" stop-color="var(--color-accent)" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={area} fill={`url(#${gradId})`} />
+        <path d={line} fill="none" stroke="var(--color-accent)" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round" />
+        {pts.map((p) => (
+          <g data-hour-point={p.index}>
+            <circle cx={p.x} cy={p.y} r="3" fill="var(--color-surface)" stroke="var(--color-accent)" stroke-width="2" />
+            <text x={p.x} y={p.y - 8} text-anchor="middle" font-size="13" font-weight="650" fill="currentColor">{p.temp}°</text>
+          </g>
+        ))}
+      </svg>
+    </div>
   </div>
 </section>

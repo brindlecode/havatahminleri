@@ -56,28 +56,10 @@ const hasCoords = typeof lat === 'number' && typeof lon === 'number';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#3B82F6" />
+    <meta name="theme-color" content="#f4f6f9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0f1a" media="(prefers-color-scheme: dark)" />
 
-    <!-- Preconnect & DNS Prefetch -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-
-    <!-- Font: loaded without blocking first render. `display=swap` means text
-         paints immediately in the fallback stack and re-flows to Inter, so LCP
-         no longer waits on a third-party stylesheet round trip. -->
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      onload="this.onload=null;this.rel='stylesheet'"
-    />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      />
-    </noscript>
 
     <!-- Consent Mode v2. Everything defaults to denied (KVKK/GDPR: analytics
          and advertising cookies are opt-in). A visitor who already chose is
@@ -151,7 +133,7 @@ const hasCoords = typeof lat === 'number' && typeof lon === 'number';
     data-lon={hasCoords ? String(lon) : undefined}
   >
     <slot name="header" />
-    <main class="flex-1">
+    <main id="main" class="flex-1">
       <slot />
     </main>
     <slot name="footer" />
