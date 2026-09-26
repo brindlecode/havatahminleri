@@ -8,6 +8,7 @@ import {
   getLocationPath,
   type PeriodId,
 } from './periods.ts';
+import districtsData from '../data/districts.json' with { type: 'json' };
 
 export interface SEOData {
   title: string;
@@ -15,6 +16,11 @@ export interface SEOData {
   canonical: string;
   /** H1 shown on the page. Always agrees with the title's intent. */
   heading: string;
+  /**
+   * Name for JSON-LD (`generateStructuredData({ name })`), e.g.
+   * "Ortaköy, Çorum 15 Günlük Hava Durumu". Location pages only.
+   */
+  schemaName?: string;
 }
 
 /**
@@ -30,42 +36,104 @@ export interface LocationRef {
 }
 
 export interface LocationNames {
-  /** How the place is referred to in prose and headings. */
+  /** How the place is referred to in prose (short, no province). */
   short: string;
-  /** Disambiguated name for titles and descriptions. */
+  /** Disambiguated name for titles ("İzmit, Kocaeli"). */
   qualified: string;
+  /**
+   * Name for the H1, meta description and standalone answers. Equal to
+   * `short`, except for district names shared by more than one province,
+   * which carry the province in parentheses: "Ortaköy (Çorum)".
+   */
+  display: string;
   isDistrict: boolean;
+}
+
+/** District names (excluding "Merkez") that occur in more than one province. */
+const AMBIGUOUS_DISTRICT_NAMES: ReadonlySet<string> = (() => {
+  const provincesByName = new Map<string, Set<string>>();
+  for (const d of districtsData as { name: string; province: string }[]) {
+    if (!provincesByName.has(d.name)) provincesByName.set(d.name, new Set());
+    provincesByName.get(d.name)!.add(d.province);
+  }
+  return new Set(
+    [...provincesByName].filter(([name, provs]) => name !== 'Merkez' && provs.size > 1).map(([name]) => name),
+  );
+})();
+
+/** True when `districtName` exists in more than one province (e.g. "Ortaköy"). */
+export function isAmbiguousDistrictName(districtName: string): boolean {
+  return AMBIGUOUS_DISTRICT_NAMES.has(districtName);
 }
 
 /**
  * 51 of the 969 districts are literally named "Merkez" (the provincial
  * centre). Rendering "Merkez Hava Durumu" as an H1 on 51 x 7 = 357 pages is
  * both meaningless to a reader and a duplicate-title signal, so those get the
- * province prefixed. 24 further district names are shared by more than one
- * province, which is why titles always carry the province too.
+ * province prefixed. 23 further district names are shared by more than one
+ * province; titles always carry the province, and for those 23 names the
+ * H1 and meta description do too (`display`).
  */
 export function getLocationNames(loc: LocationRef): LocationNames {
   if (!loc.districtName) {
-    return { short: loc.provinceName, qualified: loc.provinceName, isDistrict: false };
+    const n = loc.provinceName;
+    return { short: n, qualified: n, display: n, isDistrict: false };
   }
   if (loc.districtName === 'Merkez') {
     const name = `${loc.provinceName} Merkez`;
-    return { short: name, qualified: name, isDistrict: true };
+    return { short: name, qualified: name, display: name, isDistrict: true };
   }
   return {
     short: loc.districtName,
     qualified: `${loc.districtName}, ${loc.provinceName}`,
+    display: isAmbiguousDistrictName(loc.districtName)
+      ? `${loc.districtName} (${loc.provinceName})`
+      : loc.districtName,
     isDistrict: true,
   };
 }
 
+/** Longest title Google reliably shows without truncation (approx. 580px). */
+export const TITLE_MAX = 60;
+export const DESCRIPTION_MIN = 120;
+export const DESCRIPTION_MAX = 155;
+
+/** First candidate that fits TITLE_MAX, else the shortest (last) one. */
+function fitTitle(candidates: string[]): string {
+  return candidates.find((c) => c.length <= TITLE_MAX) ?? candidates[candidates.length - 1];
+}
+
 function clampDescription(text: string): string {
   const collapsed = text.replace(/\s+/g, ' ').trim();
-  if (collapsed.length <= 160) return collapsed;
-  const cut = collapsed.slice(0, 157);
+  if (collapsed.length <= DESCRIPTION_MAX) return collapsed;
+  const cut = collapsed.slice(0, DESCRIPTION_MAX - 3);
   const lastSpace = cut.lastIndexOf(' ');
-  return `${cut.slice(0, lastSpace > 120 ? lastSpace : 157).trimEnd()}...`;
+  return `${cut.slice(0, lastSpace > DESCRIPTION_MIN ? lastSpace : cut.length).trimEnd()}...`;
 }
+
+/**
+ * Build a description from a lead sentence plus optional sentences, added in
+ * order while the text stays within DESCRIPTION_MAX. An optional item may be
+ * a list of alternatives (longest first); the first that fits is used. `pad`
+ * sentences only lift a short description up towards DESCRIPTION_MIN.
+ */
+function fitDescription(lead: string, optional: (string | string[] | null)[], pad: string[] = []): string {
+  let text = lead.replace(/\s+/g, ' ').trim();
+  const tryAdd = (part: string | string[]) => {
+    for (const alt of Array.isArray(part) ? part : [part]) {
+      const next = `${text} ${alt}`;
+      if (next.length <= DESCRIPTION_MAX) {
+        text = next;
+        return;
+      }
+    }
+  };
+  for (const part of optional) if (part) tryAdd(part);
+  for (const part of pad) if (text.length < DESCRIPTION_MIN) tryAdd(part);
+  return clampDescription(text);
+}
+
+const BRAND = ' | Yarın Hava';
 
 /**
  * Title, description, canonical and H1 for one location + period.
@@ -82,18 +150,32 @@ function clampDescription(text: string): string {
  *   /{location}/15-gunluk/  -> 15 days
  *   /{location}/saatlik/    -> next 48 hours
  *
- * The base URL previously carried "15 Günlük Tahmin" in its title while a
- * dedicated /15-gunluk/ page existed, so the two competed for the same
- * "<il> hava durumu 15 günlük" queries. It no longer does.
+ * Titles keep the primary keyword ("<Yer> 15 Günlük Hava Durumu") first and
+ * shed the trailing qualifier and then the " | Yarın Hava" brand suffix when
+ * they would otherwise exceed TITLE_MAX characters. The H1 (`heading`) and the
+ * description use `display`, so shared district names carry their province.
  */
 export function getPeriodSEO(
   loc: LocationRef,
   periodId: PeriodId,
   weather?: { temperature: number; weatherCode: number; maxTemp?: number; minTemp?: number },
 ): SEOData {
+  const core = periodSEOCore(loc, periodId, weather);
+  const names = getLocationNames(loc);
+  // heading always starts with names.display; swap in the qualified form.
+  return { ...core, schemaName: `${names.qualified}${core.heading.slice(names.display.length)}` };
+}
+
+function periodSEOCore(
+  loc: LocationRef,
+  periodId: PeriodId,
+  weather?: { temperature: number; weatherCode: number; maxTemp?: number; minTemp?: number },
+): Omit<SEOData, 'schemaName'> {
   const names = getLocationNames(loc);
   const canonical = getCanonicalForPeriod(loc.provinceSlug, periodId, loc.districtSlug);
-  const locative = getCityLocative(names.short);
+  const q = names.qualified;
+  const d = names.display;
+  const locative = getCityLocative(d);
 
   const cond = weather ? getWeatherDescription(weather.weatherCode).toLowerCase() : null;
   const nowTemp = weather ? `${Math.round(weather.temperature)}°C` : null;
@@ -101,84 +183,158 @@ export function getPeriodSEO(
     weather?.maxTemp !== undefined && weather?.minTemp !== undefined
       ? `${Math.round(weather.minTemp)}°C - ${Math.round(weather.maxTemp)}°C`
       : null;
+  const PAD = ['Her gün güncellenir.', 'Kaynak: Open-Meteo.'];
 
   switch (periodId) {
     case 'bugun':
       return {
-        title: `${names.qualified} Bugün Hava Durumu - Saatlik Tahmin | Yarın Hava`,
-        description: clampDescription(
-          `${locative} bugün hava durumu${cond ? `: şu an ${nowTemp}, ${cond}` : ''}. ` +
-            `${range ? `Gün içi ${range} aralığında. ` : ''}Saat saat sıcaklık, yağış olasılığı, rüzgar ve gün doğumu-batımı bilgileri.`,
+        title: fitTitle([
+          `${q} Bugün Hava Durumu - Saatlik Tahmin${BRAND}`,
+          `${q} Bugün Hava Durumu${BRAND}`,
+          `${q} Bugün Hava Durumu - Saatlik Tahmin`,
+          `${q} Bugün Hava Durumu`,
+        ]),
+        description: fitDescription(
+          `${locative} bugün hava durumu${cond ? `: şu an ${nowTemp}, ${cond}` : ''}.`,
+          [
+            range ? `Gün içi ${range} aralığında.` : null,
+            [
+              'Saat saat sıcaklık, yağış olasılığı, rüzgar ve gün doğumu-batımı bilgileri.',
+              'Saat saat sıcaklık, yağış olasılığı ve rüzgar bilgileri.',
+              'Saat saat sıcaklık ve yağış.',
+            ],
+          ],
+          PAD,
         ),
         canonical,
-        heading: `${names.short} Bugün Hava Durumu`,
+        heading: `${d} Bugün Hava Durumu`,
       };
 
     case 'yarin':
       return {
-        title: `${names.qualified} Yarın Hava Durumu - Saatlik Tahmin | Yarın Hava`,
-        description: clampDescription(
-          `${locative} yarın hava nasıl olacak? Yarının en yüksek ve en düşük sıcaklığı, saatlik tahmin, ` +
-            `yağış olasılığı ve bugüne göre sıcaklık farkı bu sayfada.`,
+        title: fitTitle([
+          `${q} Yarın Hava Durumu - Saatlik Tahmin${BRAND}`,
+          `${q} Yarın Hava Durumu${BRAND}`,
+          `${q} Yarın Hava Durumu - Saatlik Tahmin`,
+          `${q} Yarın Hava Durumu`,
+        ]),
+        description: fitDescription(
+          `${locative} yarın hava nasıl olacak?`,
+          [
+            [
+              'Yarının en yüksek ve en düşük sıcaklığı, saatlik tahmin, yağış olasılığı ve bugüne göre sıcaklık farkı bu sayfada.',
+              'Yarının en yüksek ve en düşük sıcaklığı, saatlik tahmin, yağış olasılığı ve bugüne göre fark.',
+              'Yarının en yüksek-en düşük sıcaklığı, saatlik tahmin ve yağış olasılığı.',
+            ],
+          ],
+          PAD,
         ),
         canonical,
-        heading: `${names.short} Yarın Hava Durumu`,
+        heading: `${d} Yarın Hava Durumu`,
       };
 
     case '7gun':
       return {
-        title: `${names.qualified} 7 Günlük Hava Durumu Tahmini | Yarın Hava`,
-        description: clampDescription(
-          `${names.qualified} 7 günlük hava durumu tahmini. Haftalık sıcaklık eğilimi, en sıcak ve en serin günler, ` +
-            `yağışlı gün sayısı ve hafta sonu karşılaştırması.`,
+        title: fitTitle([
+          `${q} 7 Günlük Hava Durumu Tahmini${BRAND}`,
+          `${q} 7 Günlük Hava Durumu${BRAND}`,
+          `${q} 7 Günlük Hava Durumu`,
+        ]),
+        description: fitDescription(
+          `${d} 7 günlük hava durumu tahmini.`,
+          [[
+            'Haftalık sıcaklık eğilimi, en sıcak ve en serin günler, yağışlı gün sayısı ve hafta sonu karşılaştırması.',
+            'Haftalık sıcaklık eğilimi, en sıcak ve en serin günler ve yağışlı gün sayısı.',
+            'Haftalık sıcaklık eğilimi ve yağışlı gün sayısı.',
+          ]],
+          PAD,
         ),
         canonical,
-        heading: `${names.short} 7 Günlük Hava Durumu`,
+        heading: `${d} 7 Günlük Hava Durumu`,
       };
 
     case '10gun':
       return {
-        title: `${names.qualified} 10 Günlük Hava Durumu Tahmini | Yarın Hava`,
-        description: clampDescription(
-          `${names.qualified} 10 günlük hava durumu tahmini. İlk 5 gün ile sonraki 5 günün karşılaştırması, ` +
-            `sıcaklık eğilimi ve yağış dağılımı ile günlük tablo.`,
+        title: fitTitle([
+          `${q} 10 Günlük Hava Durumu Tahmini${BRAND}`,
+          `${q} 10 Günlük Hava Durumu${BRAND}`,
+          `${q} 10 Günlük Hava Durumu`,
+        ]),
+        description: fitDescription(
+          `${d} 10 günlük hava durumu tahmini.`,
+          [[
+            'İlk 5 gün ile sonraki 5 günün karşılaştırması, sıcaklık eğilimi ve yağış dağılımı ile günlük tablo.',
+            'İlk 5 gün ile sonraki 5 günün karşılaştırması, sıcaklık eğilimi ve yağış dağılımı.',
+            'Sıcaklık eğilimi, yağış dağılımı ve günlük tablo.',
+          ]],
+          PAD,
         ),
         canonical,
-        heading: `${names.short} 10 Günlük Hava Durumu`,
+        heading: `${d} 10 Günlük Hava Durumu`,
       };
 
     case '15gun':
       return {
-        title: `${names.qualified} 15 Günlük Hava Durumu Tahmini | Yarın Hava`,
-        description: clampDescription(
-          `${names.qualified} 15 günlük hava durumu. 15 günün tamamı için günlük en yüksek-en düşük sıcaklık, ` +
-            `yağışlı gün sayısı, en sıcak ve en serin dönemler ve uzun vadeli eğilim.`,
+        title: fitTitle([
+          `${q} 15 Günlük Hava Durumu Tahmini${BRAND}`,
+          `${q} 15 Günlük Hava Durumu${BRAND}`,
+          `${q} 15 Günlük Hava Durumu`,
+        ]),
+        description: fitDescription(
+          `${d} 15 günlük hava durumu.`,
+          [[
+            'Her gün için en yüksek-en düşük sıcaklık, yağışlı gün sayısı, en sıcak ve en serin dönemler ve uzun vadeli eğilim.',
+            'Günlük en yüksek-en düşük sıcaklık, yağışlı gün sayısı, en sıcak ve en serin dönemler.',
+            'Günlük en yüksek-en düşük sıcaklık, yağışlı gün sayısı ve uzun vadeli eğilim.',
+          ]],
+          PAD,
         ),
         canonical,
-        heading: `${names.short} 15 Günlük Hava Durumu`,
+        heading: `${d} 15 Günlük Hava Durumu`,
       };
 
     case 'saatlik':
       return {
-        title: `${names.qualified} Saatlik Hava Durumu - 48 Saat | Yarın Hava`,
-        description: clampDescription(
-          `${locative} saatlik hava durumu. Önümüzdeki 48 saat için saat saat sıcaklık, yağış olasılığı, ` +
-            `rüzgar hızı ve gece-gündüz geçişleri.`,
+        title: fitTitle([
+          `${q} Saatlik Hava Durumu - 48 Saat${BRAND}`,
+          `${q} Saatlik Hava Durumu${BRAND}`,
+          `${q} Saatlik Hava Durumu - 48 Saat`,
+          `${q} Saatlik Hava Durumu`,
+        ]),
+        description: fitDescription(
+          `${locative} saatlik hava durumu.`,
+          [[
+            'Önümüzdeki 48 saat için saat saat sıcaklık, yağış olasılığı, rüzgar hızı ve gece-gündüz geçişleri.',
+            'Önümüzdeki 48 saat için saat saat sıcaklık, yağış olasılığı ve rüzgar hızı.',
+            '48 saat boyunca saat saat sıcaklık, yağış ve rüzgar.',
+          ]],
+          PAD,
         ),
         canonical,
-        heading: `${names.short} Saatlik Hava Durumu`,
+        heading: `${d} Saatlik Hava Durumu`,
       };
 
     case 'base':
     default:
       return {
-        title: `${names.qualified} Hava Durumu: Yarın ve Saatlik Tahmin | Yarın Hava`,
-        description: clampDescription(
-          `${locative} hava durumu${cond ? `: şu an ${nowTemp}, ${cond}` : ''}. ` +
-            `Yarının saatlik tahmini, en yüksek ve en düşük sıcaklık, yağış olasılığı ve rüzgar bilgileri.`,
+        title: fitTitle([
+          `${q} Hava Durumu: Yarın ve Saatlik Tahmin${BRAND}`,
+          `${q} Hava Durumu: Yarın ve Saatlik Tahmin`,
+          `${q} Hava Durumu - Yarın ve Saatlik`,
+          `${q} Hava Durumu${BRAND}`,
+          `${q} Hava Durumu`,
+        ]),
+        description: fitDescription(
+          `${locative} hava durumu${cond ? `: şu an ${nowTemp}, ${cond}` : ''}.`,
+          [[
+            'Yarının saatlik tahmini, en yüksek ve en düşük sıcaklık, yağış olasılığı ve rüzgar bilgileri.',
+            'Yarının saatlik tahmini, en yüksek ve en düşük sıcaklık ve yağış olasılığı.',
+            'Yarının saatlik tahmini, sıcaklık ve yağış olasılığı.',
+          ]],
+          PAD,
         ),
         canonical,
-        heading: `${names.short} Hava Durumu`,
+        heading: `${d} Hava Durumu`,
       };
   }
 }
@@ -195,6 +351,19 @@ export function getHomeSEO(): SEOData {
 }
 
 // --- structured data ---------------------------------------------------------
+
+/** The publisher entity, with the logo Google uses for Organization. */
+const ORGANIZATION = {
+  '@type': 'Organization',
+  name: 'Yarın Hava',
+  url: `${SITE_ORIGIN}/`,
+  logo: {
+    '@type': 'ImageObject',
+    url: `${SITE_ORIGIN}/icon-512.png`,
+    width: 512,
+    height: 512,
+  },
+} as const;
 
 /**
  * Breadcrumb trail for a location page. URLs are absolute, as
@@ -269,11 +438,7 @@ export function generateStructuredData(
     url: data.url,
     inLanguage: 'tr-TR',
     isPartOf: { '@type': 'WebSite', name: 'Yarın Hava', url: `${SITE_ORIGIN}/` },
-    publisher: {
-      '@type': 'Organization',
-      name: 'Yarın Hava',
-      url: `${SITE_ORIGIN}/`,
-    },
+    publisher: ORGANIZATION,
   };
 
   if (freshness) {
@@ -311,13 +476,17 @@ export function generateStructuredData(
   }
 
   if (type === 'home') {
+    // No potentialAction/SearchAction: search is client-side only and the
+    // site has no search results URL that a SearchAction could target.
     jsonLd.push({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: 'Yarın Hava',
       url: `${SITE_ORIGIN}/`,
       inLanguage: 'tr-TR',
+      publisher: ORGANIZATION,
     });
+    jsonLd.push({ '@context': 'https://schema.org', ...ORGANIZATION });
   }
 
   return jsonLd.map((item) => JSON.stringify(item)).join('\n');
@@ -336,11 +505,7 @@ export function generateLegalPageStructuredData(
       description: pageDescription,
       url: canonical,
       inLanguage: 'tr-TR',
-      publisher: {
-        '@type': 'Organization',
-        name: 'Yarın Hava',
-        url: `${SITE_ORIGIN}/`,
-      },
+      publisher: ORGANIZATION,
     },
     {
       '@context': 'https://schema.org',

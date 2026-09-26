@@ -117,6 +117,12 @@ export function getLocativeSuffix(name: string): string {
  * Example: "Adana'da", "İzmir'de"
  */
 export function getCityLocative(cityName: string): string {
+  // Disambiguated names like "Ortaköy (Çorum)": the suffix attaches to the
+  // place itself, "Ortaköy'de (Çorum)", not to the parenthesis.
+  const paren = cityName.match(/^(.*\S)\s+(\([^)]*\))$/);
+  if (paren) {
+    return `${getCityLocative(paren[1])} ${paren[2]}`;
+  }
   // For compound names like "Seyhan, Adana", use first part
   const parts = cityName.split(',');
   if (parts.length > 1) {
