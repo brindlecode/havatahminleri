@@ -42,7 +42,7 @@ const range = globalMax - globalMin || 1;
         <div data-day-index={index} data-date={day.date} class="flex items-center gap-2 py-3 px-2 hover:bg-[var(--color-bg)] rounded-lg transition-colors group">
           {/* Day name */}
           <div class="w-20 shrink-0">
-            <p class="text-sm font-medium">{day.dayName}</p>
+            <p class="text-sm font-medium" data-day-label>{day.dayName}</p>
             <p class="text-xs text-[var(--color-text-secondary)]">{day.shortDate}</p>
           </div>
 

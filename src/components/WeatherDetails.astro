@@ -8,13 +8,15 @@ interface Props {
 }
 
 const { current, daily } = Astro.props;
-const sunrise = daily.sunrise[0] ? formatHour(daily.sunrise[0]) : '06:30';
-const sunset = daily.sunset[0] ? formatHour(daily.sunset[0]) : '19:30';
+// Never invent sun times: show a dash when the API did not return them.
+const sunrise = (daily.sunrise[0] && formatHour(daily.sunrise[0])) || '—';
+const sunset = (daily.sunset[0] && formatHour(daily.sunset[0])) || '—';
 const visibilityKm = Math.round(current.visibility / 1000);
 ---
 
 <section class="weather-card">
   <h2 class="text-lg font-semibold mb-4">Detaylı Hava Bilgileri</h2>
+  <p class="text-xs text-[var(--color-text-secondary)] -mt-3 mb-4">Basınç, görüş ve bulut oranı bugün öğle saatleri (12:00) için tahmindir.</p>
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
     <!-- Pressure -->
     <div class="bg-[var(--color-bg)] rounded-xl p-3">

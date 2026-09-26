@@ -1,0 +1,41 @@
+name: CI
+
+# Checks a change BEFORE it reaches the production branch, where every push
+# deploys. Uses a synthetic forecast for the full build, plus a 3-location
+# real Open-Meteo request to confirm the API still answers in the shape
+# scripts/fetch-weather.mjs expects - without spending the daily API budget.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Open-Meteo contract check (3 locations)
+        run: node scripts/fetch-weather.mjs --sample 3 --out "$RUNNER_TEMP/sample-cache.json"
+
+      - name: Build and validate with synthetic data
+        run: npm run build:offline

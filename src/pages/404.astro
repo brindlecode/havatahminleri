@@ -6,12 +6,11 @@ import provinces from '../data/provinces.json';
 
 const title = 'Sayfa Bulunamadı | Yarın Hava';
 const description = 'Aradığınız sayfa mevcut değil veya taşınmış olabilir. Yarın Hava ana sayfasına dönerek 81 il ve tüm ilçeler için hava durumuna ulaşabilirsiniz.';
-const canonical = 'https://yarinhava.com/404';
 
 const popularCities = (provinces as any[]).filter((p) => p.popular).slice(0, 8);
 ---
 
-<BaseLayout title={title} description={description} canonical={canonical}>
+<BaseLayout title={title} description={description} noindex>
   <Header slot="header" />
 
   <div class="max-w-3xl mx-auto px-4 py-16 text-center">

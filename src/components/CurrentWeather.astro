@@ -2,16 +2,37 @@
 import WeatherIcon from './WeatherIcon.astro';
 import { getWeatherDescription } from '../lib/weatherCodes';
 import { getTempColorClass, getWindDirection } from '../lib/utils';
-import type { CurrentWeather as CW, DailyForecast } from '../lib/weather';
+import type { CurrentWeather as CW, DailyForecast, HourlyForecast } from '../lib/weather';
 
 interface Props {
   cityName: string;
   current: CW;
   daily: DailyForecast;
+  hourly?: HourlyForecast;
   heading?: string;
 }
 
-const { cityName, current, daily, heading } = Astro.props;
+const { cityName, current, daily, hourly, heading } = Astro.props;
+
+// The page is built once a day, so the static numbers describe today at noon.
+// weather-now.js swaps in the forecast for the visitor's current hour from
+// this compact hourly table - no API call from the browser.
+const asOf = current.hour ? `Bugün ${current.hour.slice(11, 16)} tahmini` : 'Bugün için tahmin';
+const r = (v: number | undefined) => (typeof v === 'number' ? Math.round(v) : null);
+const hourlyJson = hourly
+  ? JSON.stringify({
+      t: hourly.time.slice(0, 48),
+      v: hourly.temperature.slice(0, 48).map(r),
+      a: (hourly.apparentTemperature ?? []).slice(0, 48).map(r),
+      c: hourly.weatherCode.slice(0, 48),
+      h: hourly.humidity.slice(0, 48).map(r),
+      w: hourly.windSpeed.slice(0, 48).map(r),
+      d: (hourly.windDirection ?? []).slice(0, 48).map(r),
+      n: Object.fromEntries(
+        [...new Set(hourly.weatherCode.slice(0, 48))].map((c) => [c, getWeatherDescription(c)]),
+      ),
+    })
+  : null;
 const h1Text = heading || `${cityName} Hava Durumu`;
 const description = getWeatherDescription(current.weatherCode);
 const tempClass = getTempColorClass(current.temperature);
@@ -20,7 +41,8 @@ const todayMax = daily.temperatureMax[0];
 const todayMin = daily.temperatureMin[0];
 ---
 
-<section class="weather-card overflow-hidden">
+<section class="weather-card overflow-hidden" id="current-weather">
+  {hourlyJson && <script type="application/json" id="hourly-data" set:html={hourlyJson} />}
   <div class="relative p-6 md:p-8">
     <!-- Background gradient -->
     <div class="absolute inset-0 opacity-5 dark:opacity-10 bg-gradient-to-br from-primary-500 to-primary-300 rounded-2xl"></div>
@@ -29,7 +51,8 @@ const todayMin = daily.temperatureMin[0];
       <!-- Left: City + temp -->
       <div class="text-center md:text-left flex-1">
         <h1 class="text-2xl md:text-3xl font-bold mb-1">{h1Text}</h1>
-        <p id="weather-desc" class="text-[var(--color-text-secondary)] text-sm mb-4">{description}</p>
+        <p id="weather-desc" class="text-[var(--color-text-secondary)] text-sm">{description}</p>
+        <p id="weather-asof" class="text-xs text-[var(--color-text-secondary)] mb-4">{asOf}</p>
 
         <div class="flex items-center justify-center md:justify-start gap-4">
           <WeatherIcon code={current.weatherCode} isDay={current.isDay} size="w-20 h-20 md:w-24 md:h-24" decorative />

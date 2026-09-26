@@ -60,7 +60,7 @@ const activeId: PeriodId = period === 'base' ? 'yarin' : period;
   <div class="max-w-4xl mx-auto px-4 py-6">
     <Breadcrumb items={breadcrumbs} />
 
-    <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} heading={heading}>
+    <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} hourly={weather.hourly} heading={heading}>
       <ForecastFreshness />
     </CurrentWeather>
 

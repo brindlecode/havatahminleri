@@ -3,7 +3,16 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const CACHE_PATH = join(__dirname, '..', 'src', 'data', 'weather-cache.json');
+const argv = process.argv.slice(2);
+const argValue = (name) => {
+  const i = argv.indexOf(`--${name}`);
+  return i > -1 ? argv[i + 1] : undefined;
+};
+// `--sample N --out file` fetches only N locations: a cheap check, run on pull
+// requests, that the Open-Meteo request and response shape still match what
+// this script expects - without spending the daily API budget.
+const SAMPLE = Number(argValue('sample') ?? 0);
+const CACHE_PATH = argValue('out') ?? join(__dirname, '..', 'src', 'data', 'weather-cache.json');
 const BASE_URL = 'https://api.open-meteo.com/v1/forecast';
 
 // Fetch config - tuned for Open-Meteo free tier (600 req/min)
@@ -58,45 +67,68 @@ function freshCount(cache, day) {
   return Object.values(cache?.data ?? {}).filter((entry) => isFresh(entry, day)).length;
 }
 
+/**
+ * The site is rebuilt once a day, just after midnight Turkey time, so there is
+ * no `current` block: "current conditions" fetched at 00:05 would be midnight
+ * values shown all day. Instead the hourly series (which starts at 00:00
+ * today) is kept, and the "current" card is derived from it - statically from
+ * the noon hour, and in the browser from the visitor's actual hour
+ * (public/scripts/weather-now.js).
+ *
+ * `forecast_hours` is deliberately NOT used: with it, Open-Meteo starts the
+ * hourly series at the current hour, while every consumer of this cache
+ * indexes the series as "0 = today 00:00, 24 = tomorrow 00:00".
+ */
+const HOURLY_HOURS = 48;
+const NOON = 12;
+
 const API_FIELDS = {
-  current:
-    'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,is_day,surface_pressure,cloud_cover,visibility',
   hourly:
-    'temperature_2m,weather_code,relative_humidity_2m,precipitation_probability,wind_speed_10m,is_day,dew_point_2m,visibility,surface_pressure,cloud_cover',
+    'temperature_2m,apparent_temperature,weather_code,relative_humidity_2m,precipitation_probability,wind_speed_10m,wind_direction_10m,is_day,visibility,surface_pressure,cloud_cover',
   daily:
     'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,sunrise,sunset',
   timezone: TIMEZONE,
   forecast_days: '16',
-  forecast_hours: '48',
 };
 
-function parseResponse(d) {
+const take = (arr, n) => (Array.isArray(arr) ? arr.slice(0, n) : []);
+
+/** Returns null when the response does not start at 00:00 on `day`. */
+function parseResponse(d, day) {
+  const h = d.hourly;
+  if (!h?.time?.length || h.time[0] !== `${day}T00:00`) return null;
+  const n = Math.min(HOURLY_HOURS, h.time.length);
+  const hourly = {
+    time: take(h.time, n),
+    temperature: take(h.temperature_2m, n),
+    apparentTemperature: take(h.apparent_temperature, n),
+    weatherCode: take(h.weather_code, n),
+    humidity: take(h.relative_humidity_2m, n),
+    precipitationProbability: take(h.precipitation_probability, n),
+    windSpeed: take(h.wind_speed_10m, n),
+    windDirection: take(h.wind_direction_10m, n),
+    isDay: take(h.is_day, n),
+    dewPoint: [],
+    visibility: take(h.visibility, n),
+    pressure: take(h.surface_pressure, n),
+    cloudCover: take(h.cloud_cover, n),
+  };
+  const i = Math.min(NOON, n - 1);
   return {
     current: {
-      temperature: d.current.temperature_2m,
-      weatherCode: d.current.weather_code,
-      windSpeed: d.current.wind_speed_10m,
-      windDirection: d.current.wind_direction_10m,
-      humidity: d.current.relative_humidity_2m,
-      apparentTemperature: d.current.apparent_temperature,
-      isDay: d.current.is_day === 1,
-      pressure: d.current.surface_pressure ?? 1013,
-      cloudCover: d.current.cloud_cover ?? 0,
-      visibility: d.current.visibility ?? 10000,
+      temperature: hourly.temperature[i],
+      weatherCode: hourly.weatherCode[i],
+      windSpeed: hourly.windSpeed[i],
+      windDirection: hourly.windDirection[i] ?? 0,
+      humidity: hourly.humidity[i],
+      apparentTemperature: hourly.apparentTemperature[i] ?? hourly.temperature[i],
+      isDay: hourly.isDay[i] === 1,
+      pressure: hourly.pressure[i] ?? 1013,
+      cloudCover: hourly.cloudCover[i] ?? 0,
+      visibility: hourly.visibility[i] ?? 10000,
+      hour: hourly.time[i],
     },
-    hourly: {
-      time: d.hourly.time,
-      temperature: d.hourly.temperature_2m,
-      weatherCode: d.hourly.weather_code,
-      humidity: d.hourly.relative_humidity_2m,
-      precipitationProbability: d.hourly.precipitation_probability,
-      windSpeed: d.hourly.wind_speed_10m,
-      isDay: d.hourly.is_day,
-      dewPoint: d.hourly.dew_point_2m ?? [],
-      visibility: d.hourly.visibility ?? [],
-      pressure: d.hourly.surface_pressure ?? [],
-      cloudCover: d.hourly.cloud_cover ?? [],
-    },
+    hourly,
     daily: {
       time: d.daily.time,
       weatherCode: d.daily.weather_code,
@@ -113,7 +145,7 @@ function parseResponse(d) {
 }
 
 // Returns { data, rateLimited }
-async function fetchOne(lat, lon) {
+async function fetchOne(lat, lon, day) {
   const params = new URLSearchParams({
     latitude: lat.toString(),
     longitude: lon.toString(),
@@ -134,7 +166,9 @@ async function fetchOne(lat, lon) {
       }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      return { data: parseResponse(await res.json()), rateLimited: false };
+      const data = parseResponse(await res.json(), day);
+      if (!data) throw new Error('hourly series does not start at 00:00 today');
+      return { data, rateLimited: false };
     } catch (err) {
       if (attempt === MAX_RETRIES) return { data: null, rateLimited: false };
       await delay(2000 * attempt);
@@ -165,10 +199,12 @@ async function main() {
     if (!locMap.has(key)) locMap.set(key, { lat: d.lat, lon: d.lon });
   }
 
-  const locations = [...locMap.entries()];
+  const allLocations = [...locMap.entries()];
+  const locations = SAMPLE > 0 ? allLocations.slice(0, SAMPLE) : allLocations;
   console.log(`[WEATHER] ${locations.length} unique locations`);
 
   const results = {};
+  const failedKeys = new Set();
   let ok = 0;
   let fail = 0;
   let consecutiveFails = 0;
@@ -184,7 +220,7 @@ async function main() {
     const consumed = batch.length;
     const batchResults = await Promise.all(
       batch.map(async ([key, { lat, lon }]) => {
-        const result = await fetchOne(lat, lon);
+        const result = await fetchOne(lat, lon, day);
         return { key, ...result };
       }),
     );
@@ -200,6 +236,7 @@ async function main() {
         batchOk++;
         consecutiveFails = 0;
       } else {
+        failedKeys.add(key);
         fail++;
         consecutiveFails++;
       }
@@ -237,6 +274,26 @@ async function main() {
     }
   }
   console.log('');
+
+  // One slow second pass over whatever failed (usually HTTP 429 bursts), so a
+  // brief rate limit does not cost coverage for the whole day.
+  if (ok > 0 && failedKeys.size > 0 && failedKeys.size <= locations.length * 0.3) {
+    console.log(`[WEATHER] Retrying ${failedKeys.size} failed locations after a pause...`);
+    await delay(60000);
+    const byKey = new Map(locations);
+    for (const key of [...failedKeys]) {
+      const { lat, lon } = byKey.get(key);
+      const { data } = await fetchOne(lat, lon, day);
+      if (data) {
+        results[key] = data;
+        failedKeys.delete(key);
+        ok++;
+        fail--;
+      }
+      await delay(1500);
+    }
+    console.log(`[WEATHER] After retry: ${ok} ok, ${fail} fail`);
+  }
 
   // If API completely unreachable, the previous cache may only be reused
   // while it still covers today - never publish a forecast that starts in

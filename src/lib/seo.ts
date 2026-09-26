@@ -188,7 +188,7 @@ export function getHomeSEO(): SEOData {
     title: 'Yarın Hava - Türkiye Hava Durumu ve Yarınki Tahmin',
     description:
       'Türkiye hava durumu: 81 il ve 969 ilçe için yarınki ve saatlik tahmin. Bugün, 7, 10 ve 15 günlük ' +
-      'sıcaklık, yağış, rüzgar ve nem bilgileri günde iki kez güncellenir.',
+      'sıcaklık, yağış, rüzgar ve nem bilgileri her gün güncellenir.',
     canonical: `${SITE_ORIGIN}/`,
     heading: 'Türkiye Hava Durumu',
   };
@@ -208,7 +208,10 @@ export function buildBreadcrumbs(
   const names = getLocationNames(loc);
   const crumbs: { name: string; url: string }[] = [];
 
-  if (regionName) crumbs.push({ name: regionName, url: `${SITE_ORIGIN}/` });
+  // Regions have no page of their own; a crumb pointing at the home page
+  // listed the home URL twice in every BreadcrumbList. `regionName` is kept
+  // in the signature for when real region pages exist.
+  void regionName;
 
   crumbs.push({
     name: `${loc.provinceName} Hava Durumu`,

@@ -9,11 +9,19 @@ export interface CurrentWeather {
   pressure: number;
   cloudCover: number;
   visibility: number;
+  /**
+   * The hour these values describe ("2026-09-26T12:00"). The site is built
+   * once a day at midnight, so "current" is the forecast for noon today, not a
+   * live observation; the browser swaps in the visitor's actual hour.
+   */
+  hour?: string;
 }
 
 export interface HourlyForecast {
   time: string[];
   temperature: number[];
+  apparentTemperature?: number[];
+  windDirection?: number[];
   weatherCode: number[];
   humidity: number[];
   precipitationProbability: number[];
@@ -125,85 +133,7 @@ export async function fetchWeatherData(lat: number, lon: number): Promise<Weathe
     return nearest;
   }
 
-  // 3. Last resort: fetch from API at build time
-  try {
-    const params = new URLSearchParams({
-      latitude: lat.toString(),
-      longitude: lon.toString(),
-      current: [
-        'temperature_2m', 'relative_humidity_2m', 'apparent_temperature',
-        'weather_code', 'wind_speed_10m', 'wind_direction_10m',
-        'is_day', 'surface_pressure', 'cloud_cover', 'visibility',
-      ].join(','),
-      hourly: [
-        'temperature_2m', 'weather_code', 'relative_humidity_2m',
-        'precipitation_probability', 'wind_speed_10m', 'is_day',
-        'dew_point_2m', 'visibility', 'surface_pressure', 'cloud_cover',
-      ].join(','),
-      daily: [
-        'weather_code', 'temperature_2m_max', 'temperature_2m_min',
-        'precipitation_sum', 'precipitation_probability_max',
-        'wind_speed_10m_max', 'uv_index_max', 'sunrise', 'sunset',
-      ].join(','),
-      timezone: 'Europe/Istanbul',
-      forecast_days: '16',
-      forecast_hours: '48',
-    });
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, {
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-
-    if (!res.ok) throw new Error(`API ${res.status}`);
-    const data = await res.json();
-
-    const result: WeatherData = {
-      current: {
-        temperature: data.current.temperature_2m,
-        weatherCode: data.current.weather_code,
-        windSpeed: data.current.wind_speed_10m,
-        windDirection: data.current.wind_direction_10m,
-        humidity: data.current.relative_humidity_2m,
-        apparentTemperature: data.current.apparent_temperature,
-        isDay: data.current.is_day === 1,
-        pressure: data.current.surface_pressure ?? 1013,
-        cloudCover: data.current.cloud_cover ?? 0,
-        visibility: data.current.visibility ?? 10000,
-      },
-      hourly: {
-        time: data.hourly.time,
-        temperature: data.hourly.temperature_2m,
-        weatherCode: data.hourly.weather_code,
-        humidity: data.hourly.relative_humidity_2m,
-        precipitationProbability: data.hourly.precipitation_probability,
-        windSpeed: data.hourly.wind_speed_10m,
-        isDay: data.hourly.is_day,
-        dewPoint: data.hourly.dew_point_2m ?? [],
-        visibility: data.hourly.visibility ?? [],
-        pressure: data.hourly.surface_pressure ?? [],
-        cloudCover: data.hourly.cloud_cover ?? [],
-      },
-      daily: {
-        time: data.daily.time,
-        weatherCode: data.daily.weather_code,
-        temperatureMax: data.daily.temperature_2m_max,
-        temperatureMin: data.daily.temperature_2m_min,
-        precipitationSum: data.daily.precipitation_sum,
-        precipitationProbabilityMax: data.daily.precipitation_probability_max,
-        windSpeedMax: data.daily.wind_speed_10m_max,
-        uvIndexMax: data.daily.uv_index_max,
-        sunrise: data.daily.sunrise,
-        sunset: data.daily.sunset,
-      },
-    };
-
-    weatherCache[cacheKey] = result;
-    return result;
-  } catch (err) {
-    console.error(`[WEATHER] Failed to fetch lat=${lat}, lon=${lon}:`, err);
-    throw new Error(`No weather data available for ${cacheKey}. Run 'node scripts/fetch-weather.mjs' first.`);
-  }
+  // No cache at all: the build must not silently fetch from the API here -
+  // scripts/fetch-weather.mjs owns every Open-Meteo request.
+  throw new Error(`No weather data available for ${cacheKey}. Run 'node scripts/fetch-weather.mjs' first.`);
 }
