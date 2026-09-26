@@ -63,6 +63,12 @@ function km(aLat, aLon, bLat, bLon) {
 
 const round4 = (n) => Math.round(n * 10000) / 10000;
 
+// Hand-checked fixes where GeoNames' codes send the matcher to the wrong place
+// (Cide's ADM2 seat resolves to Kastamonu city). Town centres.
+const OVERRIDES = {
+  'kastamonu/cide': [41.8892, 33.0047],
+};
+
 const provinces = JSON.parse(readFileSync(join(DATA, 'provinces.json'), 'utf-8'));
 const districts = JSON.parse(readFileSync(join(DATA, 'districts.json'), 'utf-8'));
 
@@ -171,6 +177,12 @@ for (const d of districts) {
         ?? pick(inProv.filter((r) => ['PPL', 'PPLX'].includes(r.fcode) && r.names.has(key)), p);
       if (place) { hit = place; method = `named place (${place.fcode})`; }
     }
+  }
+
+  const override = OVERRIDES[`${d.province}/${d.slug}`];
+  if (override) {
+    hit = { lat: override[0], lon: override[1] };
+    method = 'manual override';
   }
 
   const oldLat = d.lat;
