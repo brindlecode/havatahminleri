@@ -6,64 +6,67 @@ Districts: 969
 
 ## Match method
 
-- ADM2 seat town: 813
-- ADM2 point: 98
-- unmatched: 5
+- ADM2 seat town: 817
+- ADM2 point: 23
+- ADM2 namesake town (PPL): 70
 - merkez: province capital: 51
+- ADM2 namesake town (PPLA2): 3
 - named place (PPLA2): 2
+- ADM2 namesake town (PPLX): 3
 
-## Unmatched (5) - placed at the province centre
+## Unmatched (0) - placed at the province centre
 
-- Tufanbeyli (Adana)
-- Gazipaşa (Antalya)
-- Halkapınar (Konya)
-- Anamur (Mersin)
-- Bozyazı (Mersin)
+- none
 
-## Cache-key collisions (2)
+## Cache-key collisions (1)
 
 - Merkez (kastamonu) = Cide (kastamonu)
-- Bozyazı (mersin) = Anamur (mersin)
 
-## Province centre check (provinces.json vs GeoNames capital, >10 km)
+## Province centres corrected (provinces.json vs GeoNames capital, >5 km)
 
-- Bilecik: provinces.json is 12.0 km from GeoNames capital Bilecik (40.14192, 29.97932)
-- Hatay: provinces.json is 27.7 km from GeoNames capital Antakya (36.20655, 36.15722)
-- Kocaeli: provinces.json is 10.6 km from GeoNames capital İzmit (40.76499, 29.92928)
-- Muş: provinces.json is 33.4 km from GeoNames capital Muş (38.73163, 41.48482)
-- Sakarya: provinces.json is 10.0 km from GeoNames capital Adapazarı (40.78056, 30.40333)
-- Şırnak: provinces.json is 11.1 km from GeoNames capital Şırnak (37.51393, 42.45432)
+- Bilecik: moved 12.0 km onto GeoNames capital Bilecik (40.14192, 29.97932)
+- Hatay: moved 27.7 km onto GeoNames capital Antakya (36.20655, 36.15722)
+- Kocaeli: moved 10.6 km onto GeoNames capital İzmit (40.76499, 29.92928)
+- Muş: moved 33.4 km onto GeoNames capital Muş (38.73163, 41.48482)
+- Nevşehir: moved 8.0 km onto GeoNames capital Nevşehir (38.625, 34.71222)
+- Sakarya: moved 10.0 km onto GeoNames capital Adapazarı (40.78056, 30.40333)
+- Şırnak: moved 11.1 km onto GeoNames capital Şırnak (37.51393, 42.45432)
 
 ## Largest corrections (old random point -> real place)
 
 | District | Moved | Method |
 |---|---:|---|
+| Anamur (Mersin) | 200.4 km | ADM2 seat town |
+| Gazipaşa (Antalya) | 181.4 km | ADM2 seat town |
+| Tufanbeyli (Adana) | 181.2 km | ADM2 seat town |
+| Bozyazı (Mersin) | 166.6 km | ADM2 namesake town (PPL) |
 | Kulu (Konya) | 165.8 km | ADM2 seat town |
 | Çeltik (Konya) | 157.2 km | ADM2 seat town |
 | Olur (Erzurum) | 154.9 km | ADM2 seat town |
+| Halkapınar (Konya) | 152.9 km | ADM2 seat town |
 | Evren (Ankara) | 147.9 km | ADM2 seat town |
 | Akıncılar (Sivas) | 146.6 km | ADM2 seat town |
 | Saimbeyli (Adana) | 145.4 km | ADM2 seat town |
 | Selendi (Manisa) | 143.8 km | ADM2 seat town |
-| Ereğli (Konya) | 142.9 km | ADM2 point |
+| Ereğli (Konya) | 142.5 km | ADM2 namesake town (PPL) |
 | Alanya (Antalya) | 140.8 km | ADM2 seat town |
 | Gölova (Sivas) | 140.6 km | ADM2 seat town |
 | Yunak (Konya) | 133.5 km | ADM2 seat town |
-| Aydıncık (Mersin) | 132.3 km | ADM2 point |
+| Aydıncık (Mersin) | 131.8 km | ADM2 namesake town (PPL) |
 | Taşkent (Konya) | 124.9 km | ADM2 seat town |
 | Gürün (Sivas) | 124.9 km | ADM2 seat town |
 | Kula (Manisa) | 124.7 km | ADM2 seat town |
 | Gülnar (Mersin) | 124.6 km | ADM2 seat town |
+| Şereflikoçhisar (Ankara) | 123.3 km | ADM2 namesake town (PPL) |
 | Mut (Mersin) | 123.2 km | ADM2 seat town |
 | Gündoğmuş (Antalya) | 123.2 km | ADM2 seat town |
-| Şereflikoçhisar (Ankara) | 122.1 km | ADM2 point |
 | Nallıhan (Ankara) | 121.3 km | ADM2 seat town |
 | Kiraz (İzmir) | 120.2 km | ADM2 seat town |
 | Cihanbeyli (Konya) | 119.7 km | named place (PPLA2) |
 | Dazkırı (Afyonkarahisar) | 119.2 km | ADM2 seat town |
 | Şenkaya (Erzurum) | 119.0 km | ADM2 seat town |
+| Kaş (Antalya) | 118.6 km | ADM2 namesake town (PPL) |
 | Gölhisar (Burdur) | 117.9 km | ADM2 seat town |
-| Kaş (Antalya) | 116.6 km | ADM2 point |
 | Alaşehir (Manisa) | 113.7 km | ADM2 seat town |
 | Sarıgöl (Manisa) | 113.0 km | ADM2 seat town |
 | Demirci (Manisa) | 111.6 km | ADM2 seat town |
@@ -73,10 +76,5 @@ Districts: 969
 | Evciler (Afyonkarahisar) | 108.3 km | ADM2 seat town |
 | Divriği (Sivas) | 108.1 km | ADM2 seat town |
 | Halfeti (Şanlıurfa) | 106.7 km | ADM2 seat town |
-| Akseki (Antalya) | 106.6 km | ADM2 seat town |
-| Alucra (Giresun) | 105.9 km | ADM2 seat town |
-| Derebucak (Konya) | 105.3 km | ADM2 seat town |
-| Günyüzü (Eskişehir) | 105.0 km | ADM2 seat town |
-| Bozkır (Konya) | 104.0 km | ADM2 seat town |
 
-Median correction: 41.6 km
+Median correction: 41.7 km
