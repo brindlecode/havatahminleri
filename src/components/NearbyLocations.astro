@@ -1,0 +1,44 @@
+---
+import { getNearbyLocations, getNearbyProvinces } from '../lib/nearby';
+
+interface Props {
+  provinceSlug: string;
+  districtSlug: string | null;
+}
+
+const { provinceSlug, districtSlug } = Astro.props;
+const nearby = getNearbyLocations(provinceSlug, districtSlug, 10);
+const provinces = districtSlug ? [] : getNearbyProvinces(provinceSlug, 6);
+---
+
+{nearby.length > 0 && (
+  <section class="weather-card">
+    <h2 class="section-title">Yakındaki İlçeler</h2>
+    <ul class="divide-y divide-[var(--color-border)] -my-1">
+      {nearby.map((n) => (
+        <li>
+          <a href={n.href} class="flex items-center justify-between gap-3 py-2.5 hover:text-[var(--color-accent)] transition-colors">
+            <span class="text-[0.9rem] font-medium truncate">
+              {n.name}{n.provinceSlug !== provinceSlug && !n.name.includes('(') && <span class="text-[var(--color-text-secondary)] font-normal">, {n.provinceName}</span>}
+            </span>
+            <span class="text-xs text-[var(--color-text-secondary)] tabular shrink-0">{Math.round(n.km)} km</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+{provinces.length > 0 && (
+  <section class="weather-card">
+    <h2 class="section-title">Komşu İller</h2>
+    <div class="grid grid-cols-2 gap-1.5">
+      {provinces.map((p) => (
+        <a href={p.href} class="chip-link !py-2.5">
+          <span class="truncate">{p.name}</span>
+          <span class="text-xs text-[var(--color-text-secondary)] tabular">{Math.round(p.km)} km</span>
+        </a>
+      ))}
+    </div>
+  </section>
+)}

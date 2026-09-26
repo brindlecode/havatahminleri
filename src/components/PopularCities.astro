@@ -1,7 +1,7 @@
 ---
 import WeatherIcon from './WeatherIcon.astro';
-import { getTempColorClass } from '../lib/utils';
 import { getWeatherDescription } from '../lib/weatherCodes';
+import { getSkyClass } from '../lib/sky';
 
 interface CityWeather {
   name: string;
@@ -22,35 +22,22 @@ const { cities } = Astro.props;
 ---
 
 <section>
-  <div class="flex items-center justify-between mb-4">
-    <h2 class="text-xl font-bold">Popüler Şehirler</h2>
+  <div class="flex items-baseline justify-between mb-3">
+    <h2 class="text-xl font-bold tracking-tight">Popüler Şehirler</h2>
     <span class="text-xs text-[var(--color-text-secondary)]">Bugün öğle tahmini</span>
   </div>
-  <div id="popular-cities-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
     {cities.map((city) => (
       <a
         href={`/${city.slug}-hava-durumu/`}
-        class="weather-card group cursor-pointer flex flex-col items-center text-center p-4 hover:scale-[1.02] transition-transform"
-        data-city-slug={city.slug}
-        data-lat={city.lat}
-        data-lon={city.lon}
+        class:list={['sky rounded-3xl p-4 flex flex-col min-h-[8.5rem] hover:brightness-105 transition', getSkyClass(city.weatherCode, true)]}
       >
-        <h3 class="text-sm font-semibold mb-2 group-hover:text-primary-500 transition-colors">
-          {city.name}
-        </h3>
-        <div data-city-icon={city.slug}>
-          <WeatherIcon code={city.weatherCode} size="w-12 h-12" decorative />
+        <div class="flex items-start justify-between gap-2">
+          <h3 class="text-[0.95rem] font-semibold leading-tight">{city.name}</h3>
+          <WeatherIcon code={city.weatherCode} size="w-9 h-9 -mt-1 -mr-1" decorative />
         </div>
-        <p data-city-temp={city.slug} class:list={['text-2xl font-bold mt-1', getTempColorClass(city.temperature)]}>
-          {Math.round(city.temperature)}°
-        </p>
-        <p data-city-desc={city.slug} class="text-xs text-[var(--color-text-secondary)] mt-0.5">
-          {getWeatherDescription(city.weatherCode)}
-        </p>
-        <div class="flex gap-2 text-xs text-[var(--color-text-secondary)] mt-1">
-          <span data-city-max={city.slug}>↑{Math.round(city.max)}°</span>
-          <span data-city-min={city.slug}>↓{Math.round(city.min)}°</span>
-        </div>
+        <p class="mt-auto text-4xl font-light tracking-tight tabular">{Math.round(city.temperature)}°</p>
+        <p class="text-xs text-white/85 truncate">{getWeatherDescription(city.weatherCode)} · {Math.round(city.max)}° / {Math.round(city.min)}°</p>
       </a>
     ))}
   </div>

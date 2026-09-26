@@ -9,8 +9,9 @@
  *
  *   1. shows the forecast for the visitor's current hour in the "current" card
  *      (from the compact table in <script id="hourly-data">);
- *   2. hides hourly cells that are already in the past and marks the current
- *      hour as "Şimdi";
+ *   2. dims hourly cells that are already in the past, marks the current hour
+ *      as "Şimdi" and scrolls the strip to it; re-tints the hero sky for the
+ *      current hour's weather and day/night;
  *   3. if the page is viewed on a later day than it was built (e.g. between
  *      midnight and the next deploy), hides past day rows and re-labels
  *      "Bugün" / "Yarın" so a past date is never presented as today.
@@ -51,13 +52,17 @@
     }
   }
 
-  function tempClass(t) {
-    if (t >= 35) return 'temp-hot';
-    if (t >= 25) return 'temp-warm';
-    if (t >= 15) return 'temp-mild';
-    if (t >= 5) return 'temp-cool';
-    if (t >= -5) return 'temp-cold';
-    return 'temp-freezing';
+  // Mirrors src/lib/sky.ts getSkyClass - keep the two in sync.
+  function skyClass(code, isDay) {
+    var t = isDay ? 'day' : 'night';
+    if (code === 0 || code === 1) return 'sky-clear-' + t;
+    if (code === 2) return 'sky-partly-' + t;
+    if (code === 3) return 'sky-cloudy-' + t;
+    if (code === 45 || code === 48) return 'sky-fog-' + t;
+    if (code >= 95) return 'sky-storm';
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 'sky-snow-' + t;
+    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'sky-rain-' + t;
+    return 'sky-partly-' + t;
   }
 
   function setText(id, value) {
@@ -78,12 +83,24 @@
       var d = JSON.parse(node.textContent);
       var i = d.t.indexOf(nowStamp);
       if (i > -1) {
-        var temp = d.v[i];
-        var el = setText('weather-temp', temp + '°');
-        if (el && typeof temp === 'number') {
-          el.className = el.className.replace(/\btemp-[a-z]+\b/g, '').trim() + ' ' + tempClass(temp);
+        setText('weather-temp', d.v[i] + '°');
+        var hero = document.getElementById('current-weather');
+        if (hero && d.i && typeof d.c[i] === 'number') {
+          var next = skyClass(d.c[i], d.i[i] === 1);
+          var prev = hero.getAttribute('data-sky');
+          if (prev && prev !== next) {
+            hero.classList.remove(prev);
+            hero.classList.add(next);
+            hero.setAttribute('data-sky', next);
+          }
         }
         setText('weather-desc', d.n[d.c[i]]);
+        var tpl = document.getElementById('hero-icons');
+        var slot = document.getElementById('hero-icon');
+        if (tpl && slot && tpl.content && d.i) {
+          var icon = tpl.content.querySelector('[data-icon-key="' + d.c[i] + '-' + (d.i[i] === 1 ? 1 : 0) + '"]');
+          if (icon) slot.innerHTML = icon.innerHTML;
+        }
         if (d.a[i] !== null && d.a[i] !== undefined) setText('weather-feels', d.a[i]);
         setText('weather-humidity', d.h[i]);
         setText('weather-wind', d.w[i]);
@@ -95,17 +112,30 @@
     /* keep the static noon values */
   }
 
-  // 2. hourly strip: hide the past, mark the current hour
+  // 2. hourly strip: dim the past, mark the current hour, scroll it into view.
+  //    Cells are dimmed rather than removed so the temperature line drawn
+  //    under them stays aligned.
   var cells = document.querySelectorAll('[data-time]');
+  var nowCell = null;
   for (var c = 0; c < cells.length; c++) {
     var t = cells[c].getAttribute('data-time');
     if (t < nowStamp) {
-      cells[c].style.display = 'none';
+      cells[c].setAttribute('data-past', 'true');
+      var idx = cells[c].getAttribute('data-hour-index');
+      var pt = document.querySelector('[data-hour-point="' + idx + '"]');
+      if (pt) pt.setAttribute('data-past', 'true');
     } else if (t === nowStamp) {
+      nowCell = cells[c];
       var label = cells[c].querySelector('[data-hour-label]');
-      if (label) label.textContent = 'Şimdi';
+      if (label) {
+        label.textContent = 'Şimdi';
+        label.style.color = 'var(--color-text)';
+        label.style.fontWeight = '700';
+      }
     }
   }
+  var scroller = document.querySelector('[data-hourly-scroller]');
+  if (scroller && nowCell) scroller.scrollLeft = Math.max(0, nowCell.offsetLeft - 8);
 
   // 3. daily rows: never present a past date as "Bugün"
   var rows = document.querySelectorAll('[data-date]');

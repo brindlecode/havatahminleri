@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -12,6 +12,8 @@ const argValue = (name) => {
 // requests, that the Open-Meteo request and response shape still match what
 // this script expects - without spending the daily API budget.
 const SAMPLE = Number(argValue('sample') ?? 0);
+// `--force` refetches even when today's cache is complete and recent.
+const FORCE = argv.includes('--force') || process.env.FORCE_WEATHER_FETCH === '1';
 const CACHE_PATH = argValue('out') ?? join(__dirname, '..', 'src', 'data', 'weather-cache.json');
 const BASE_URL = 'https://api.open-meteo.com/v1/forecast';
 
@@ -65,6 +67,34 @@ function readCache() {
 
 function freshCount(cache, day) {
   return Object.values(cache?.data ?? {}).filter((entry) => isFresh(entry, day)).length;
+}
+
+/** A cache older than this is refetched even if it still starts today. */
+const REUSE_MAX_AGE_HOURS = 20;
+
+/**
+ * Whether an existing cache can be published as-is instead of refetching:
+ * real (not the synthetic fixture), fetched less than 20h ago, and every
+ * location's forecast starts on `day` (the Istanbul date). A new day - the
+ * nightly 00:05 build - therefore always fetches.
+ */
+export function sameDayReusable(cache, locations, day, now = Date.now()) {
+  if (!cache) return { ok: false, reason: '' };
+  if (cache.synthetic === true) return { ok: false, reason: 'synthetic fixture data' };
+  const fetchedAt = new Date(cache.fetchedAt ?? NaN).getTime();
+  if (Number.isNaN(fetchedAt)) return { ok: false, reason: 'no fetchedAt timestamp' };
+  const ageHours = (now - fetchedAt) / 3_600_000;
+  if (!(ageHours >= 0 && ageHours < REUSE_MAX_AGE_HOURS)) {
+    return { ok: false, reason: `fetched ${ageHours.toFixed(1)}h ago (limit ${REUSE_MAX_AGE_HOURS}h)` };
+  }
+  const staleKeys = locations.filter(([key]) => !isFresh(cache.data?.[key], day));
+  if (staleKeys.length) {
+    return { ok: false, reason: `${staleKeys.length}/${locations.length} locations not fresh for ${day}` };
+  }
+  return {
+    ok: true,
+    reason: `${locations.length} locations fresh for ${day}, fetched ${ageHours.toFixed(1)}h ago (${cache.fetchedAt})`,
+  };
 }
 
 /**
@@ -202,6 +232,18 @@ async function main() {
   const allLocations = [...locMap.entries()];
   const locations = SAMPLE > 0 ? allLocations.slice(0, SAMPLE) : allLocations;
   console.log(`[WEATHER] ${locations.length} unique locations`);
+
+  // Same-day reuse: a second build on the same Turkey date (manual dispatch,
+  // push to main, the late-running afternoon cron) restores today's cache
+  // from actions/cache and must not re-query Open-Meteo for identical data.
+  if (SAMPLE === 0 && !FORCE) {
+    const reuse = sameDayReusable(readCache(), locations, day);
+    if (reuse.ok) {
+      console.log(`[WEATHER] Reusing today's cache: ${reuse.reason} - skipping fetch`);
+      return;
+    }
+    if (reuse.reason) console.log(`[WEATHER] Existing cache not reusable: ${reuse.reason}`);
+  }
 
   const results = {};
   const failedKeys = new Set();
@@ -378,7 +420,10 @@ async function main() {
   );
 }
 
-main().catch((err) => {
+// Only run when executed directly, so tests can import sameDayReusable().
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isMain) main().catch((err) => {
   console.error('[WEATHER] Error:', err.message);
   const day = today();
   const cache = readCache();

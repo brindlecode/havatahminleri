@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getPeriodSummary, getPeriodFAQs, rangeStats, weekdayName, isWeekend } from '../src/lib/periodSummary.ts';
+import { getPeriodSummary, getPeriodFAQs, rangeStats, weekdayName, isWeekend, getAnswerSummary, wordCount } from '../src/lib/periodSummary.ts';
 import { PERIODS } from '../src/lib/periods.ts';
 
 function makeWeather() {
@@ -179,4 +179,69 @@ test('the 15 day FAQ set targets the query family we are recovering', () => {
   const joined = faqs.map((f) => f.question + ' ' + f.answer).join(' ');
   assert.match(joined, /Kocaeli 15 günlük hava durumu tahmini nedir\?/);
   assert.match(joined, /güvenilir|doğru/i, 'should set expectations about long-range accuracy');
+});
+
+// --- getAnswerSummary (AEO direct answer) -------------------------------------
+
+function dryWeather() {
+  const dry = makeWeather();
+  dry.daily.precipitationSum = dry.daily.precipitationSum.map(() => 0);
+  dry.daily.precipitationProbabilityMax = dry.daily.precipitationProbabilityMax.map(() => 5);
+  dry.hourly.precipitationProbability = dry.hourly.precipitationProbability.map(() => 5);
+  return dry;
+}
+
+test('answer summaries are 35-60 words, clean and end as sentences', () => {
+  for (const weather of [W, dryWeather()]) {
+    for (const city of ['İstanbul', 'Kars', 'Ortaköy (Çorum)', 'Adıyaman Merkez']) {
+      for (const id of ALL) {
+        const { question, answer } = getAnswerSummary(weather, city, id);
+        const n = wordCount(answer);
+        assert.ok(n >= 35 && n <= 60, `${id}/${city}: ${n} words - ${answer}`);
+        assert.ok(question.endsWith('?'), question);
+        assert.ok(answer.endsWith('.'), answer);
+        assert.ok(!/undefined|NaN|Infinity|null/.test(question + answer), `${id}: ${answer}`);
+      }
+    }
+  }
+});
+
+test('tomorrow answer names the date, range, rain chance and wind', () => {
+  const { question, answer } = getAnswerSummary(W, 'İstanbul', 'base');
+  assert.equal(question, "Yarın İstanbul'da hava nasıl olacak?");
+  // Day 1 of the fixture is 2026-09-07, a Monday; high 25, low 13.
+  assert.match(answer, /^Yarın \(7 Eylül Pazartesi\) İstanbul'da hava açık; sıcaklık 13°C ile 25°C arasında\./);
+  assert.match(answer, /Yağış olasılığı %15, rüzgar en fazla 13 km\/s\./);
+  assert.deepEqual(getAnswerSummary(W, 'İstanbul', 'yarin'), getAnswerSummary(W, 'İstanbul', 'base'));
+});
+
+test('today answer uses noun phrasing for rain codes and the locative helper', () => {
+  const { question, answer } = getAnswerSummary(W, 'Kars', 'bugun');
+  assert.equal(question, "Bugün Kars'ta hava nasıl?");
+  // Day 0 has weather code 61 (Hafif Yağmur).
+  assert.match(answer, /^Bugün \(6 Eylül Pazar\) Kars'ta hafif yağmur bekleniyor; sıcaklık 12°C ile 24°C arasında\./);
+  assert.match(answer, /%80/);
+});
+
+test('range answers give range, rainy days and warmest/coldest day', () => {
+  for (const [id, days] of [['7gun', 7], ['10gun', 10], ['15gun', 15]]) {
+    const s = rangeStats(W, 0, days);
+    const { question, answer } = getAnswerSummary(W, 'Uşak', id);
+    assert.equal(question, `Uşak ${days} günlük hava durumu nasıl olacak?`);
+    assert.match(answer, new RegExp(`^Önümüzdeki ${days} günde .* Uşak'ta sıcaklık ${s.minTemp}°C ile ${s.maxTemp}°C arasında`));
+    assert.match(answer, new RegExp(`${days} günün ${s.rainyDays.length} gününde yağış`));
+    assert.match(answer, new RegExp(`En sıcak gün ${weekdayName(s.warmest.date)} .* ${s.warmest.temp}°C`));
+    assert.match(answer, new RegExp(`en serin gece ${weekdayName(s.coldest.date)} .* ${s.coldest.temp}°C`));
+    assert.ok(!/\d\.\d/.test(answer.replace(/\d{2}:\d{2}/g, '')), `decimal point instead of comma: ${answer}`);
+  }
+  const dry = getAnswerSummary(dryWeather(), 'Uşak', '7gun').answer;
+  assert.match(dry, /kayda değer yağış beklenmiyor/);
+});
+
+test('hourly answer summarises the next hours', () => {
+  const { question, answer } = getAnswerSummary(W, 'Ortaköy (Çorum)', 'saatlik');
+  assert.equal(question, "Ortaköy'de (Çorum) önümüzdeki saatlerde hava nasıl olacak?");
+  assert.match(answer, /^Önümüzdeki 48 saatte Ortaköy'de \(Çorum\) sıcaklık \d+°C ile \d+°C arasında/);
+  assert.match(answer, /48 saatin 6 saatinde yağış olasılığı/);
+  assert.match(getAnswerSummary(dryWeather(), 'Kars', 'saatlik').answer, /hiçbir saatte yağış olasılığı %50'yi aşmıyor/);
 });

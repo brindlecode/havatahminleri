@@ -15,45 +15,44 @@ const blocks = getPeriodSummary(weather, period, cityName);
 const faqs = getPeriodFAQs(weather, period, cityName);
 ---
 
-<div class="space-y-6 mt-6">
+<div class="space-y-4">
   {blocks.map((block) => (
     <section class="weather-card">
-      <h2 class="text-lg font-semibold mb-3">{block.heading}</h2>
+      <h2 class="section-title">{block.heading}</h2>
       {block.stats && block.stats.length > 0 && (
-        <dl class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
+        <dl class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
           {block.stats.map((stat) => (
-            <div class="bg-[var(--color-bg)] rounded-xl px-3 py-2">
-              <dt class="text-xs text-[var(--color-text-secondary)]">{stat.label}</dt>
-              <dd class="text-base font-semibold">{stat.value}</dd>
+            <div class="rounded-2xl bg-[var(--color-surface-2)] px-3 py-2.5">
+              <dt class="text-[0.72rem] text-[var(--color-text-secondary)]">{stat.label}</dt>
+              <dd class="text-base font-semibold tabular">{stat.value}</dd>
             </div>
           ))}
         </dl>
       )}
-      <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">{block.paragraph}</p>
+      <p class="prose-text">{block.paragraph}</p>
     </section>
   ))}
 
   {faqs.length > 0 && (
     <section class="weather-card">
-      <h2 class="text-lg font-semibold mb-4">Sık Sorulan Sorular</h2>
-      <div class="space-y-4">
+      <h2 class="section-title">Sık Sorulan Sorular</h2>
+      <div class="divide-y divide-[var(--color-border)]">
         {faqs.map((faq) => (
-          <details class="group" open>
-            <summary class="flex items-center justify-between cursor-pointer text-sm font-medium text-[var(--color-text)] hover:text-primary-500 transition-colors">
+          <details class="group py-3 first:pt-1" open>
+            <summary class="flex items-center justify-between gap-3 cursor-pointer list-none font-semibold text-[0.975rem] [&::-webkit-details-marker]:hidden">
               <span>{faq.question}</span>
-              <svg class="w-4 h-4 shrink-0 ml-2 transition-transform group-open:rotate-180 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              <svg class="w-4 h-4 shrink-0 transition-transform group-open:rotate-180 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/>
               </svg>
             </summary>
-            <p class="mt-2 text-sm text-[var(--color-text-secondary)] leading-relaxed">{faq.answer}</p>
+            <p class="prose-text mt-2 text-[var(--color-text-secondary)]">{faq.answer}</p>
           </details>
         ))}
       </div>
-      <p class="text-xs text-[var(--color-text-secondary)] mt-6 leading-relaxed">
-        Tahminler <a href="https://open-meteo.com/" target="_blank" rel="noopener" class="text-primary-500 hover:text-primary-600 underline">Open-Meteo</a>
-        meteoroloji modellerinden üretilir. Resmi hava uyarıları için
-        <a href="https://www.mgm.gov.tr/" target="_blank" rel="noopener" class="text-primary-500 hover:text-primary-600 underline">Meteoroloji Genel Müdürlüğü</a>
-        kaynağını takip edin.
+      <p class="text-xs text-[var(--color-text-secondary)] mt-4 leading-relaxed">
+        Tahminler <a href="https://open-meteo.com/" target="_blank" rel="noopener" class="underline">Open-Meteo</a>
+        meteoroloji modellerinden üretilir. Resmi uyarılar için
+        <a href="https://www.mgm.gov.tr/" target="_blank" rel="noopener" class="underline">Meteoroloji Genel Müdürlüğü</a>'nü takip edin.
       </p>
     </section>
   )}

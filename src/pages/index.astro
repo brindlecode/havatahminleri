@@ -61,66 +61,53 @@ const regionGroups = regions.map((r: any) => ({
 >
   <Header slot="header" />
 
-  <!-- Hero -->
-  <div class="gradient-sky dark:gradient-night text-white py-12 md:py-16">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-      <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-3">
+  <section class="sky sky-clear-day">
+    <div class="max-w-6xl mx-auto px-4 pt-10 pb-12 sm:pt-16 sm:pb-16">
+      <h1 class="text-[2rem] sm:text-5xl font-bold tracking-tight leading-[1.1] max-w-2xl">
         Türkiye Hava Durumu
       </h1>
-      <p class="text-lg md:text-xl opacity-90 mb-6">
-        81 il ve tüm ilçeler için 15 günlük detaylı hava tahmini
+      <p class="mt-3 text-base sm:text-lg text-white/85 max-w-xl">
+        81 il ve 969 ilçe için bugün, yarın, saatlik ve 15 günlük tahmin. Her gece yarısından sonra güncellenir.
       </p>
-      <div class="max-w-md mx-auto relative" role="search">
-        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      <div class="mt-6 max-w-lg relative" role="search">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"/>
         </svg>
         <input
-          type="text"
+          type="search"
           id="hero-search"
-          placeholder="Şehir veya ilçe ara..."
-          aria-label="Şehir veya ilçe ara"
+          placeholder="İl veya ilçe adı yazın"
+          aria-label="İl veya ilçe ara"
           autocomplete="off"
           data-search-input
           data-search-target="hero-search-results"
           data-search-theme="hero"
-          class="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white/95 dark:bg-slate-800/95 text-slate-900 dark:text-white placeholder:text-slate-400 shadow-lg text-base focus:outline-none focus:ring-2 focus:ring-white/50"
+          class="w-full h-14 pl-12 pr-4 rounded-2xl bg-white text-slate-900 placeholder:text-slate-400 shadow-[0_10px_30px_rgba(0,0,0,0.15)] text-base focus:outline-none focus:ring-4 focus:ring-white/40"
         />
-        <div id="hero-search-results" class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden hidden z-50 max-h-60 overflow-y-auto border border-slate-200 dark:border-slate-700">
-        </div>
+        <div id="hero-search-results" class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden hidden z-50 max-h-72 overflow-y-auto border border-slate-200 dark:border-slate-700"></div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="max-w-6xl mx-auto px-4 py-8 space-y-10">
     <AdSlot slot="header" id="home-top" />
 
-    <!-- Popular Cities -->
     <PopularCities cities={popularCitiesWeather} />
 
     <AdSlot slot="inContent" id="home-mid" />
 
-    <!-- Regions -->
-    <section class="mt-10">
-      <h2 class="text-xl font-bold mb-6">Bölgelere Göre İller</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <section>
+      <h2 class="text-xl font-bold tracking-tight mb-3">Bölgelere Göre İller</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {regionGroups.map((region: any) => (
           <div class="weather-card">
-            <h3 class="text-sm font-semibold text-primary-600 dark:text-primary-400 mb-3">
-              {region.name}
-            </h3>
-            <div class="grid grid-cols-2 gap-2">
-              {(() => {
-                const popular = region.provinces.filter((p: any) => p.popular);
-                const featured = (popular.length >= 4 ? popular : region.provinces).slice(0, 6);
-                return featured.map((p: any) => (
-                  <a
-                    href={`/${p.slug}-hava-durumu/`}
-                    class="px-2 py-1.5 rounded-lg hover:bg-[var(--color-bg)] transition-colors text-sm"
-                  >
-                    {p.name}
-                  </a>
-                ));
-              })()}
+            <h3 class="text-sm font-semibold text-[var(--color-text-secondary)] mb-2.5">{region.name}</h3>
+            <div class="flex flex-wrap gap-1.5">
+              {region.provinces.map((p: any) => (
+                <a href={`/${p.slug}-hava-durumu/`} class="px-3 py-1.5 rounded-full bg-[var(--color-surface-2)] text-[0.85rem] font-medium hover:text-[var(--color-accent)] transition-colors">
+                  {p.name}
+                </a>
+              ))}
             </div>
           </div>
         ))}
@@ -129,34 +116,23 @@ const regionGroups = regions.map((r: any) => ({
 
     <AdSlot slot="footer" id="home-bottom" />
 
-    <!-- SEO content -->
-    <section class="mt-10 max-w-none space-y-4">
-      <h2 class="text-xl font-bold">Türkiye Hava Durumu Tahmini</h2>
-      <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
-        YarınHava.com olarak Türkiye'nin 81 ili ve tüm ilçeleri için güncel hava durumu
-        bilgilerini ve 15 günlük detaylı tahminleri sunuyoruz. Tahminler her gün gece yarısından
-        sonra yenilenir.
-      </p>
-
-      <h3 class="text-base font-semibold mt-6">Hangi verileri sunuyoruz?</h3>
-      <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
-        Saatlik sıcaklık değişimleri, yağış olasılıkları, rüzgar hızı ve yönü, nem oranı,
-        UV indeksi, basınç ve görüş mesafesi gibi kapsamlı meteorolojik verilere anında
-        erişebilirsiniz.
-      </p>
-
-      <h3 class="text-base font-semibold mt-6">Veri Kaynaklarımız</h3>
-      <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
-        Hava durumu verileri <a href="https://open-meteo.com/" rel="noopener" class="underline">Open-Meteo</a>
-        aracılığıyla NOAA GFS, DWD ICON ve ECMWF IFS gibi dünya çapında kabul görmüş meteorolojik
-        tahmin modellerinden alınmaktadır.
-      </p>
-
-      <h3 class="text-base font-semibold mt-6">Kim için faydalı?</h3>
-      <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
-        İster tatil planı yapıyor olun, ister günlük aktivitelerinizi planlayın — doğru hava
-        tahmini ile her zaman hazırlıklı olun.
-      </p>
+    <section class="weather-card max-w-3xl">
+      <h2 class="section-title">Türkiye Hava Durumu Tahmini</h2>
+      <div class="prose-text space-y-3 text-[var(--color-text-secondary)]">
+        <p>
+          YarınHava.com, Türkiye'nin 81 ili ve 969 ilçesi için güncel hava durumu bilgisini ve 15 günlük
+          tahminleri sunar. Tahminler her gün gece yarısından sonra yenilenir; sayfalardaki "şu an" değeri,
+          ziyaret ettiğiniz saatin tahminini gösterir.
+        </p>
+        <p>
+          Saatlik sıcaklık, yağış olasılığı, rüzgar hızı ve yönü, nem, UV indeksi, basınç ve görüş mesafesi
+          gibi verilere tek sayfada ulaşabilirsiniz.
+        </p>
+        <p>
+          Veriler <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> aracılığıyla NOAA GFS, DWD ICON ve
+          ECMWF IFS gibi uluslararası tahmin modellerinden alınır. Resmi uyarılar için Meteoroloji Genel Müdürlüğü'nü takip edin.
+        </p>
+      </div>
     </section>
   </div>
 
