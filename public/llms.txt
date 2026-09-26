@@ -1,0 +1,60 @@
+# Yarın Hava (yarinhava.com)
+
+> Türkiye'nin 81 ili ve 969 ilçesi için Türkçe hava durumu tahmini: yarın, bugün, saatlik (48 saat), 7, 10 ve 15 günlük tahminler. Veriler Open-Meteo'dan her gün Türkiye saatiyle 00:00'dan hemen sonra alınır ve site statik olarak yeniden oluşturulur.
+>
+> Turkish-language weather forecasts for all 81 provinces and 969 districts of Turkey: tomorrow, today, hourly (48 h), 7-, 10- and 15-day forecasts. Data comes from Open-Meteo and is refreshed once a day, shortly after 00:00 Turkey time (Europe/Istanbul, UTC+3).
+
+Her sayfa tahminin ne zaman alındığını "Son güncelleme" olarak ve JSON-LD `dateModified` alanında gösterir. / Every page states when its forecast was fetched ("Son güncelleme", and `dateModified` in JSON-LD).
+
+## Veri kaynağı / Data source
+
+- Sağlayıcı / Provider: [Open-Meteo Forecast API](https://open-meteo.com/) (CC BY 4.0)
+- Modeller / Models: Open-Meteo "best match" seçimi; konum ve gün aralığına göre ulusal ve küresel modelleri birleştirir (ör. DWD ICON, ECMWF IFS, NOAA GFS, Météo-France). / Open-Meteo "best match" selection, combining national and global models (e.g. DWD ICON, ECMWF IFS, NOAA GFS, Météo-France) by location and lead time.
+- Değişkenler / Variables: sıcaklık, hissedilen sıcaklık, hava durumu kodu (WMO), yağış olasılığı ve miktarı, rüzgar hızı ve yönü, nem, basınç, bulutluluk, görüş mesafesi, UV indeksi, gün doğumu/batımı.
+- Güncelleme / Update cadence: günde bir kez, Türkiye saatiyle 00:00'dan sonra (yedek çalışma 05:30). / Once a day after 00:00 Turkey time (backup run at 05:30).
+- Birimler / Units: °C, km/s (km/h), mm, %.
+- Koordinatlar / Coordinates: ilçe merkezleri GeoNames verisinden. / District centres from GeoNames.
+
+## URL yapısı / URL patterns
+
+- İl ana sayfası (yarın + saatlik) / Province main page (tomorrow + hourly): `https://yarinhava.com/{il}-hava-durumu/`
+- İlçe ana sayfası / District main page: `https://yarinhava.com/{il}/{ilce}-hava-durumu/`
+- Dönem sayfaları / Period pages, appended to either of the above:
+  - `bugun/` — bugün / today
+  - `yarin/` — yarın / tomorrow
+  - `saatlik/` — önümüzdeki 48 saat / next 48 hours
+  - `7-gunluk/` — 7 günlük / 7 days
+  - `10-gunluk/` — 10 günlük / 10 days
+  - `15-gunluk/` — 15 günlük / 15 days
+- Slug'lar Türkçe karakterlerden arındırılmış küçük harflerdir (İstanbul → `istanbul`, Şişli → `sisli`). / Slugs are ASCII-folded lowercase names.
+- Tüm URL'ler eğik çizgiyle biter. / All URLs end with a trailing slash.
+
+## Ana sayfalar / Key pages
+
+- [Türkiye hava durumu (ana sayfa)](https://yarinhava.com/): 81 il ve popüler şehirler
+- [İstanbul hava durumu](https://yarinhava.com/istanbul-hava-durumu/)
+- [Ankara hava durumu](https://yarinhava.com/ankara-hava-durumu/)
+- [İzmir hava durumu](https://yarinhava.com/izmir-hava-durumu/)
+- [Antalya hava durumu](https://yarinhava.com/antalya-hava-durumu/)
+- [Bursa hava durumu](https://yarinhava.com/bursa-hava-durumu/)
+- [İstanbul 15 günlük hava durumu](https://yarinhava.com/istanbul-hava-durumu/15-gunluk/)
+- [İstanbul saatlik hava durumu](https://yarinhava.com/istanbul-hava-durumu/saatlik/)
+- [Kadıköy (İstanbul) hava durumu](https://yarinhava.com/istanbul/kadikoy-hava-durumu/)
+- [Çankaya (Ankara) hava durumu](https://yarinhava.com/ankara/cankaya-hava-durumu/)
+
+## Makine tarafından okunabilir / Machine-readable
+
+- [Sitemap](https://yarinhava.com/sitemap-index.xml): tüm il, ilçe ve dönem sayfaları / every province, district and period page
+- [Konum listesi / Location index (JSON)](https://yarinhava.com/search-index.json): `n` = ad, `u` = yol, `t` = tür (il/ilçe)
+
+## Hakkında / About
+
+- [Hakkımızda / About](https://yarinhava.com/hakkimizda/)
+- [İletişim / Contact](https://yarinhava.com/iletisim/)
+- [Gizlilik politikası / Privacy](https://yarinhava.com/gizlilik-politikasi/)
+- [Kullanım şartları / Terms](https://yarinhava.com/kullanim-sartlari/)
+
+## Optional
+
+- [Çerez politikası / Cookie policy](https://yarinhava.com/cerez-politikasi/)
+- Tahminler bilgi amaçlıdır; resmî uyarılar için Meteoroloji Genel Müdürlüğü'ne (mgm.gov.tr) başvurun. / Forecasts are informational; for official warnings see the Turkish State Meteorological Service (mgm.gov.tr).
