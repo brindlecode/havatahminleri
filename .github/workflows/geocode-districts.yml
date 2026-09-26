@@ -1,17 +1,15 @@
 name: Regenerate district coordinates
 
-# One-off: replaces the random district coordinates with real GeoNames data
-# and commits the result back to the branch it ran on. Runs on demand, or when
-# the geocoder itself changes on a claude/* branch.
+# Replaces district/province coordinates with real GeoNames data and commits
+# the result back to the branch it ran on. Used once (September 2026) to
+# remove the random coordinates; kept, manual-only, so the data can be
+# regenerated reproducibly (e.g. when a new district is added).
+#
+# NOTE: it re-derives coordinates from the CURRENT data files; the report's
+# "moved" column is then relative to the already-corrected points.
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - 'claude/amazing-archimedes-b2l964'
-    paths:
-      - scripts/geocode-districts.mjs
-      - .github/workflows/geocode-districts.yml
 
 permissions:
   contents: write
