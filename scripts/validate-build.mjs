@@ -233,12 +233,12 @@ function checkPage(path, { periodSlug }) {
   // -- head
   const title = firstMatch(html, /<title>([^<]*)<\/title>/);
   if (!title || !title.trim()) fail(`${label}: empty <title>`);
-  else if (title.length > 75) warn(`${label}: title is ${title.length} chars - "${title}"`);
+  else if (title.length > 60) warn(`${label}: title is ${title.length} chars (max 60) - "${title}"`);
 
   const desc = firstMatch(html, /<meta name="description" content="([^"]*)"/);
   if (!desc) fail(`${label}: no meta description`);
-  else if (desc.length < 80 || desc.length > 165) {
-    warn(`${label}: meta description is ${desc.length} chars`);
+  else if (desc.length < 120 || desc.length > 160) {
+    warn(`${label}: meta description is ${desc.length} chars (want 120-155)`);
   }
 
   const canonical = firstMatch(html, /<link rel="canonical" href="([^"]*)"/);
@@ -358,6 +358,18 @@ if (existsSync(adminIndex)) {
   if (!/name="robots"[^>]*noindex/i.test(html)) {
     warn('/admin/ is built and only protected by robots.txt - it has no noindex meta tag');
   }
+}
+
+// --- 5. crawler files ---------------------------------------------------------
+
+const llmsPath = join(DIST, 'llms.txt');
+if (!existsSync(llmsPath)) warn('dist/llms.txt is missing');
+else if (!read(llmsPath).startsWith('# ')) warn('llms.txt does not start with an H1');
+
+const indexNowKeys = readdirSync(DIST).filter((f) => /^[0-9a-f]{32}\.txt$/.test(f));
+if (!indexNowKeys.length) warn('no IndexNow key file (<32 hex>.txt) in dist/');
+for (const f of indexNowKeys) {
+  if (read(join(DIST, f)).trim() !== f.replace(/\.txt$/, '')) fail(`IndexNow key file ${f} does not contain its own key`);
 }
 
 // --- report ------------------------------------------------------------------

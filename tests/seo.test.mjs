@@ -61,7 +61,7 @@ test('descriptions are 120-155 chars and unique across the whole site', () => {
   }
   const home = getHomeSEO();
   assert.ok(home.title.length <= 60);
-  assert.ok(home.description.length >= 120 && home.description.length <= 160, home.description);
+  assert.ok(home.description.length >= 120 && home.description.length <= 155, home.description);
 });
 
 test('titles and H1s are unique across the whole site', () => {

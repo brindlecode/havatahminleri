@@ -344,7 +344,7 @@ export function getHomeSEO(): SEOData {
     title: 'Yarın Hava - Türkiye Hava Durumu ve Yarınki Tahmin',
     description:
       'Türkiye hava durumu: 81 il ve 969 ilçe için yarınki ve saatlik tahmin. Bugün, 7, 10 ve 15 günlük ' +
-      'sıcaklık, yağış, rüzgar ve nem bilgileri her gün güncellenir.',
+      'sıcaklık, yağış ve rüzgar bilgileri her gün güncellenir.',
     canonical: `${SITE_ORIGIN}/`,
     heading: 'Türkiye Hava Durumu',
   };
