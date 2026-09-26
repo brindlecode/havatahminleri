@@ -6,21 +6,22 @@ Districts: 969
 
 ## Match method
 
-- ADM2 seat town: 817
+- ADM2 seat town: 816
 - ADM2 point: 23
 - ADM2 namesake town (PPL): 70
 - merkez: province capital: 51
 - ADM2 namesake town (PPLA2): 3
 - named place (PPLA2): 2
+- manual override: 1
 - ADM2 namesake town (PPLX): 3
 
 ## Unmatched (0) - placed at the province centre
 
 - none
 
-## Cache-key collisions (1)
+## Cache-key collisions (0)
 
-- Merkez (kastamonu) = Cide (kastamonu)
+- none
 
 ## Province centres corrected (provinces.json vs GeoNames capital, >5 km)
 
@@ -75,6 +76,6 @@ Districts: 969
 | Finike (Antalya) | 108.9 km | ADM2 seat town |
 | Evciler (Afyonkarahisar) | 108.3 km | ADM2 seat town |
 | Divriği (Sivas) | 108.1 km | ADM2 seat town |
-| Halfeti (Şanlıurfa) | 106.7 km | ADM2 seat town |
+| Cide (Kastamonu) | 108.0 km | manual override |
 
-Median correction: 41.7 km
+Median correction: 41.8 km
