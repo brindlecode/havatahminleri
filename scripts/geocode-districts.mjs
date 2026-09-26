@@ -17,7 +17,9 @@
  *   4. otherwise a populated place (PPLA2/PPLA/PPL) with the same name in the
  *      province;
  *   5. "Merkez" districts use the province capital.
- * Any candidate further than 150 km from the province centre is rejected.
+ * Province centres further than 5 km from their GeoNames capital are moved
+ * onto it (provinces.json).
+ * Any candidate further than 250 km from the province centre is rejected.
  * Districts that cannot be matched keep the province centre (never a random
  * point) and are listed in the report for a manual look.
  *
@@ -39,7 +41,7 @@ if (!GEO_DIR) {
   process.exit(1);
 }
 
-const MAX_KM = 150;
+const MAX_KM = 250; // Konya, Mersin, Antalya: seats up to ~220 km from the capital
 
 function fold(s) {
   return String(s)
@@ -118,7 +120,13 @@ for (const p of provinces) {
   if (!a1) report.provinceCheck.push(`${p.name}: no GeoNames admin1 match`);
   else if (cap) {
     const d = km(p.lat, p.lon, cap.lat, cap.lon);
-    if (d > 10) report.provinceCheck.push(`${p.name}: provinces.json is ${d.toFixed(1)} km from GeoNames capital ${cap.name} (${cap.lat}, ${cap.lon})`);
+    // Province pages show the capital city's weather; move the point onto it
+    // when it is off by more than 5 km.
+    if (d > 5) {
+      report.provinceCheck.push(`${p.name}: moved ${d.toFixed(1)} km onto GeoNames capital ${cap.name} (${cap.lat}, ${cap.lon})`);
+      p.lat = round4(cap.lat);
+      p.lon = round4(cap.lon);
+    }
   }
 }
 
@@ -145,8 +153,16 @@ for (const d of districts) {
       const adm2 = pick(inProv.filter((r) => r.fcode === 'ADM2' && r.names.has(key)), p)
         ?? pick(inProv.filter((r) => r.fcode === 'ADM2' && [...r.names].some((n) => n === `${key}ilcesi` || n === `${key}merkez`)), p);
       if (adm2) {
-        const seat = pick(inProv.filter((r) => r.admin2 === adm2.admin2 && ['PPLA2', 'PPLA', 'PPLC'].includes(r.fcode)), p);
+        // An empty admin2 code would match every unassigned row in the
+        // province (usually the capital), so only trust a real code.
+        const seat = adm2.admin2
+          ? pick(inProv.filter((r) => r.admin2 === adm2.admin2 && ['PPLA2', 'PPLA', 'PPLC'].includes(r.fcode)), p)
+          : null;
+        const namesake = inProv
+          .filter((r) => r.fcode.startsWith('PPL') && r.names.has(key) && km(adm2.lat, adm2.lon, r.lat, r.lon) <= 60)
+          .sort((a, b) => b.population - a.population)[0];
         if (seat) { hit = seat; method = 'ADM2 seat town'; }
+        else if (namesake) { hit = namesake; method = `ADM2 namesake town (${namesake.fcode})`; }
         else { hit = adm2; method = 'ADM2 point'; }
       }
     }
@@ -189,6 +205,10 @@ if (report.unmatched.length > districts.length * 0.1) {
   process.exit(1);
 }
 writeFileSync(join(DATA, 'districts.json'), JSON.stringify(districts, null, 2) + '\n');
+const cleanProvinces = provinces.map(({ _a1, _capital, ...rest }) => rest);
+// Keep the file's one-province-per-line layout so the diff stays readable.
+const line = (o) => `  { ${Object.entries(o).map(([k, v]) => `${JSON.stringify(k)}: ${JSON.stringify(v)}`).join(', ')} }`;
+writeFileSync(join(DATA, 'provinces.json'), `[\n${cleanProvinces.map(line).join(',\n')}\n]\n`);
 
 // --- report ------------------------------------------------------------------
 
@@ -212,9 +232,9 @@ const lines = [
   '',
   ...(collisions.length ? collisions.map((c) => `- ${c}`) : ['- none']),
   '',
-  '## Province centre check (provinces.json vs GeoNames capital, >10 km)',
+  '## Province centres corrected (provinces.json vs GeoNames capital, >5 km)',
   '',
-  ...(report.provinceCheck.length ? report.provinceCheck.map((c) => `- ${c}`) : ['- all within 10 km']),
+  ...(report.provinceCheck.length ? report.provinceCheck.map((c) => `- ${c}`) : ['- all within 5 km']),
   '',
   '## Largest corrections (old random point -> real place)',
   '',
