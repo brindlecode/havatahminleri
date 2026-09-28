@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <style>
+    <style is:global>
       /* ── CSS Variables ── */
       :root {
         --color-bg-body: #f1f5f9;
@@ -541,7 +541,7 @@
 
           <div class="card">
             <div class="card-title">Manuel Build</div>
-            <div class="card-desc">Otomatik: Her gün 06:00 ve 20:00 (TR). Manuel tetikleme için butonu kullanın.</div>
+            <div class="card-desc">Otomatik: Her gece 00:00 sonrası (TR); gecikirse 05:30'a kadar yeniden denenir. Manuel tetikleme için butonu kullanın.</div>
             <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
               <button class="btn btn-primary" id="trigger-build-btn">Build Tetikle</button>
               <span class="save-status" id="build-status"></span>

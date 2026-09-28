@@ -44,6 +44,11 @@ const hourlyJson = hourly
       w: hourly.windSpeed.slice(0, 48).map(r),
       d: (hourly.windDirection ?? []).slice(0, 48).map(r),
       i: hourly.isDay.slice(0, 48),
+      // First days of the daily series, so the hero can show the right
+      // high/low if the page is viewed after midnight, before the next build.
+      dt: daily.time.slice(0, 3),
+      dx: daily.temperatureMax.slice(0, 3).map(r),
+      dn: daily.temperatureMin.slice(0, 3).map(r),
       n: Object.fromEntries(
         [...new Set(hourly.weatherCode.slice(0, 48))].map((c) => [c, getWeatherDescription(c)]),
       ),
@@ -57,7 +62,7 @@ const hourlyJson = hourly
   <div class="flex items-start justify-between gap-4">
     <div class="min-w-0">
       <h1 class="text-[1.45rem] sm:text-[1.9rem] font-bold leading-tight tracking-tight">{h1Text}</h1>
-      {todayLabel && <p class="text-sm text-white/80 mt-1 capitalize">{todayLabel}</p>}
+      {todayLabel && <p id="weather-date" class="text-sm text-white/80 mt-1 capitalize">{todayLabel}</p>}
     </div>
     <div id="hero-icon" class="shrink-0 -mt-1 drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]">
       <WeatherIcon code={current.weatherCode} isDay={current.isDay} size="w-16 h-16 sm:w-20 sm:h-20" decorative />

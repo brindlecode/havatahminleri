@@ -75,7 +75,10 @@
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       const norm = normalize(item.n);
-      if (norm.indexOf(q) !== -1) {
+      // Every word must match somewhere, in any order: "afyonkarahisar merkez"
+      // finds "Merkez, Afyonkarahisar", "ortakoy aksaray" finds that Ortakoy.
+      const words = q.split(/[\s,]+/).filter(Boolean);
+      if (norm.indexOf(q) !== -1 || (words.length > 1 && words.every(function (w) { return norm.indexOf(w) !== -1; }))) {
         filtered.push({ item: item, norm: norm });
       }
     }
