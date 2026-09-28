@@ -2,6 +2,8 @@
 import '../styles/global.css';
 import siteConfig from '../data/site-config.json';
 import CookieBanner from '../components/CookieBanner.astro';
+// Same file global.css references, so the preload is reused, not refetched.
+import figtreeLatin from '@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2?url';
 
 interface Props {
   title: string;
@@ -59,6 +61,7 @@ const hasCoords = typeof lat === 'number' && typeof lon === 'number';
     <meta name="theme-color" content="#f4f6f9" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a0f1a" media="(prefers-color-scheme: dark)" />
 
+    <link rel="preload" as="font" type="font/woff2" href={figtreeLatin} crossorigin />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
 
     <!-- Consent Mode v2. Everything defaults to denied (KVKK/GDPR: analytics

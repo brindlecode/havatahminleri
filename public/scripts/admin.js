@@ -155,11 +155,13 @@
         const grid = document.getElementById('stats-grid');
         try {
           const res = await fetch('/search-index.json');
-          const districts = res.ok ? await res.json() : [];
-          const provinceCount = 81;
+          const index = res.ok ? await res.json() : [];
+          // search-index.json lists provinces (t: 'il') and districts (t: 'ilce').
+          const districts = index.filter(d => d.t === 'ilce');
+          const provinceCount = index.filter(d => d.t === 'il').length || 81;
           const districtCount = districts.length;
           const periodCount = 6;
-          const staticPages = 4;
+          const staticPages = 6; // home + 5 information/legal pages
           const provincePeriodPages = provinceCount * periodCount;
           const districtPeriodPages = districtCount * periodCount;
           const totalPages = provinceCount + districtCount + provincePeriodPages + districtPeriodPages + staticPages;

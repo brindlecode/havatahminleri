@@ -37,7 +37,7 @@ const { cities } = Astro.props;
           <WeatherIcon code={city.weatherCode} size="w-9 h-9 -mt-1 -mr-1" decorative />
         </div>
         <p class="mt-auto text-4xl font-light tracking-tight tabular">{Math.round(city.temperature)}°</p>
-        <p class="text-xs text-white/85 truncate">{getWeatherDescription(city.weatherCode)} · {Math.round(city.max)}° / {Math.round(city.min)}°</p>
+        <p class="text-xs text-white/85 leading-snug">{getWeatherDescription(city.weatherCode)} · {Math.round(city.max)}° / {Math.round(city.min)}°</p>
       </a>
     ))}
   </div>

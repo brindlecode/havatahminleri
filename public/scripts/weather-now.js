@@ -112,6 +112,35 @@
     /* keep the static noon values */
   }
 
+  // 1b. viewed on a later day than the data (between midnight and the next
+  //     deploy): keep the hero consistent and say so, instead of showing
+  //     yesterday's date and "yarın" prose that now means today.
+  try {
+    var dnode = document.getElementById('hourly-data');
+    var dd = dnode ? JSON.parse(dnode.textContent) : null;
+    var dataDay = dd && dd.t && dd.t[0] ? dd.t[0].slice(0, 10) : null;
+    if (dataDay && dataDay < now.day) {
+      var notice = document.getElementById('stale-notice');
+      if (notice) notice.hidden = false;
+      var answers = document.querySelectorAll('[data-answer-summary]');
+      for (var a = 0; a < answers.length; a++) answers[a].hidden = true;
+      var dateEl = document.getElementById('weather-date');
+      if (dateEl) {
+        try {
+          dateEl.textContent = new Date(now.day + 'T00:00:00Z').toLocaleDateString('tr-TR', {
+            day: 'numeric', month: 'long', weekday: 'long', timeZone: 'UTC'
+          });
+        } catch (e) {}
+      }
+      var di = dd.dt ? dd.dt.indexOf(now.day) : -1;
+      if (di > -1) {
+        setText('weather-high', dd.dx[di]);
+        setText('weather-low', dd.dn[di]);
+      }
+      if (dd.t.indexOf(nowStamp) === -1) setText('weather-asof', 'Yeni günün tahmini hazırlanıyor');
+    }
+  } catch (e) {}
+
   // 2. hourly strip: dim the past, mark the current hour, scroll it into view.
   //    Cells are dimmed rather than removed so the temperature line drawn
   //    under them stays aligned.

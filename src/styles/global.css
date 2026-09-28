@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "@fontsource-variable/figtree/wght.css";
 
+/* dark: utilities follow the site toggle (html.dark), not the OS setting. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
  * Design system - "modern weather app".
  *

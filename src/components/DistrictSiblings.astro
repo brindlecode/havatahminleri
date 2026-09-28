@@ -18,7 +18,7 @@ const siblings = districts
     <h2 class="section-title">{province.name} Diğer İlçeler</h2>
     <div class="grid grid-cols-2 gap-1.5">
       {siblings.map((d: any) => (
-        <a href={`/${province.slug}/${d.slug}-hava-durumu/`} class="chip-link !py-2.5 truncate">
+        <a href={`/${province.slug}/${d.slug}-hava-durumu/`} class="chip-link !py-2.5 leading-snug">
           {d.name === 'Merkez' ? `${province.name} Merkez` : d.name}
         </a>
       ))}

@@ -17,7 +17,7 @@ const { weather, cityName, period } = Astro.props;
 const { question, answer } = getAnswerSummary(weather, cityName, period);
 ---
 
-<section class="weather-card" aria-labelledby="answer-summary-q">
+<section class="weather-card" aria-labelledby="answer-summary-q" data-answer-summary>
   <h2 id="answer-summary-q" class="text-[1.05rem] font-bold tracking-tight">{question}</h2>
   <p class="prose-text mt-1.5">{answer}</p>
 </section>
