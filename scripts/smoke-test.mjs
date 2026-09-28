@@ -24,6 +24,10 @@ function flag(name, fallback) {
 
 const BASE = (flag('base', 'https://yarinhava.com')).replace(/\/$/, '');
 const MAX_AGE_HOURS = Number(flag('max-age-hours', '26'));
+// Scheduled probes can be started hours late by GitHub and land between
+// 00:00 Turkey time and the nightly deploy. During the first N hours of the
+// Turkish day, yesterday's build is still correct, not an outage.
+const NIGHT_GRACE_HOURS = Number(flag('night-grace-hours', '0'));
 const TIMEZONE = 'Europe/Istanbul';
 const TIMEOUT_MS = 20000;
 
@@ -63,6 +67,10 @@ async function get(path, { redirect = 'manual' } = {}) {
 
 const TODAY = todayInIstanbul();
 const TOMORROW = addDays(TODAY, 1);
+const ISTANBUL_HOUR = Number(new Intl.DateTimeFormat('en-GB', {
+  timeZone: TIMEZONE, hour: '2-digit', hourCycle: 'h23',
+}).format(new Date()));
+const IN_GRACE = ISTANBUL_HOUR < NIGHT_GRACE_HOURS;
 
 /** Cities spread across regions, plus the district slugs GSC flagged. */
 const SAMPLE_PAGES = [
@@ -82,7 +90,7 @@ const SAMPLE_PAGES = [
 
 const EXPECTED_ROWS = { base: 1, bugun: 1, yarin: 1, '7gun': 7, '10gun': 10, '15gun': 15, saatlik: 0 };
 
-console.log(`Smoke test against ${BASE} (today in ${TIMEZONE}: ${TODAY})\n`);
+console.log(`Smoke test against ${BASE} (today in ${TIMEZONE}: ${TODAY}${IN_GRACE ? ', night grace: yesterday\'s build accepted' : ''})\n`);
 
 // --- 1. infrastructure -------------------------------------------------------
 
@@ -176,7 +184,8 @@ for (const page of SAMPLE_PAGES) {
     continue;
   }
   const firstExpected = page.kind === 'base' || page.kind === 'yarin' ? TOMORROW : TODAY;
-  if (dates.length && dates[0] !== firstExpected) {
+  const acceptable = IN_GRACE ? [firstExpected, addDays(firstExpected, -1)] : [firstExpected];
+  if (dates.length && !acceptable.includes(dates[0])) {
     fail(`${page.path} STALE: first forecast row is ${dates[0]}, expected ${firstExpected}`);
     continue;
   }

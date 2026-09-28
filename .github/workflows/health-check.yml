@@ -52,11 +52,14 @@ jobs:
           node-version: 22
 
       # The input goes through env, never straight into the shell line.
-      # 30h: one daily build plus GitHub's scheduling delay.
+      # 30h: one daily build plus GitHub's scheduling delay. Night grace: a
+      # probe started late by GitHub (observed: the 18:00 UTC probe ran at
+      # 00:14 Turkey time) must not flag yesterday's build before the
+      # nightly deploy has had a chance to land.
       - name: Probe production
         env:
           BASE_URL: ${{ inputs.base || 'https://yarinhava.com' }}
-        run: node scripts/smoke-test.mjs --base "$BASE_URL" --max-age-hours 30
+        run: node scripts/smoke-test.mjs --base "$BASE_URL" --max-age-hours 30 --night-grace-hours 6
 
       - name: Close the stale-production issue once healthy
         if: success()

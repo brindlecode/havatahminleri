@@ -29,11 +29,17 @@ on:
     branches:
       - claude/weather-forecast-site-JpQxB
   schedule:
-    # 21:05 UTC = 00:05 Turkey: the daily build. GitHub may start it late.
-    - cron: '5 21 * * *'
-    # 02:30 UTC = 05:30 Turkey: backup. Builds ONLY if production does not
-    # already show today's forecast (the first run was dropped or failed).
-    - cron: '30 2 * * *'
+    # The daily build: just after 00:00 Turkey (21:00 UTC). GitHub starts
+    # scheduled runs late - 2-3 hours was observed around midnight UTC - and
+    # sometimes drops them, so several attempts are scheduled. Every scheduled
+    # run first checks production and skips (in seconds, with no API call)
+    # when today's forecast is already live, so only the earliest one builds.
+    # Odd minutes avoid the top-of-the-hour queue.
+    - cron: '7 21 * * *'   # 00:07 Turkey
+    - cron: '41 21 * * *'  # 00:41
+    - cron: '19 22 * * *'  # 01:19
+    - cron: '53 23 * * *'  # 02:53
+    - cron: '30 2 * * *'   # 05:30 - last-resort backup
   workflow_dispatch:
 
 permissions:
@@ -58,14 +64,14 @@ jobs:
 
       - name: Is today's forecast already live?
         id: live
-        if: github.event_name == 'schedule' && github.event.schedule == '30 2 * * *'
+        if: github.event_name == 'schedule'
         run: node scripts/check-live-fresh.mjs
 
       - name: Decide
         id: decide
         run: |
           if [ "${{ steps.live.outputs.fresh }}" = "true" ]; then
-            echo "Today's forecast is already live - skipping the backup build."
+            echo "Today's forecast is already live - skipping this scheduled build."
             echo "run=false" >> "$GITHUB_OUTPUT"
           else
             echo "run=true" >> "$GITHUB_OUTPUT"
