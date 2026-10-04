@@ -14,6 +14,7 @@ import AdSlot from '../components/AdSlot.astro';
 import AnswerSummary from '../components/AnswerSummary.astro';
 import NearbyLocations from '../components/NearbyLocations.astro';
 import ActivityAdvice from '../components/ActivityAdvice.astro';
+import IconLegend from '../components/IconLegend.astro';
 import { getPeriodForecastData, getPeriodLinks, type PeriodId } from '../lib/periods';
 import { ogDayIndex, ogImageUrl } from '../lib/ogImage';
 import { getWeatherDescription } from '../lib/weatherCodes';
@@ -53,6 +54,14 @@ const { daily, showHourly, hourlyStart, hourlyEnd, period: def } = getPeriodFore
 
 const links = getPeriodLinks(basePath);
 const activeId: PeriodId = period === 'base' ? 'yarin' : period;
+
+// Every icon the page draws: the hero (current + the 48h set it swaps in),
+// the hourly strip and the daily rows. The legend explains exactly these.
+const pageIcons = [
+  { code: weather.current.weatherCode, isDay: weather.current.isDay },
+  ...weather.hourly.weatherCode.slice(0, 48).map((code, i) => ({ code, isDay: weather.hourly.isDay[i] === 1 })),
+  ...daily.weatherCode.map((code) => ({ code, isDay: true })),
+];
 
 // Location share image for the day this page is about (src/pages/og/).
 const ogIdx = ogDayIndex(period);
@@ -110,6 +119,7 @@ const ogImageAlt = ogImage
       <aside class="space-y-4 mt-4 lg:mt-0" aria-label="Detaylar ve ilgili sayfalar">
         <AdSlot slot="sidebar" id="forecast-side" />
         {provinceSlug && <NearbyLocations provinceSlug={provinceSlug} districtSlug={districtSlug} />}
+        <IconLegend icons={pageIcons} />
         <slot />
         <AdSlot slot="footer" id="forecast-bottom" />
       </aside>

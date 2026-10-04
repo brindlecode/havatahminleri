@@ -1,0 +1,147 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { generateLegalPageStructuredData } from '../lib/seo';
+import { ICON_GROUPS, ICON_SPRITE_PATH, ICON_GUIDE_PATH, groupDescriptions } from '../lib/iconLegend';
+
+const pageName = 'Hava Durumu Simgeleri';
+const title = 'Hava Durumu Simgeleri ve Anlamları - Yarın Hava';
+const description = 'Hava durumu simgeleri ne anlama gelir? Güneş, bulut, çisenti, yağmur, kar, sis ve fırtına ikonlarının yanı sıra yağış yüzdesi, rüzgar yönü ve UV indeksi açıklamaları.';
+const canonical = `https://yarinhava.com${ICON_GUIDE_PATH}`;
+const structuredData = generateLegalPageStructuredData(pageName, description, canonical);
+
+const WIND = [
+  ['K', 'Kuzey'], ['KD', 'Kuzeydoğu'], ['D', 'Doğu'], ['GD', 'Güneydoğu'],
+  ['G', 'Güney'], ['GB', 'Güneybatı'], ['B', 'Batı'], ['KB', 'Kuzeybatı'],
+];
+const UV = [
+  ['0-2', 'Düşük', 'Korunma gerekmez.'],
+  ['3-5', 'Orta', 'Öğle saatlerinde gölgeyi tercih edin.'],
+  ['6-7', 'Yüksek', 'Şapka, güneş gözlüğü ve krem kullanın.'],
+  ['8-10', 'Çok yüksek', '11:00-16:00 arası doğrudan güneşten kaçının.'],
+  ['11+', 'Aşırı', 'Açık havada kalma süresini en aza indirin.'],
+];
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData}>
+  <Header slot="header" />
+
+  <div class="max-w-4xl mx-auto px-4 py-10">
+    <Breadcrumb items={[{ name: pageName, url: canonical }]} />
+    <h1 class="text-3xl font-bold mb-3">Hava Durumu Simgeleri ve Anlamları</h1>
+    <p class="text-[var(--color-text-secondary)] leading-relaxed mb-8">
+      Yarın Hava'daki saatlik ve günlük tahminlerde kullanılan her simgenin ne anlama geldiğini
+      aşağıda bulabilirsiniz. Simgeler meteoroloji modellerinin verdiği hava kodlarından seçilir;
+      aynı simge, birbirine yakın birkaç durumu birlikte gösterebilir.
+    </p>
+
+    <section aria-labelledby="simgeler">
+      <h2 id="simgeler" class="text-xl font-bold mb-4">Hava durumu simgeleri</h2>
+      <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {ICON_GROUPS.map((g) => (
+          <li id={g.id.replace(/^ic-/, '')} class="weather-card !p-4 flex items-start gap-4">
+            <svg class="w-14 h-14 shrink-0 rounded-2xl bg-[var(--color-surface-2)] p-1.5" viewBox="0 0 48 48" role="img" aria-label={g.label}>
+              <use href={`${ICON_SPRITE_PATH}#${g.id}`} />
+            </svg>
+            <div class="min-w-0">
+              <h3 class="font-semibold">{g.label}</h3>
+              <p class="text-sm leading-relaxed mt-0.5">{g.meaning}</p>
+              <p class="text-xs text-[var(--color-text-secondary)] mt-1.5">
+                Tahminde: {groupDescriptions(g).join(', ')}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section aria-labelledby="isaretler" class="mt-10">
+      <h2 id="isaretler" class="text-xl font-bold mb-4">Diğer işaretler ve kısaltmalar</h2>
+      <dl class="weather-card divide-y divide-[var(--color-border)] !py-1">
+        <div class="py-3.5">
+          <dt class="font-semibold"><span class="text-sky-700 dark:text-sky-300">%40</span> · Yağış olasılığı</dt>
+          <dd class="text-sm text-[var(--color-text-secondary)] mt-1 leading-relaxed">
+            Simgenin altındaki mavi yüzde, o saat ya da gün içinde yağış görülme olasılığıdır.
+            %20'nin altındaki değerler tabloda gösterilmez.
+          </dd>
+        </div>
+        <div class="py-3.5">
+          <dt class="font-semibold">mm · Yağış miktarı</dt>
+          <dd class="text-sm text-[var(--color-text-secondary)] mt-1 leading-relaxed">
+            Beklenen toplam yağış. 1 mm, metrekareye 1 litre su düşmesi demektir; 1 mm'nin altı
+            hafif, 10 mm ve üzeri kuvvetli yağış sayılır.
+          </dd>
+        </div>
+        <div class="py-3.5">
+          <dt class="font-semibold flex items-center gap-2">
+            <span class="inline-block w-16 h-1.5 rounded-full" style="background:linear-gradient(90deg,#3b82f6,#22c55e,#eab308,#ef4444)" aria-hidden="true"></span>
+            Sıcaklık çubuğu
+          </dt>
+          <dd class="text-sm text-[var(--color-text-secondary)] mt-1 leading-relaxed">
+            Günlük tabloda her günün en düşük ve en yüksek sıcaklığı arasındaki aralık. Renk
+            maviden kırmızıya doğru soğuktan sıcağa gider; çubuğun konumu günleri birbiriyle
+            karşılaştırmayı kolaylaştırır.
+          </dd>
+        </div>
+        <div class="py-3.5">
+          <dt class="font-semibold">Hissedilen sıcaklık</dt>
+          <dd class="text-sm text-[var(--color-text-secondary)] mt-1 leading-relaxed">
+            Rüzgar, nem ve güneşin etkisiyle vücudun hissettiği sıcaklık; termometredeki değerden
+            birkaç derece farklı olabilir.
+          </dd>
+        </div>
+        <div class="py-3.5">
+          <dt class="font-semibold">Rüzgar yönü</dt>
+          <dd class="text-sm text-[var(--color-text-secondary)] mt-1 leading-relaxed">
+            Rüzgarın geldiği yön, kısaltma ile gösterilir:
+            <span class="flex flex-wrap gap-1.5 mt-2">
+              {WIND.map(([k, v]) => (
+                <span class="rounded-lg bg-[var(--color-surface-2)] px-2 py-1 text-xs"><strong class="text-[var(--color-text)]">{k}</strong> {v}</span>
+              ))}
+            </span>
+          </dd>
+        </div>
+        <div class="py-3.5">
+          <dt class="font-semibold">UV indeksi</dt>
+          <dd class="text-sm text-[var(--color-text-secondary)] mt-1">
+            Güneşin yakıcı ışınlarının gücü.
+            <span class="block mt-2 space-y-1">
+              {UV.map(([range, level, tip]) => (
+                <span class="block"><strong class="text-[var(--color-text)] tabular">{range}</strong> {level}: {tip}</span>
+              ))}
+            </span>
+          </dd>
+        </div>
+        <div class="py-3.5">
+          <dt class="font-semibold">Soluk saatler ve "Şimdi"</dt>
+          <dd class="text-sm text-[var(--color-text-secondary)] mt-1 leading-relaxed">
+            Saatlik tahminde geçmiş saatler soluk gösterilir, içinde bulunulan saat "Şimdi" olarak
+            işaretlenir. Ana kartta, sayfayı açtığınız saatin tahmini yer alır.
+          </dd>
+        </div>
+        <div class="py-3.5">
+          <dt class="font-semibold flex flex-wrap items-center gap-1.5">
+            <span class="verdict-badge verdict-good">Uygun</span>
+            <span class="verdict-badge verdict-fair">Dikkat</span>
+            <span class="verdict-badge verdict-poor">Ertele</span>
+          </dt>
+          <dd class="text-sm text-[var(--color-text-secondary)] mt-1 leading-relaxed">
+            Araç yıkama, cam silme ve çamaşır kurutma önerileri. Karar, o günün ve sonraki
+            günlerin yağışına, rüzgara, dona ve sıcağa göre verilir.
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <p class="text-sm text-[var(--color-text-secondary)] mt-8 leading-relaxed">
+      Tahminler <a href="https://open-meteo.com/" target="_blank" rel="noopener" class="underline">Open-Meteo</a>
+      meteoroloji modellerinden üretilir. Resmi uyarılar için
+      <a href="https://www.mgm.gov.tr/" target="_blank" rel="noopener" class="underline">Meteoroloji Genel Müdürlüğü</a>'nü takip edin.
+      <a href="/" class="text-[var(--color-accent)] underline">81 ilin hava durumuna dönün</a>.
+    </p>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
