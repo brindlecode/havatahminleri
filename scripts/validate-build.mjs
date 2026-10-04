@@ -116,9 +116,9 @@ const builtPaths = new Set(
   htmlFiles.map((f) => '/' + relative(DIST, f).replace(/index\.html$/, '').replace(/\\/g, '/')),
 );
 
-// 1 home + 5 legal + 404 + admin + (81 + 969) x (1 base + 6 periods)
+// 1 home + 5 legal + icon guide + 404 + admin + (81 + 969) x (1 base + 6 periods)
 const expectedLocationPages = (provinces.length + districts.length) * 7;
-const expectedTotal = expectedLocationPages + 8;
+const expectedTotal = expectedLocationPages + 9;
 
 note(`Built ${htmlFiles.length} HTML files (expected ${expectedTotal})`);
 if (htmlFiles.length < expectedTotal) {

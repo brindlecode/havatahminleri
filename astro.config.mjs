@@ -35,6 +35,7 @@ const STATIC_PAGES = [
   '/gizlilik-politikasi/',
   '/cerez-politikasi/',
   '/kullanim-sartlari/',
+  '/hava-durumu-simgeleri/',
 ];
 
 export default defineConfig({
