@@ -1,4 +1,5 @@
 ---
+import ShareButtons from './ShareButtons.astro';
 import { getAnswerSummary } from '../lib/periodSummary';
 import type { PeriodId } from '../lib/periods';
 import type { WeatherData } from '../lib/weather';
@@ -8,16 +9,29 @@ interface Props {
   /** names.display - carries the province for shared district names. */
   cityName: string;
   period: PeriodId;
+  /** Canonical URL of the page, for the share buttons. */
+  canonical: string;
 }
 
 // Direct, fact-dense answer to the page's main question, placed right under
 // the hero: the passage answer engines (AI Overviews, featured snippets,
 // assistants) quote.
-const { weather, cityName, period } = Astro.props;
+const { weather, cityName, period, canonical } = Astro.props;
 const { question, answer } = getAnswerSummary(weather, cityName, period);
+// The question plus the answer's first sentence makes a self-contained message.
+const firstSentence = answer.split(/(?<=\.)\s/)[0];
 ---
 
 <section class="weather-card" aria-labelledby="answer-summary-q" data-answer-summary>
   <h2 id="answer-summary-q" class="text-[1.05rem] font-bold tracking-tight">{question}</h2>
   <p class="prose-text mt-1.5">{answer}</p>
+  <div class="mt-3">
+    <ShareButtons
+      label="Paylaş:"
+      text={`🌤️ ${question}\n${firstSentence}`}
+      url={canonical}
+      title={question}
+      type="page"
+    />
+  </div>
 </section>
