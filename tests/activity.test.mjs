@@ -92,6 +92,15 @@ test('rain on the day: postpone and suggest a better day', () => {
   assert.match(car.detail, /Daha uygun gün: Çarşamba \(7 Ekim\)\./);
 });
 
+test('the alternative day may be a full week after the target', () => {
+  const wet = { prob: 90, sum: 5 };
+  // days 1-7 wet, day 8 (seven days after tomorrow) dry with dry days after it
+  const W = makeWeather({ 1: wet, 2: wet, 3: wet, 4: wet, 5: wet, 6: wet, 7: wet });
+  const laundry = byId(getActivityAdvice(W, 'yarin', 'İzmit'), 'camasir');
+  assert.equal(laundry.verdict, 'poor');
+  assert.match(laundry.detail, /Daha uygun gün: Pazartesi \(12 Ekim\)\./);
+});
+
 test('rain the day after spoils a car wash today', () => {
   const W = makeWeather({ 1: { prob: 70, sum: 3 } });
   const set = getActivityAdvice(W, 'bugun', 'Kars');

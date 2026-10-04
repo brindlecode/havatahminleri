@@ -421,7 +421,8 @@ export function getActivityAdvice(
         detail += ' Önümüzdeki 7 günde bundan daha uygun bir gün görünmüyor.';
       }
     } else if (ev.verdict !== 'good') {
-      const alt = bestDay(weather, a.id, target + 1, target + LOOKAHEAD_DAYS, loc);
+      // `to` is exclusive: look at the LOOKAHEAD_DAYS days after the target.
+      const alt = bestDay(weather, a.id, target + 1, target + 1 + LOOKAHEAD_DAYS, loc);
       if (alt && alt.ev.verdict === 'good') {
         detail += ` Daha uygun gün: ${cap(dayRef(alt.day))}.`;
       }
