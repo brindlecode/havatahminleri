@@ -13,6 +13,7 @@ import ForecastFreshness from '../components/ForecastFreshness.astro';
 import AdSlot from '../components/AdSlot.astro';
 import AnswerSummary from '../components/AnswerSummary.astro';
 import NearbyLocations from '../components/NearbyLocations.astro';
+import ActivityAdvice from '../components/ActivityAdvice.astro';
 import { getPeriodForecastData, getPeriodLinks, type PeriodId } from '../lib/periods';
 import type { WeatherData } from '../lib/weather';
 
@@ -70,7 +71,7 @@ const activeId: PeriodId = period === 'base' ? 'yarin' : period;
         <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} hourly={weather.hourly} heading={heading} />
         <ForecastFreshness />
 
-        <AnswerSummary weather={weather} cityName={displayName ?? cityName} period={period} />
+        <AnswerSummary weather={weather} cityName={displayName ?? cityName} period={period} canonical={canonical} />
 
         <PeriodTabs links={links} activeId={activeId} />
 
@@ -84,6 +85,8 @@ const activeId: PeriodId = period === 'base' ? 'yarin' : period;
         )}
 
         {daily.time.length > 0 && <DailyForecast daily={daily} title={def.dailyTitle} />}
+
+        <ActivityAdvice weather={weather} cityName={displayName ?? cityName} period={period} canonical={canonical} />
 
         <AdSlot slot="inContent" id="forecast-mid" />
 
@@ -102,4 +105,5 @@ const activeId: PeriodId = period === 'base' ? 'yarin' : period;
   </div>
 
   <Footer slot="footer" />
+  <script is:inline defer src="/scripts/share.js"></script>
 </BaseLayout>

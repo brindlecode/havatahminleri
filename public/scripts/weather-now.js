@@ -122,7 +122,7 @@
     if (dataDay && dataDay < now.day) {
       var notice = document.getElementById('stale-notice');
       if (notice) notice.hidden = false;
-      var answers = document.querySelectorAll('[data-answer-summary]');
+      var answers = document.querySelectorAll('[data-answer-summary], [data-day-relative]');
       for (var a = 0; a < answers.length; a++) answers[a].hidden = true;
       var dateEl = document.getElementById('weather-date');
       if (dateEl) {

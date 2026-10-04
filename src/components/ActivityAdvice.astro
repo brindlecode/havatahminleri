@@ -1,0 +1,65 @@
+---
+import ShareButtons from './ShareButtons.astro';
+import { getActivityAdvice } from '../lib/activityAdvice';
+import type { PeriodId } from '../lib/periods';
+import type { WeatherData } from '../lib/weather';
+
+interface Props {
+  weather: WeatherData;
+  /** names.display - carries the province for shared district names. */
+  cityName: string;
+  period: PeriodId;
+  /** Canonical URL of the page; shares link to this card on it. */
+  canonical: string;
+}
+
+const { weather, cityName, period, canonical } = Astro.props;
+const advice = getActivityAdvice(weather, period, cityName);
+const shareUrl = `${canonical}#oneriler`;
+---
+
+{advice && (
+  <section id="oneriler" class="weather-card scroll-mt-4" aria-labelledby="oneriler-baslik" data-day-relative>
+    <h2 id="oneriler-baslik" class="section-title">{advice.heading}</h2>
+    <p class="text-sm text-[var(--color-text-secondary)] -mt-1.5 mb-4 leading-relaxed">{advice.intro}</p>
+
+    <ul class="space-y-3">
+      {advice.items.map((item) => (
+        <li class="rounded-2xl bg-[var(--color-surface-2)] p-4">
+          <div class="flex items-start gap-3">
+            <span class="text-2xl leading-none mt-0.5" aria-hidden="true">{item.emoji}</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <h3 class="font-semibold">{item.title}</h3>
+                <span class={`verdict-badge verdict-${item.verdict}`}>{item.verdictLabel}</span>
+                <span class="text-xs text-[var(--color-text-secondary)]">{item.dayLabel}</span>
+              </div>
+              <p class="mt-1.5 font-semibold text-[0.975rem] leading-snug">{item.headline}</p>
+              <p class="mt-1 text-sm text-[var(--color-text-secondary)] leading-relaxed">{item.detail}</p>
+              <div class="mt-3">
+                <ShareButtons
+                  variant="compact"
+                  text={item.shareText}
+                  url={shareUrl}
+                  title={`${item.title} - Yarın Hava`}
+                  type="activity"
+                  itemId={item.id}
+                />
+              </div>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    <div class="mt-4 pt-4 border-t border-[var(--color-border)]">
+      <ShareButtons
+        label="Bu planı paylaş:"
+        text={advice.shareText}
+        url={shareUrl}
+        title={advice.heading}
+        type="activity_plan"
+      />
+    </div>
+  </section>
+)}
