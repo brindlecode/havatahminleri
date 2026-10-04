@@ -250,6 +250,20 @@ function checkPage(path, { periodSlug }) {
   const robots = firstMatch(html, /<meta name="robots" content="([^"]*)"/);
   if (robots && /noindex/i.test(robots)) fail(`${label}: page is noindex ("${robots}")`);
 
+  // -- share image: a per-location PNG that was actually built, for the day
+  //    the page is about (a missing file means a blank WhatsApp preview)
+  const ogImage = firstMatch(html, /<meta property="og:image" content="([^"]*)"/);
+  if (!ogImage) fail(`${label}: no og:image`);
+  else if (!ogImage.startsWith(`${ORIGIN}/og/`)) fail(`${label}: og:image is not a location share image: ${ogImage}`);
+  else {
+    const ogFile = join(DIST, ogImage.slice(ORIGIN.length));
+    if (!existsSync(ogFile)) fail(`${label}: og:image ${ogImage} was not built`);
+    else if (statSync(ogFile).size > 300_000) warn(`${label}: og:image is over 300 KB (WhatsApp may not show it)`);
+    const ogDay = firstMatch(ogImage, /-(\d{4}-\d{2}-\d{2})\.png$/);
+    const ogExpected = ['bugun', 'saatlik'].includes(periodSlug) ? TODAY : addDays(TODAY, 1);
+    if (ogDay !== ogExpected) fail(`${label}: og:image is for ${ogDay}, expected ${ogExpected}`);
+  }
+
   // -- headings
   const h1s = countMatches(html, /<h1[\s>]/g);
   if (h1s !== 1) fail(`${label}: ${h1s} <h1> elements, expected exactly 1`);
