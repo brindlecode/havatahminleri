@@ -33,7 +33,7 @@ const allWeather = await Promise.all(
 
 const mapPoints = allWeather
   .filter((x) => x.w)
-  .map(({ p, w }) => ({ name: p.name, slug: p.slug, lat: p.lat, lon: p.lon, temp: Math.round(w!.current.temperature) }));
+  .map(({ p, w }) => ({ name: p.name, slug: p.slug, plate: p.plate, temp: Math.round(w!.current.temperature) }));
 
 const popularCitiesWeather = allWeather
   .filter(({ p, w }) => p.popular && w)
@@ -110,7 +110,7 @@ const regionGroups = regions.map((r: any) => ({
       <div class="mt-8 lg:mt-0 rounded-[1.75rem] bg-[var(--color-surface)] text-[var(--color-text)] p-4 sm:p-5 shadow-[0_30px_60px_-30px_rgba(10,20,40,0.55)]">
         <div class="flex items-baseline justify-between gap-3 mb-1">
           <h2 class="font-display text-lg font-semibold tracking-[-0.02em]">Türkiye bugün</h2>
-          <span class="text-xs text-[var(--color-text-secondary)]">Noktaya dokun, ili aç</span>
+          <span class="text-xs text-[var(--color-text-secondary)]">İle dokun, tahmini aç</span>
         </div>
         <TurkeyMap points={mapPoints} caption="Bugün öğle" />
       </div>
