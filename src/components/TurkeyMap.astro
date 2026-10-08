@@ -61,6 +61,15 @@ const hi = Math.max(...temps);
         <path d={p.d} fill={tempTint(p.temp, 0.36)} />
       </a>
     ))}
+    {/* Small provinces (Yalova, Kilis, Bartın...) get an invisible round
+        target on top so they can still be tapped on a phone. */}
+    <g aria-hidden="true">
+      {provinces.filter((p) => p.c.w < 50 || p.c.h < 34).map((p) => (
+        <a href={`/${p.slug}-hava-durumu/`} tabindex="-1" class="tr-prov">
+          <circle cx={p.c.x.toFixed(0)} cy={p.c.y.toFixed(0)} r="34" fill="transparent" />
+        </a>
+      ))}
+    </g>
     <g class="tr-labels" aria-hidden="true">
       {provinces.map((p) => p.named ? (
         <g>
