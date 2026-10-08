@@ -5,8 +5,9 @@ interface Props {
   url: string;
   /** Title for the native share sheet. */
   title?: string;
-  /** compact = WhatsApp + share/copy; full adds X, Facebook and Telegram. */
-  variant?: 'full' | 'compact';
+  /** compact = WhatsApp + share/copy; full adds X, Facebook and Telegram;
+   *  mini = the compact pair as small icon-only buttons. */
+  variant?: 'full' | 'compact' | 'mini';
   label?: string;
   /** Analytics: what is shared ("page", "activity_plan", "activity") and which one. */
   type: string;
@@ -37,9 +38,9 @@ const links = {
   data-share-id={itemId}
 >
   {label && <span class="text-[0.8rem] font-semibold text-[var(--color-text-secondary)] mr-1">{label}</span>}
-  <a class="share-btn share-btn-wa" href={links.whatsapp} target="_blank" rel="noopener nofollow" data-share-method="whatsapp">
+  <a class="share-btn share-btn-wa" href={links.whatsapp} target="_blank" rel="noopener nofollow" data-share-method="whatsapp" aria-label={variant === 'mini' ? "WhatsApp'ta paylaş" : undefined}>
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 1c-1-.5-2-1.5-2.5-2.5l1-1-1-2Z" fill="currentColor" stroke="none"/></svg>
-    <span>WhatsApp</span>
+    {variant !== 'mini' && <span>WhatsApp</span>}
   </a>
   {variant === 'full' && (
     <Fragment>
@@ -56,8 +57,8 @@ const links = {
       </a>
     </Fragment>
   )}
-  <button type="button" class="share-btn" data-share-method="native" hidden>
+  <button type="button" class="share-btn share-btn-ghost" data-share-method="native" hidden>
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg>
-    <span data-share-label>Paylaş</span>
+    <span data-share-label class:list={[variant === 'mini' && 'sr-only']}>Paylaş</span>
   </button>
 </div>

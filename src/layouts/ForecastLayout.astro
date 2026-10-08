@@ -18,6 +18,7 @@ import IconLegend from '../components/IconLegend.astro';
 import { getPeriodForecastData, getPeriodLinks, type PeriodId } from '../lib/periods';
 import { ogDayIndex, ogImageUrl } from '../lib/ogImage';
 import { getWeatherDescription } from '../lib/weatherCodes';
+import { getHeroTip } from '../lib/heroTip';
 import type { WeatherData } from '../lib/weather';
 
 interface Props {
@@ -53,6 +54,9 @@ const { daily, showHourly, hourlyStart, hourlyEnd, period: def } = getPeriodFore
 );
 
 const links = getPeriodLinks(basePath);
+const tip = getHeroTip(weather, period);
+// The star in the hero saves the location's main page to "Konumlarım".
+const place = { name: displayName ?? cityName, href: `${basePath}/` };
 const activeId: PeriodId = period === 'base' ? 'yarin' : period;
 
 // Every icon the page draws: the hero (current + the 48h set it swaps in),
@@ -84,15 +88,13 @@ const ogImageAlt = ogImage
 >
   <Header slot="header" />
 
-  <div class="max-w-6xl mx-auto px-4 pt-4 pb-8">
+  <div class="max-w-6xl mx-auto px-4 pt-4 pb-10">
     <Breadcrumb items={breadcrumbs} />
 
-    <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-6 lg:items-start">
+    <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-6 lg:items-start">
       <div class="space-y-4 min-w-0">
-        <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} hourly={weather.hourly} heading={heading} />
+        <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} hourly={weather.hourly} heading={heading} tip={tip} place={place} />
         <ForecastFreshness />
-
-        <AnswerSummary weather={weather} cityName={displayName ?? cityName} period={period} canonical={canonical} />
 
         <PeriodTabs links={links} activeId={activeId} />
 
@@ -106,6 +108,8 @@ const ogImageAlt = ogImage
         )}
 
         {daily.time.length > 0 && <DailyForecast daily={daily} title={def.dailyTitle} />}
+
+        <AnswerSummary weather={weather} cityName={displayName ?? cityName} period={period} canonical={canonical} />
 
         <ActivityAdvice weather={weather} cityName={displayName ?? cityName} period={period} canonical={canonical} />
 

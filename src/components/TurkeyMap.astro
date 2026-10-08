@@ -1,0 +1,80 @@
+---
+import { tempColor, tempGradient } from '../lib/tempScale';
+
+interface Point {
+  name: string;
+  slug: string;
+  lat: number;
+  lon: number;
+  temp: number;
+}
+
+interface Props {
+  points: Point[];
+  /** What the numbers are, e.g. "Bugün öğle". */
+  caption: string;
+}
+
+// Every province drawn at its real coordinates (equirectangular, x scaled by
+// cos 39° so the country keeps its shape) and coloured on the site-wide
+// temperature scale. Each dot links to the province page.
+const { points, caption } = Astro.props;
+const W = 560;
+const PAD = 22;
+const LON0 = 25.8;
+const LAT0 = 42.25;
+const kx = (W - 2 * PAD) / 19.2;
+const ky = kx / 0.777;
+const H = Math.round(6.4 * ky + 2 * PAD);
+const X = (lon: number) => PAD + (lon - LON0) * kx;
+const Y = (lat: number) => PAD + (LAT0 - lat) * ky;
+
+const LABELLED = new Set(['istanbul', 'ankara', 'izmir', 'antalya', 'trabzon', 'erzurum', 'van', 'diyarbakir', 'adana', 'samsun', 'konya']);
+const temps = points.map((p) => p.temp);
+const lo = Math.min(...temps);
+const hi = Math.max(...temps);
+---
+
+<div class="relative">
+  <svg class="w-full h-auto block" viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="tr-map-title">
+    <title id="tr-map-title">Türkiye illeri sıcaklık haritası ({caption})</title>
+    <g opacity="0.2" aria-hidden="true">
+      {points.map((p) => <circle cx={X(p.lon).toFixed(1)} cy={Y(p.lat).toFixed(1)} r="24" fill={tempColor(p.temp)} />)}
+    </g>
+    {points.map((p) => (
+      <a href={`/${p.slug}-hava-durumu/`} class="group">
+        <title>{p.name}: {p.temp}°</title>
+        <circle cx={X(p.lon).toFixed(1)} cy={Y(p.lat).toFixed(1)} r="11" fill="transparent" />
+        <circle
+          cx={X(p.lon).toFixed(1)}
+          cy={Y(p.lat).toFixed(1)}
+          r="6.5"
+          fill={tempColor(p.temp)}
+          stroke="var(--color-surface)"
+          stroke-width="1.75"
+          class="transition-[r] duration-150 group-hover:[r:9px] group-focus:[r:9px]"
+        />
+      </a>
+    ))}
+    {points.filter((p) => LABELLED.has(p.slug)).map((p) => (
+      <text
+        x={(X(p.lon) + 9).toFixed(1)}
+        y={(Y(p.lat) + 4).toFixed(1)}
+        font-size="11"
+        font-weight="700"
+        fill="currentColor"
+        stroke="var(--color-surface)"
+        stroke-width="3"
+        paint-order="stroke"
+        pointer-events="none"
+        aria-hidden="true"
+      >{p.name} {p.temp}°</text>
+    ))}
+  </svg>
+  <div class="flex items-center gap-2 text-[0.72rem] text-[var(--color-text-secondary)] tabular mt-1">
+    <span>{lo}°</span>
+    <span class="flex-1 h-1.5 rounded-full" style={`background:${tempGradient(lo, hi)}`}></span>
+    <span>{hi}°</span>
+    <span class="ml-1">{caption}</span>
+  </div>
+</div>

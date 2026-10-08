@@ -1,0 +1,62 @@
+---
+/**
+ * Decorative weather layer for a .sky element: rain, snow, stars and slow
+ * clouds. All four are rendered; the parent's sky-* class decides which one
+ * shows (see .sky-fx in global.css), so a client-side sky change switches the
+ * effect too. Positions come from a fixed seed so every build renders the
+ * same markup. Hidden from assistive tech; frozen by prefers-reduced-motion.
+ */
+interface Props {
+  /** Scales the number of particles for small cards. */
+  density?: number;
+}
+
+const { density = 1 } = Astro.props;
+
+let seed = 7;
+const rnd = () => {
+  seed = (seed * 16807) % 2147483647;
+  return (seed - 1) / 2147483646;
+};
+const n = (k: number) => Math.max(4, Math.round(k * density));
+
+const rain = Array.from({ length: n(34) }, () => ({
+  left: (rnd() * 115).toFixed(1),
+  dur: (0.7 + rnd() * 0.6).toFixed(2),
+  delay: (rnd() * 2).toFixed(2),
+  op: (0.35 + rnd() * 0.5).toFixed(2),
+}));
+const snow = Array.from({ length: n(26) }, () => ({
+  left: (rnd() * 105).toFixed(1),
+  dur: (5 + rnd() * 6).toFixed(2),
+  delay: (rnd() * 10).toFixed(2),
+  size: (3 + rnd() * 4).toFixed(1),
+  op: (0.5 + rnd() * 0.5).toFixed(2),
+}));
+const stars = Array.from({ length: n(30) }, () => ({
+  left: (rnd() * 100).toFixed(1),
+  top: (rnd() * 60).toFixed(1),
+  delay: (rnd() * 3).toFixed(2),
+  op: (0.35 + rnd() * 0.65).toFixed(2),
+}));
+const clouds = [
+  { w: 220, h: 60, top: 18, left: -8, dur: 46 },
+  { w: 300, h: 70, top: 52, left: 38, dur: 58 },
+  { w: 180, h: 46, top: 6, left: 62, dur: 50 },
+];
+---
+
+<div class="sky-fx" aria-hidden="true">
+  <div class="fx-clouds">
+    {clouds.map((c) => <i style={`width:${c.w}px;height:${c.h}px;top:${c.top}%;left:${c.left}%;animation-duration:${c.dur}s`} />)}
+  </div>
+  <div class="fx-rain">
+    {rain.map((d) => <i style={`left:${d.left}%;animation-duration:${d.dur}s;animation-delay:-${d.delay}s;opacity:${d.op}`} />)}
+  </div>
+  <div class="fx-snow">
+    {snow.map((d) => <i style={`left:${d.left}%;width:${d.size}px;height:${d.size}px;animation-duration:${d.dur}s;animation-delay:-${d.delay}s;opacity:${d.op}`} />)}
+  </div>
+  <div class="fx-stars">
+    {stars.map((s) => <i style={`left:${s.left}%;top:${s.top}%;animation-delay:-${s.delay}s;opacity:${s.op}`} />)}
+  </div>
+</div>
