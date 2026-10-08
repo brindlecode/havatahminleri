@@ -309,4 +309,16 @@
   .dark .verdict-good { background: #14532d; color: #bbf7d0; }
   .dark .verdict-fair { background: #78350f; color: #fde68a; }
   .dark .verdict-poor { background: #7f1d1d; color: #fecaca; }
+
+  /* Verdict as a three-step meter plus label (ActivityAdvice.astro). */
+  .verdict-meter {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.01em; white-space: nowrap;
+  }
+  .verdict-good-text { color: #1a8a55; }
+  .verdict-fair-text { color: #a8730a; }
+  .verdict-poor-text { color: #c93a33; }
+  .dark .verdict-good-text { color: #4cd193; }
+  .dark .verdict-fair-text { color: #f0bd4c; }
+  .dark .verdict-poor-text { color: #ff7a72; }
 }
