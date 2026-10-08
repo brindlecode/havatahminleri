@@ -134,7 +134,7 @@ test('range pages pick the first good day of the week', () => {
   const laundry = byId(set, 'camasir');
   assert.equal(laundry.verdict, 'good');
   assert.match(laundry.dayLabel, /6 Ekim Salı/);
-  assert.match(set.shareText, /Çamaşır kurutma: 6 Ekim Salı ✅/);
+  assert.match(set.shareText, /Çamaşır kurutmak: 6 Ekim Salı ✅/);
 });
 
 test('headline choice is stable for the same place and day', () => {
