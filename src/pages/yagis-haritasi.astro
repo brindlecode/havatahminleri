@@ -31,26 +31,38 @@ const data = {
 };
 const points = rows.map((r) => ({ name: r.p.name, slug: r.p.slug, plate: r.p.plate, fill: 'var(--color-surface-2)', label: '' }));
 
-// Static summary for the next 24 hours from 12:00 (the page's reference
-// hour; the map itself starts at the visitor's hour).
+// Static list for the 24 hours from the build hour (builds run just after
+// 00:00 and 12:00). Each row carries the end of its last wet hour, and a
+// script hides rows whose rain is already over when the page is read later.
+const buildStamp = (() => {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
+  const g = (t: string) => parts.find((x) => x.type === t)!.value;
+  return `${g('year')}-${g('month')}-${g('day')}T${g('hour')}:00`;
+})();
+const startIdx = Math.max(0, Math.min(24, time.indexOf(buildStamp)));
+const endIdx = Math.min(time.length, startIdx + 24);
 const isSnow = (c: number) => (c >= 71 && c <= 77) || c === 85 || c === 86;
 const wet = rows
   .map((r) => {
     let first = -1;
+    let last = -1;
     let snow = false;
     let storm = false;
     let peak = 0;
-    for (let i = 12; i < Math.min(36, r.w.hourly.time.length); i++) {
+    for (let i = startIdx; i < Math.min(endIdx, r.w.hourly.time.length); i++) {
       const prob = r.w.hourly.precipitationProbability[i] ?? 0;
       const code = r.w.hourly.weatherCode[i];
       if (prob >= 50 && code >= 51) {
         if (first < 0) first = i;
+        last = i;
         peak = Math.max(peak, prob);
         snow ||= isSnow(code);
         storm ||= code >= 95;
       }
     }
-    return { p: r.p, first, snow, storm, peak };
+    // Istanbul has no DST: +03:00 all year.
+    const end = last >= 0 ? new Date(new Date(`${r.w.hourly.time[last]}:00+03:00`).getTime() + 3_600_000).toISOString() : '';
+    return { p: r.p, first, end, snow, storm, peak };
   })
   .filter((x) => x.first >= 0)
   .sort((a, b) => a.first - b.first || a.p.name.localeCompare(b.p.name, 'tr'));
@@ -97,11 +109,11 @@ const fromHour = (i: number) => `${hourLabel(i)}'${ABL[i % 24]}`;
     <section class="weather-card mt-4" aria-labelledby="yagis-liste" data-day-relative>
       <h2 id="yagis-liste" class="section-title">Önümüzdeki 24 saatte yağış beklenen iller</h2>
       {wet.length === 0 ? (
-        <p class="text-[0.92rem] text-[var(--color-text-secondary)]">Bugün öğleden yarın öğlene kadar hiçbir ilde belirgin yağış beklenmiyor.</p>
+        <p class="text-[0.92rem] text-[var(--color-text-secondary)]">Önümüzdeki 24 saatte hiçbir ilde belirgin yağış beklenmiyor.</p>
       ) : (
         <ul class="grid sm:grid-cols-2 gap-x-6">
           {wet.map((x) => (
-            <li class="flex justify-between gap-3 py-1.5 border-t border-[var(--color-border)] text-[0.9rem]">
+            <li class="flex justify-between gap-3 py-1.5 border-t border-[var(--color-border)] text-[0.9rem]" data-rain-end={x.end}>
               <a class="font-semibold hover:underline" href={`/${x.p.slug}-hava-durumu/saatlik/`}>{x.p.name}</a>
               <span class="text-[var(--color-text-secondary)] tabular text-right">
                 {fromHour(x.first)} itibaren{x.storm ? ', sağanak' : x.snow ? ', kar' : ''} · %{x.peak}
@@ -111,7 +123,8 @@ const fromHour = (i: number) => `${hourLabel(i)}'${ABL[i % 24]}`;
         </ul>
       )}
       <p class="mt-3 text-[0.8rem] text-[var(--color-text-secondary)]">
-        Liste bugün 12:00 ile yarın 12:00 arasını kapsar ve yağış olasılığı %50 ve üzeri olan saatlere göre hazırlanır.
+        Liste {hourLabel(startIdx)} ile {endIdx >= 48 ? 'yarın 24:00' : hourLabel(endIdx).toLocaleLowerCase('tr')} arasını kapsar, yağış olasılığı %50 ve
+        üzeri olan saatlere göre hazırlanır; yağışı geçmiş iller sayfayı açtığınız saate göre listeden çıkarılır.
       </p>
     </section>
 
@@ -171,6 +184,11 @@ const fromHour = (i: number) => `${hourLabel(i)}'${ABL[i % 24]}`;
         if (at > -1) start = at;
       } catch (e) {}
       show(start);
+      var nowMs = Date.now();
+      document.querySelectorAll('[data-rain-end]').forEach(function (li) {
+        var e = Date.parse(li.getAttribute('data-rain-end'));
+        if (e && e < nowMs) li.hidden = true;
+      });
       range.addEventListener('input', function () { stop(); show(+range.value); });
       var timer = null;
       function stop() { if (timer) { clearInterval(timer); timer = null; } icPlay.hidden = false; icPause.hidden = true; play.setAttribute('aria-label', 'Oynat'); }

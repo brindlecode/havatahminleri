@@ -70,10 +70,10 @@ const pageIcons = [
 ];
 
 // Location share image for the day this page is about (src/pages/og/).
-const ogIdx = ogDayIndex(period);
-const ogDate = weather.daily.time[ogIdx];
+const ogIdx = ogDayIndex(period, weather.daily.time[0]);
+const ogDate = ogIdx === null ? undefined : weather.daily.time[ogIdx];
 const ogImage = provinceSlug && ogDate ? ogImageUrl(provinceSlug, districtSlug, ogDate) : undefined;
-const ogImageAlt = ogImage
+const ogImageAlt = ogImage && ogIdx !== null
   ? `${displayName ?? cityName} ${ogIdx === 0 ? 'bugün' : 'yarın'} hava durumu: ${getWeatherDescription(weather.daily.weatherCode[ogIdx])}, ${Math.round(weather.daily.temperatureMin[ogIdx])}°C / ${Math.round(weather.daily.temperatureMax[ogIdx])}°C`
   : undefined;
 ---

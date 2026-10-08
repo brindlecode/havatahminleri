@@ -142,8 +142,26 @@ jobs:
       # Air quality, sea temperature and (when MeteoAlarm has a Turkey feed)
       # official warnings. Never fails the build: a missing section only hides
       # its boxes and pages.
+      # The previous extras fetch, so a feed that fails now can keep this
+      # morning's values (same day) instead of disappearing from the site.
+      - name: Restore the previous extras cache
+        uses: actions/cache/restore@v4
+        with:
+          path: src/data/extras-cache.json
+          key: extras-cache-${{ steps.date.outputs.day }}-${{ github.run_id }}
+          restore-keys: |
+            extras-cache-
+
       - name: Fetch air quality, sea temperature and warnings
         run: node scripts/fetch-extras.mjs
+
+      - name: Save the extras cache
+        if: success()
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: src/data/extras-cache.json
+          key: extras-cache-${{ steps.date.outputs.day }}-${{ github.run_id }}
 
       - name: Build site
         run: npx astro build

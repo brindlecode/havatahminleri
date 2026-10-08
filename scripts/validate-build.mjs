@@ -277,14 +277,20 @@ function checkPage(path, { periodSlug }) {
   // -- share image: a per-location PNG that was actually built, for the day
   //    the page is about (a missing file means a blank WhatsApp preview)
   const ogImage = firstMatch(html, /<meta property="og:image" content="([^"]*)"/);
+  const weekendFar = periodSlug === 'hafta-sonu' && WEEKEND_START > 1;
   if (!ogImage) fail(`${label}: no og:image`);
-  else if (!ogImage.startsWith(`${ORIGIN}/og/`)) fail(`${label}: og:image is not a location share image: ${ogImage}`);
+  else if (weekendFar) {
+    // No day image exists that far ahead: the site-wide default is expected.
+    if (ogImage !== `${ORIGIN}/og-image.png`) fail(`${label}: og:image ${ogImage} for a weekend ${WEEKEND_START} days ahead`);
+  } else if (!ogImage.startsWith(`${ORIGIN}/og/`)) fail(`${label}: og:image is not a location share image: ${ogImage}`);
   else {
     const ogFile = join(DIST, ogImage.slice(ORIGIN.length));
     if (!existsSync(ogFile)) fail(`${label}: og:image ${ogImage} was not built`);
     else if (statSync(ogFile).size > 300_000) warn(`${label}: og:image is over 300 KB (WhatsApp may not show it)`);
     const ogDay = firstMatch(ogImage, /-(\d{4}-\d{2}-\d{2})\.png$/);
-    const ogExpected = ['bugun', 'saatlik'].includes(periodSlug) ? TODAY : addDays(TODAY, 1);
+    const ogExpected = ['bugun', 'saatlik'].includes(periodSlug)
+      ? TODAY
+      : periodSlug === 'hafta-sonu' ? addDays(TODAY, WEEKEND_START) : addDays(TODAY, 1);
     if (ogDay !== ogExpected) fail(`${label}: og:image is for ${ogDay}, expected ${ogExpected}`);
   }
 

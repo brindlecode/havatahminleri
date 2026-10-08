@@ -34,6 +34,11 @@ test('today pages share today, every other page shares tomorrow', () => {
   assert.equal(ogDayIndex('bugun'), 0);
   assert.equal(ogDayIndex('saatlik'), 0);
   for (const p of ['base', 'yarin', '7gun', '10gun', '15gun']) assert.equal(ogDayIndex(p), 1);
+  // Weekend: its first day when that is today (Sat/Sun) or tomorrow (Fri).
+  assert.equal(ogDayIndex('haftasonu', '2026-10-10'), 0); // Saturday
+  assert.equal(ogDayIndex('haftasonu', '2026-10-11'), 0); // Sunday
+  assert.equal(ogDayIndex('haftasonu', '2026-10-09'), 1); // Friday
+  assert.equal(ogDayIndex('haftasonu', '2026-10-08'), null); // Thursday
 });
 
 test('image paths carry the date so cached previews never look current', () => {

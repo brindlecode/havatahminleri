@@ -150,6 +150,12 @@ async function main() {
     // ~260 weighted calls per request against a 600/minute limit.
     await delay(35000);
   }
+  // Nothing new (all 81 done, or a rate limit before the first province):
+  // leave the file untouched so the workflow has nothing to commit.
+  if (!done && existsSync(OUT)) {
+    log(`nothing new; ${Object.keys(data.provinces).length}/81 total`);
+    return;
+  }
   data.updatedAt = new Date().toISOString();
   writeFileSync(OUT, `${JSON.stringify(data)}\n`);
   log(`wrote ${done} new provinces; ${Object.keys(data.provinces).length}/81 total`);
