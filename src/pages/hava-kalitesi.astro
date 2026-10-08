@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import TurkeyMap from '../components/TurkeyMap.astro';
+import AdSlot from '../components/AdSlot.astro';
+import { generateLegalPageStructuredData } from '../lib/seo';
+import { airDay, allAir, AQI_BANDS, extrasDay } from '../lib/extras';
+import provinces from '../data/provinces.json';
+
+const pageName = 'Hava Kalitesi';
+const title = 'Hava Kalitesi: 81 İlde Bugün ve Yarın (AQI) - Yarın Hava';
+const description =
+  'Türkiye\'de 81 ilin bugünkü ve yarınki hava kalitesi: Avrupa Hava Kalitesi İndeksi (AQI), PM2,5 ve PM10 değerleri, en kirli saatler ve sağlık önerileri.';
+const canonical = 'https://yarinhava.com/hava-kalitesi/';
+const structuredData = generateLegalPageStructuredData(pageName, description, canonical);
+
+const air = allAir();
+const rows = provinces
+  .map((p: any) => ({ p, today: airDay(air[p.plate] ?? null, 0), tomorrow: airDay(air[p.plate] ?? null, 1) }))
+  .filter((r) => r.today)
+  .sort((a, b) => a.today!.typical - b.today!.typical);
+
+const tint = (hex: string) => `color-mix(in srgb, ${hex} 55%, white)`;
+const points = rows.map((r) => ({
+  name: r.p.name,
+  slug: r.p.slug,
+  plate: r.p.plate,
+  fill: tint(r.today!.band.color),
+  label: String(r.today!.typical),
+}));
+const best = rows.slice(0, 5);
+const worst = rows.slice(-5).reverse();
+const day = extrasDay();
+const dateText = day
+  ? new Date(`${day}T00:00:00Z`).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long', timeZone: 'UTC' })
+  : '';
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData}>
+  <Header slot="header" />
+
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <Breadcrumb items={[{ name: pageName, url: canonical }]} />
+    <h1 class="font-display text-[2rem] sm:text-[2.4rem] font-semibold tracking-[-0.03em] leading-tight mb-2">Türkiye Hava Kalitesi</h1>
+    <p class="text-[var(--color-text-secondary)] leading-relaxed mb-6 max-w-3xl">
+      {dateText && <>{dateText} için </>}81 ilin hava kalitesi tahmini. Haritadaki sayı, gün içinde
+      (08:00-22:00) beklenen tipik Avrupa Hava Kalitesi İndeksi'dir; düşük değer daha temiz hava demektir.
+    </p>
+
+    {rows.length === 0 ? (
+      <p class="weather-card">Hava kalitesi verisi şu anda alınamadı. Bir sonraki güncellemede yeniden denenecek.</p>
+    ) : (
+      <>
+        <section class="weather-card" aria-label="Hava kalitesi haritası">
+          <TurkeyMap points={points} caption="Bugün" title="Türkiye illeri hava kalitesi haritası (AQI)" legend={false} hash="#hava-kalitesi" />
+          <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[0.78rem] text-[var(--color-text-secondary)]">
+            {AQI_BANDS.map((b, i) => (
+              <li class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-full" style={`background:${b.color}`} aria-hidden="true"></span>
+                {b.label} <span class="tabular">({i === 0 ? '0' : AQI_BANDS[i - 1].max + 1}{b.max === Infinity ? '+' : `-${b.max}`})</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <div class="grid sm:grid-cols-2 gap-4 mt-4">
+          <section class="weather-card">
+            <h2 class="section-title">Havası en temiz iller</h2>
+            <ol class="space-y-1.5">
+              {best.map((r) => (
+                <li class="flex justify-between gap-3"><a class="hover:underline" href={`/${r.p.slug}-hava-durumu/#hava-kalitesi`}>{r.p.name}</a><span class="tabular text-[var(--color-text-secondary)]">{r.today!.band.label} · {r.today!.typical}</span></li>
+              ))}
+            </ol>
+          </section>
+          <section class="weather-card">
+            <h2 class="section-title">Hava kalitesi en düşük iller</h2>
+            <ol class="space-y-1.5">
+              {worst.map((r) => (
+                <li class="flex justify-between gap-3"><a class="hover:underline" href={`/${r.p.slug}-hava-durumu/#hava-kalitesi`}>{r.p.name}</a><span class="tabular text-[var(--color-text-secondary)]">{r.today!.band.label} · {r.today!.typical}</span></li>
+              ))}
+            </ol>
+          </section>
+        </div>
+
+        <AdSlot slot="inContent" id="aq-mid" />
+
+        <section class="weather-card mt-4" aria-labelledby="tum-iller">
+          <h2 id="tum-iller" class="section-title">81 ilin hava kalitesi</h2>
+          <div class="overflow-x-auto -mx-5 px-5">
+            <table class="w-full text-[0.88rem] tabular">
+              <thead class="text-left text-[0.78rem] text-[var(--color-text-secondary)]">
+                <tr>
+                  <th class="py-2 pr-3 font-semibold">İl</th>
+                  <th class="py-2 pr-3 font-semibold">Bugün</th>
+                  <th class="py-2 pr-3 font-semibold">En kötü saat</th>
+                  <th class="py-2 pr-3 font-semibold">Yarın</th>
+                  <th class="py-2 pr-3 font-semibold whitespace-nowrap">PM2,5</th>
+                  <th class="py-2 font-semibold">PM10</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...rows].sort((a, b) => a.p.name.localeCompare(b.p.name, 'tr')).map((r) => (
+                  <tr class="border-t border-[var(--color-border)]">
+                    <td class="py-2 pr-3"><a class="font-semibold hover:underline" href={`/${r.p.slug}-hava-durumu/#hava-kalitesi`}>{r.p.name}</a></td>
+                    <td class="py-2 pr-3 whitespace-nowrap">
+                      <span class="inline-block w-2.5 h-2.5 rounded-full mr-1.5" style={`background:${r.today!.band.color}`} aria-hidden="true"></span>{r.today!.band.label} ({r.today!.typical})
+                    </td>
+                    <td class="py-2 pr-3 whitespace-nowrap">{String(r.today!.worstHour).padStart(2, '0')}:00 · {r.today!.worst}</td>
+                    <td class="py-2 pr-3 whitespace-nowrap">{r.tomorrow ? `${r.tomorrow.band.label} (${r.tomorrow.typical})` : '-'}</td>
+                    <td class="py-2 pr-3">{r.today!.pm25 ?? '-'}</td>
+                    <td class="py-2">{r.today!.pm10 ?? '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </>
+    )}
+
+    <section class="weather-card mt-4 prose-text" aria-labelledby="aqi-nedir">
+      <h2 id="aqi-nedir" class="section-title">Hava kalitesi indeksi nedir?</h2>
+      <p>
+        Avrupa Hava Kalitesi İndeksi (European AQI), Avrupa Çevre Ajansı'nın kullandığı ölçektir. İnce partikül
+        madde (PM2,5), partikül madde (PM10), azot dioksit (NO₂), ozon (O₃) ve kükürt dioksitin (SO₂)
+        derişimlerinden hesaplanır; değer, o saatteki en kötü kirleticiye göre belirlenir.
+      </p>
+      <ul class="mt-3 space-y-2">
+        {AQI_BANDS.map((b) => (
+          <li class="flex gap-2.5"><span class="w-3 h-3 mt-1.5 rounded-full shrink-0" style={`background:${b.color}`} aria-hidden="true"></span><span><strong>{b.label}:</strong> {b.advice}</span></li>
+        ))}
+      </ul>
+      <p class="mt-3 text-[0.85rem] text-[var(--color-text-secondary)]">
+        Değerler ölçüm değil, Copernicus Atmosfer İzleme Servisi (CAMS) tahminidir ve il merkezi için hesaplanır.
+        Resmi ölçümler için Çevre, Şehircilik ve İklim Değişikliği Bakanlığı'nın Ulusal Hava Kalitesi İzleme Ağı'na bakabilirsiniz.
+        Veriler günde iki kez yenilenir.
+      </p>
+    </section>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>

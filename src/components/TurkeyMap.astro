@@ -6,19 +6,29 @@ interface Point {
   name: string;
   slug: string;
   plate: number;
-  temp: number;
+  temp?: number;
+  /** Fill colour; defaults to the temperature tint. */
+  fill?: string;
+  /** Text on the map; defaults to "<temp>°". Empty string: no label. */
+  label?: string;
 }
 
 interface Props {
   points: Point[];
   /** What the numbers are, e.g. "Bugün öğle". */
   caption: string;
+  /** Accessible map title; defaults to the temperature map's. */
+  title?: string;
+  /** Hide the temperature legend (pages that draw their own). */
+  legend?: boolean;
+  /** Fragment appended to each province link, e.g. "#hava-kalitesi". */
+  hash?: string;
 }
 
 // Every province drawn with its real outline, filled with a soft tint of the
 // site-wide temperature scale and labelled with its temperature. Each
 // province links to its page.
-const { points, caption } = Astro.props;
+const { points, caption, title, legend = true, hash = '' } = Astro.props;
 
 /** Visual centre of a province: area centroid of the path's vertices. */
 function centre(d: string): { x: number; y: number; w: number; h: number } {
@@ -44,49 +54,53 @@ const provinces = points
   .filter((p) => PROVINCE_PATHS[p.plate])
   .map((p) => {
     const d = PROVINCE_PATHS[p.plate];
-    return { ...p, d, c: centre(d), named: NAMED.has(p.slug) };
+    const label = p.label ?? (p.temp !== undefined ? `${p.temp}°` : '');
+    const fill = p.fill ?? tempTint(p.temp ?? 15, 0.36);
+    return { ...p, d, c: centre(d), named: NAMED.has(p.slug), label, fill };
   });
 
-const temps = points.map((p) => p.temp);
+const temps = points.map((p) => p.temp).filter((t): t is number => t !== undefined);
 const lo = Math.min(...temps);
 const hi = Math.max(...temps);
 ---
 
 <div>
   <svg class="tr-map w-full h-auto block" viewBox={MAP_VIEWBOX} role="img" aria-labelledby="tr-map-title">
-    <title id="tr-map-title">Türkiye illeri sıcaklık haritası ({caption})</title>
+    <title id="tr-map-title">{title ?? `Türkiye illeri sıcaklık haritası (${caption})`}</title>
     {provinces.map((p) => (
-      <a href={`/${p.slug}-hava-durumu/`} class="tr-prov">
-        <title>{p.name}: {p.temp}°</title>
-        <path d={p.d} fill={tempTint(p.temp, 0.36)} />
+      <a href={`/${p.slug}-hava-durumu/${hash}`} class="tr-prov">
+        <title>{p.label ? `${p.name}: ${p.label}` : p.name}</title>
+        <path d={p.d} style={`fill:${p.fill}`} data-plate={p.plate} />
       </a>
     ))}
     {/* Small provinces (Yalova, Kilis, Bartın...) get an invisible round
         target on top so they can still be tapped on a phone. */}
     <g aria-hidden="true">
       {provinces.filter((p) => p.c.w < 50 || p.c.h < 34).map((p) => (
-        <a href={`/${p.slug}-hava-durumu/`} tabindex="-1" class="tr-prov">
+        <a href={`/${p.slug}-hava-durumu/${hash}`} tabindex="-1" class="tr-prov">
           <circle cx={p.c.x.toFixed(0)} cy={p.c.y.toFixed(0)} r="34" fill="transparent" />
         </a>
       ))}
     </g>
     <g class="tr-labels" aria-hidden="true">
-      {provinces.map((p) => p.named ? (
+      {provinces.map((p) => !p.label ? null : p.named ? (
         <g>
           <text x={p.c.x.toFixed(0)} y={(p.c.y - 6).toFixed(0)} text-anchor="middle" class="tr-name">{p.name}</text>
-          <text x={p.c.x.toFixed(0)} y={(p.c.y + 14).toFixed(0)} text-anchor="middle" class="tr-temp">{p.temp}°</text>
+          <text x={p.c.x.toFixed(0)} y={(p.c.y + 14).toFixed(0)} text-anchor="middle" class="tr-temp">{p.label}</text>
         </g>
       ) : p.c.w >= 30 && p.c.h >= 20 ? (
-        <text x={p.c.x.toFixed(0)} y={(p.c.y + 6).toFixed(0)} text-anchor="middle" class="tr-temp tr-temp-sm">{p.temp}°</text>
+        <text x={p.c.x.toFixed(0)} y={(p.c.y + 6).toFixed(0)} text-anchor="middle" class="tr-temp tr-temp-sm">{p.label}</text>
       ) : null)}
     </g>
   </svg>
-  <div class="flex items-center gap-2 text-[0.72rem] text-[var(--color-text-secondary)] tabular mt-2">
-    <span>{lo}°</span>
-    <span class="flex-1 h-1.5 rounded-full" style={`background:${tempGradient(lo, hi)}`}></span>
-    <span>{hi}°</span>
-    <span class="ml-1">{caption}</span>
-  </div>
+  {legend && temps.length > 0 && (
+    <div class="flex items-center gap-2 text-[0.72rem] text-[var(--color-text-secondary)] tabular mt-2">
+      <span>{lo}°</span>
+      <span class="flex-1 h-1.5 rounded-full" style={`background:${tempGradient(lo, hi)}`}></span>
+      <span>{hi}°</span>
+      <span class="ml-1">{caption}</span>
+    </div>
+  )}
 </div>
 
 <style>
@@ -94,7 +108,7 @@ const hi = Math.max(...temps);
     stroke: var(--color-surface);
     stroke-width: 1.4;
     stroke-linejoin: round;
-    transition: filter 0.15s;
+    transition: filter 0.15s, fill 0.25s;
   }
   .tr-prov:hover path,
   .tr-prov:focus-visible path {

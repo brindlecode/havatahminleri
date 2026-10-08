@@ -7,6 +7,7 @@ import {
   getCanonicalForPeriod,
   getLocationPath,
   getPeriodLinks,
+  weekendRange,
 } from '../src/lib/periods.ts';
 import { getPeriodSEO, getLocationNames, buildBreadcrumbs } from '../src/lib/seo.ts';
 
@@ -138,14 +139,15 @@ test('canonical URLs are absolute, https and trailing-slashed', () => {
 
 test('period navigation links every intent exactly once', () => {
   const links = getPeriodLinks('/kocaeli-hava-durumu');
-  assert.equal(links.length, 6);
-  assert.equal(new Set(links.map((l) => l.href)).size, 6);
+  assert.equal(links.length, 7);
+  assert.equal(new Set(links.map((l) => l.href)).size, 7);
   for (const l of links) assert.ok(l.href.endsWith('/'), l.href);
   assert.deepEqual(
     links.map((l) => l.href),
     [
       '/kocaeli-hava-durumu/bugun/',
       '/kocaeli-hava-durumu/yarin/',
+      '/kocaeli-hava-durumu/hafta-sonu/',
       '/kocaeli-hava-durumu/7-gunluk/',
       '/kocaeli-hava-durumu/10-gunluk/',
       '/kocaeli-hava-durumu/15-gunluk/',
@@ -263,4 +265,25 @@ test('every period definition is internally consistent', () => {
   const slugs = PERIODS.map((p) => p.slug);
   assert.equal(new Set(slugs).size, slugs.length);
   for (const s of slugs) assert.match(s, /^[a-z0-9-]+$/);
+});
+
+test('the weekend page shows the coming Saturday and Sunday', () => {
+  // 2026-09-07 is a Monday ... 2026-09-13 a Sunday.
+  assert.deepEqual(weekendRange('2026-09-07'), { start: 5, count: 2 }); // Mon
+  assert.deepEqual(weekendRange('2026-09-11'), { start: 1, count: 2 }); // Fri
+  assert.deepEqual(weekendRange('2026-09-12'), { start: 0, count: 2 }); // Sat
+  assert.deepEqual(weekendRange('2026-09-13'), { start: 0, count: 1 }); // Sun
+
+  const mon = getPeriodForecastData(makeWeather('2026-09-07'), 'haftasonu');
+  assert.deepEqual(mon.daily.time, ['2026-09-12', '2026-09-13']);
+  assert.equal(mon.showHourly, false);
+
+  const fri = getPeriodForecastData(makeWeather('2026-09-11'), 'haftasonu');
+  assert.deepEqual(fri.daily.time, ['2026-09-12', '2026-09-13']);
+  assert.equal(fri.showHourly, true);
+  assert.deepEqual([fri.hourlyStart, fri.hourlyEnd], [24, 48]);
+
+  const sun = getPeriodForecastData(makeWeather('2026-09-13'), 'haftasonu');
+  assert.deepEqual(sun.daily.time, ['2026-09-13']);
+  assert.deepEqual([sun.hourlyStart, sun.hourlyEnd], [0, 24]);
 });

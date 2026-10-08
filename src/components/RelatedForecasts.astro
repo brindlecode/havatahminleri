@@ -1,5 +1,7 @@
 ---
 import { getPeriodLinks, type PeriodId } from '../lib/periods';
+import { getClimate, climatePath } from '../lib/climate';
+import provinces from '../data/provinces.json';
 
 interface Props {
   /** Name used in the anchor text ("Kocaeli", "İzmit", "Adıyaman Merkez"). */
@@ -15,6 +17,13 @@ const { cityName, basePath, current } = Astro.props;
 // Full query-shaped anchor text ("Kocaeli 15 Günlük Hava Durumu"); the tab
 // strip uses short labels. Self-links are dropped.
 const links = getPeriodLinks(basePath).filter((l) => l.id !== current);
+
+// The province's climate pages, once climate.json has its row. basePath is
+// "/kocaeli-hava-durumu" or "/kocaeli/izmit-hava-durumu".
+const seg = basePath.split('/').filter(Boolean);
+const provSlug = seg.length > 1 ? seg[0] : seg[0]?.replace(/-hava-durumu$/, '');
+const prov = provinces.find((p: any) => p.slug === provSlug);
+const climate = prov && getClimate(prov.plate) ? { href: climatePath(prov.slug), label: `${prov.name} İklimi ve Aylık Hava Durumu` } : null;
 ---
 
 <section class="weather-card">
@@ -26,5 +35,11 @@ const links = getPeriodLinks(basePath).filter((l) => l.id !== current);
         <svg class="w-4 h-4 shrink-0 opacity-50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6l6 6-6 6"/></svg>
       </a>
     ))}
+    {climate && (
+      <a href={climate.href} class="chip-link">
+        <span>{climate.label}</span>
+        <svg class="w-4 h-4 shrink-0 opacity-50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6l6 6-6 6"/></svg>
+      </a>
+    )}
   </div>
 </section>

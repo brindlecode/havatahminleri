@@ -1,8 +1,8 @@
 # Yarın Hava (yarinhava.com)
 
-> Türkiye'nin 81 ili ve 969 ilçesi için Türkçe hava durumu tahmini: yarın, bugün, saatlik (48 saat), 7, 10 ve 15 günlük tahminler. Veriler Open-Meteo'dan her gün Türkiye saatiyle 00:00'dan hemen sonra alınır ve site statik olarak yeniden oluşturulur.
+> Türkiye'nin 81 ili ve 969 ilçesi için Türkçe hava durumu tahmini: yarın, bugün, saatlik (48 saat), 7, 10 ve 15 günlük tahminler. Veriler Open-Meteo'dan günde iki kez, Türkiye saatiyle 00:00 ve 12:00'den hemen sonra alınır ve site statik olarak yeniden oluşturulur.
 >
-> Turkish-language weather forecasts for all 81 provinces and 969 districts of Turkey: tomorrow, today, hourly (48 h), 7-, 10- and 15-day forecasts. Data comes from Open-Meteo and is refreshed once a day, shortly after 00:00 Turkey time (Europe/Istanbul, UTC+3).
+> Turkish-language weather forecasts for all 81 provinces and 969 districts of Turkey: tomorrow, today, hourly (48 h), 7-, 10- and 15-day forecasts. Data comes from Open-Meteo and is refreshed twice a day, shortly after 00:00 and 12:00 Turkey time (Europe/Istanbul, UTC+3).
 
 Her sayfa tahminin ne zaman alındığını "Son güncelleme" olarak ve JSON-LD `dateModified` alanında gösterir. / Every page states when its forecast was fetched ("Son güncelleme", and `dateModified` in JSON-LD).
 
@@ -11,7 +11,7 @@ Her sayfa tahminin ne zaman alındığını "Son güncelleme" olarak ve JSON-LD 
 - Sağlayıcı / Provider: [Open-Meteo Forecast API](https://open-meteo.com/) (CC BY 4.0)
 - Modeller / Models: Open-Meteo "best match" seçimi; konum ve gün aralığına göre ulusal ve küresel modelleri birleştirir (ör. DWD ICON, ECMWF IFS, NOAA GFS, Météo-France). / Open-Meteo "best match" selection, combining national and global models (e.g. DWD ICON, ECMWF IFS, NOAA GFS, Météo-France) by location and lead time.
 - Değişkenler / Variables: sıcaklık, hissedilen sıcaklık, hava durumu kodu (WMO), yağış olasılığı ve miktarı, rüzgar hızı ve yönü, nem, basınç, bulutluluk, görüş mesafesi, UV indeksi, gün doğumu/batımı.
-- Güncelleme / Update cadence: günde bir kez, Türkiye saatiyle 00:00'dan sonra (yedek çalışma 05:30). / Once a day after 00:00 Turkey time (backup run at 05:30).
+- Güncelleme / Update cadence: günde iki kez, Türkiye saatiyle 00:00 ve 12:00'dan sonra. / Twice a day, after 00:00 and 12:00 Turkey time.
 - Birimler / Units: °C, km/s (km/h), mm, %.
 - Koordinatlar / Coordinates: ilçe merkezleri GeoNames verisinden. / District centres from GeoNames.
 
@@ -22,10 +22,12 @@ Her sayfa tahminin ne zaman alındığını "Son güncelleme" olarak ve JSON-LD 
 - Dönem sayfaları / Period pages, appended to either of the above:
   - `bugun/` — bugün / today
   - `yarin/` — yarın / tomorrow
+  - `hafta-sonu/` — gelecek cumartesi ve pazar / the coming weekend
   - `saatlik/` — önümüzdeki 48 saat / next 48 hours
   - `7-gunluk/` — 7 günlük / 7 days
   - `10-gunluk/` — 10 günlük / 10 days
   - `15-gunluk/` — 15 günlük / 15 days
+- İl iklim sayfaları / Province climate pages: `https://yarinhava.com/{il}-hava-durumu/iklim/` ve aylar / and months `.../iklim/{ocak|subat|mart|nisan|mayis|haziran|temmuz|agustos|eylul|ekim|kasim|aralik}/` (2015-2024 ERA5 ortalamaları / averages)
 - Slug'lar Türkçe karakterlerden arındırılmış küçük harflerdir (İstanbul → `istanbul`, Şişli → `sisli`). / Slugs are ASCII-folded lowercase names.
 - Tüm URL'ler eğik çizgiyle biter. / All URLs end with a trailing slash.
 
@@ -39,6 +41,10 @@ Her sayfa tahminin ne zaman alındığını "Son güncelleme" olarak ve JSON-LD 
 - [Bursa hava durumu](https://yarinhava.com/bursa-hava-durumu/)
 - [İstanbul 15 günlük hava durumu](https://yarinhava.com/istanbul-hava-durumu/15-gunluk/)
 - [İstanbul saatlik hava durumu](https://yarinhava.com/istanbul-hava-durumu/saatlik/)
+- [Yağış haritası / Precipitation map (48 h)](https://yarinhava.com/yagis-haritasi/)
+- [Hava uyarıları / Severe-weather alerts (forecast-based)](https://yarinhava.com/hava-uyarilari/)
+- [Hava kalitesi / Air quality, 81 provinces (European AQI, CAMS)](https://yarinhava.com/hava-kalitesi/)
+- [Deniz suyu sıcaklığı / Sea surface temperature](https://yarinhava.com/deniz-suyu-sicakligi/)
 - [Kadıköy (İstanbul) hava durumu](https://yarinhava.com/istanbul/kadikoy-hava-durumu/)
 - [Çankaya (Ankara) hava durumu](https://yarinhava.com/ankara/cankaya-hava-durumu/)
 

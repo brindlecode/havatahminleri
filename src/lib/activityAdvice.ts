@@ -1,7 +1,7 @@
 import type { WeatherData } from './weather.ts';
 import { getCityLocative } from './utils.ts';
 import { weekdayName, dayMonth } from './periodSummary.ts';
-import type { PeriodId } from './periods.ts';
+import { weekendRange, type PeriodId } from './periods.ts';
 
 /**
  * "Araba yıkanır mı, cam silinir mi, çamaşır kurur mu?" - everyday chores
@@ -404,7 +404,8 @@ export function getActivityAdvice(
 ): ActivityAdviceSet | null {
   const loc = getCityLocative(cityName);
   const isRange = periodId === '7gun' || periodId === '10gun' || periodId === '15gun';
-  const target = periodId === 'bugun' || periodId === 'saatlik' || isRange ? 0 : 1;
+  const weekend = periodId === 'haftasonu' && weather.daily.time[0] ? weekendRange(weather.daily.time[0]) : null;
+  const target = weekend ? weekend.start : periodId === 'bugun' || periodId === 'saatlik' || isRange ? 0 : 1;
   const targetDay = getDay(weather, target);
   if (!targetDay) return null;
 
@@ -414,7 +415,12 @@ export function getActivityAdvice(
     let ev = EVALUATORS[a.id](weather, day, loc);
     let detail = ev.detail;
 
-    if (isRange) {
+    if (weekend) {
+      const best = bestDay(weather, a.id, weekend.start, weekend.start + weekend.count, loc);
+      if (!best) continue;
+      ({ day, ev } = best);
+      detail = ev.detail;
+    } else if (isRange) {
       const best = bestDay(weather, a.id, 0, LOOKAHEAD_DAYS, loc);
       if (!best) continue;
       ({ day, ev } = best);
@@ -451,7 +457,12 @@ export function getActivityAdvice(
   let intro: string;
   let shareHead: string;
   let lines: string[];
-  if (isRange) {
+  if (weekend) {
+    heading = 'Hafta sonu araba yıkanır mı, cam silinir mi?';
+    intro = `${loc} hafta sonu beklenen havaya göre araç yıkama, cam silme ve çamaşır kurutma için en uygun gün.`;
+    shareHead = `📋 ${loc} hafta sonu ne yapılır?`;
+    lines = items.map((i) => `${i.emoji} ${i.title}: ${i.dayLabel} ${VERDICT_EMOJI[i.verdict]}`);
+  } else if (isRange) {
     heading = 'Bu hafta araba yıkamak ve cam silmek için en uygun gün';
     intro = `${loc} önümüzdeki 7 günün tahminine göre araç yıkama, cam silme ve çamaşır kurutma için en uygun günler.`;
     shareHead = `📋 ${loc} bu hafta en uygun günler:`;

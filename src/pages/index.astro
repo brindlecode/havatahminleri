@@ -9,6 +9,9 @@ import AdSlot from '../components/AdSlot.astro';
 import { getHomeSEO, generateStructuredData } from '../lib/seo';
 import { fetchWeatherData } from '../lib/weather';
 import { formatDate } from '../lib/utils';
+import { getAlerts } from '../lib/alerts';
+import { airDay, allAir, allSea, seaDay } from '../lib/extras';
+import coastal from '../data/coastalPoints.json';
 import provinces from '../data/provinces.json';
 import regions from '../data/regions.json';
 
@@ -51,6 +54,24 @@ const popularCitiesWeather = allWeather
 
 const firstDay = allWeather.find((x) => x.w)?.w?.daily.time[0];
 const todayLabel = firstDay ? formatDate(firstDay, { weekday: 'long', day: 'numeric', month: 'long' }) : '';
+
+// "Keşfet": one live number per national page.
+const alertCount = allWeather.filter(({ w }) => w && getAlerts(w).length).length;
+const rainCount = allWeather.filter(({ w }) =>
+  w?.hourly.precipitationProbability.slice(12, 36).some((v, i) => (v ?? 0) >= 50 && w.hourly.weatherCode[12 + i] >= 51),
+).length;
+const air = allAir();
+const airRows = provinces.map((p: any) => ({ p, d: airDay(air[p.plate] ?? null, 0) })).filter((x) => x.d);
+const cleanest = airRows.sort((a, b) => a.d!.typical - b.d!.typical)[0];
+const sea = allSea();
+const seaRows = coastal.points.map((pt) => ({ pt, d: seaDay(sea[pt.plate] ?? null, 0) })).filter((x) => x.d);
+const warmSea = seaRows.sort((a, b) => b.d!.temp - a.d!.temp)[0];
+const explore = [
+  { href: '/hava-uyarilari/', title: 'Hava uyarıları', value: alertCount ? `${alertCount} ilde uyarı` : 'Uyarı yok', note: 'Yağış, rüzgar, kar, aşırı sıcak', accent: '#f08a1c' },
+  { href: '/yagis-haritasi/', title: 'Yağış haritası', value: rainCount ? `${rainCount} ilde yağış` : 'Yağış beklenmiyor', note: 'Önümüzdeki 48 saat, saat saat', accent: '#4b8fe6' },
+  ...(cleanest ? [{ href: '/hava-kalitesi/', title: 'Hava kalitesi', value: `${cleanest.d!.band.label}: ${cleanest.p.name}`, note: 'En temiz il · 81 ilin AQI değeri', accent: '#4cb38f' }] : []),
+  ...(warmSea ? [{ href: '/deniz-suyu-sicakligi/', title: 'Deniz suyu', value: `${warmSea.pt.place} ${warmSea.d!.temp}°`, note: 'En ılık deniz · tüm kıyılar', accent: '#38b6e8' }] : []),
+];
 
 const regionGroups = regions.map((r: any) => ({
   ...r,
@@ -128,6 +149,22 @@ const regionGroups = regions.map((r: any) => ({
 
     <AdSlot slot="header" id="home-top" />
     <PopularCities cities={popularCitiesWeather} />
+
+    <section aria-labelledby="kesfet-title">
+      <h2 id="kesfet-title" class="section-title !text-[1.35rem]">Keşfet</h2>
+      <ul class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {explore.map((x) => (
+          <li>
+            <a href={x.href} class="weather-card !p-4 block h-full hover:border-[var(--color-accent)] transition-colors">
+              <span class="block w-8 h-1 rounded-full mb-3" style={`background:${x.accent}`} aria-hidden="true"></span>
+              <span class="block text-[0.8rem] font-semibold text-[var(--color-text-secondary)]">{x.title}</span>
+              <span class="block font-display text-[1.15rem] font-semibold tracking-[-0.02em] leading-tight mt-0.5">{x.value}</span>
+              <span class="block text-[0.75rem] text-[var(--color-text-secondary)] mt-1">{x.note}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
     <AdSlot slot="inContent" id="home-mid" />
 
     <section>
@@ -155,7 +192,7 @@ const regionGroups = regions.map((r: any) => ({
       <div class="prose-text space-y-3 text-[var(--color-text-secondary)]">
         <p>
           YarınHava.com, Türkiye'nin 81 ili ve 969 ilçesi için güncel hava durumu bilgisini ve 15 günlük
-          tahminleri sunar. Tahminler her gün gece yarısından sonra yenilenir; sayfalardaki "şu an" değeri,
+          tahminleri sunar. Tahminler günde iki kez, gece yarısından ve öğlenden sonra yenilenir; sayfalardaki "şu an" değeri,
           ziyaret ettiğiniz saatin tahminini gösterir.
         </p>
         <p>

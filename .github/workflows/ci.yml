@@ -39,3 +39,14 @@ jobs:
 
       - name: Build and validate with synthetic data
         run: npm run build:offline
+
+      # The air quality, sea temperature and warning feeds, and the climate
+      # archive. Informational: the logs show what the parsers saw; the
+      # forecast build never depends on these.
+      - name: Extras contract check (air quality, sea, warnings)
+        continue-on-error: true
+        run: node scripts/fetch-extras.mjs --verbose --out "$RUNNER_TEMP/extras.json"
+
+      - name: Climate archive contract check
+        continue-on-error: true
+        run: node scripts/fetch-climate.mjs --probe

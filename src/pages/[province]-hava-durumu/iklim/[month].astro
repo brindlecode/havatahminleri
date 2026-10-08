@@ -1,0 +1,173 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import ClimateChart from '../../../components/ClimateChart.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import { getClimate, climatePath, climatePeriod, clothing, monthAnswer, MONTHS, MONTH_LOCATIVE, type ClimateMonth } from '../../../lib/climate';
+import { getNearbyProvinces } from '../../../lib/nearby';
+import { getCityLocative, istanbulDate } from '../../../lib/utils';
+import { getLocationPath } from '../../../lib/periods';
+import { tempColor } from '../../../lib/tempScale';
+import provinces from '../../../data/provinces.json';
+
+export function getStaticPaths() {
+  const paths: any[] = [];
+  for (const p of provinces) {
+    const rows = getClimate(p.plate);
+    if (!rows) continue;
+    MONTHS.forEach((m, i) => paths.push({ params: { province: p.slug, month: m.slug }, props: { province: p, month: i, rows } }));
+  }
+  return paths;
+}
+
+const { province, month, rows } = Astro.props as { province: any; month: number; rows: ClimateMonth[] };
+const m = rows[month];
+const M = MONTHS[month];
+const ORIGIN = 'https://yarinhava.com';
+const canonical = `${ORIGIN}${climatePath(province.slug, month)}`;
+const locative = getCityLocative(province.name);
+const title = `${province.name} ${M.name} Ayı Hava Durumu ve İklimi - Yarın Hava`;
+const descBase = `${locative} ${M.name.toLocaleLowerCase('tr')} ayında hava nasıl? Ortalama sıcaklık ${Math.round(m.lo)}°-${Math.round(m.hi)}°, aylık yağış ${m.precip} mm, ${Math.round(m.rainyDays)} yağışlı gün.`;
+const description = descBase.length < 125 ? `${descBase} Ne giyilir, rekorlar ve aylık tablo.` : descBase;
+const period = climatePeriod();
+const prev = (month + 11) % 12;
+const next = (month + 1) % 12;
+const isCurrentMonth = Number(istanbulDate().slice(5, 7)) - 1 === month;
+const fmt = (n: number) => n.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
+const warmest = rows.reduce((a, b, i) => (b.hi > rows[a].hi ? i : a), 0);
+const wettest = rows.reduce((a, b, i) => (b.precip > rows[a].precip ? i : a), 0);
+const others = getNearbyProvinces(province.slug, 8)
+  .map((n) => ({ n, rows: getClimate((provinces.find((p: any) => p.slug === n.slug) as any).plate) }))
+  .filter((x) => x.rows)
+  .slice(0, 6);
+
+const stats: { label: string; value: string; note?: string }[] = [
+  { label: 'Ortalama en yüksek', value: `${fmt(m.hi)}°` },
+  { label: 'Ortalama en düşük', value: `${fmt(m.lo)}°` },
+  { label: 'Aylık yağış', value: `${m.precip} mm` },
+  { label: 'Yağışlı gün', value: fmt(m.rainyDays), note: '1 mm ve üzeri' },
+  { label: 'Günlük güneşlenme', value: `${fmt(m.sunHours)} saat` },
+  { label: 'En sert rüzgar', value: `${m.windMax} km/s`, note: 'günlük ortalama' },
+];
+if (m.hotDays >= 0.5) stats.push({ label: '30° üstü gün', value: fmt(m.hotDays) });
+if (m.frostDays >= 0.5) stats.push({ label: 'Donlu gün', value: fmt(m.frostDays), note: '0° altı gece' });
+if (m.snowyDays >= 0.5) stats.push({ label: 'Karlı gün', value: fmt(m.snowyDays) });
+
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: `${province.name} ${M.name} Hava Durumu`,
+    description,
+    url: canonical,
+    inLanguage: 'tr-TR',
+    about: { '@type': 'Place', name: province.name, geo: { '@type': 'GeoCoordinates', latitude: province.lat, longitude: province.lon } },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: `${ORIGIN}/` },
+      { '@type': 'ListItem', position: 2, name: `${province.name} Hava Durumu`, item: `${ORIGIN}${getLocationPath(province.slug)}` },
+      { '@type': 'ListItem', position: 3, name: `${province.name} İklimi`, item: `${ORIGIN}${climatePath(province.slug)}` },
+      { '@type': 'ListItem', position: 4, name: M.name, item: canonical },
+    ],
+  },
+].map((x) => JSON.stringify(x)).join('\n');
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData} lat={province.lat} lon={province.lon}>
+  <Header slot="header" />
+
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <Breadcrumb items={[
+      { name: `${province.name} Hava Durumu`, url: getLocationPath(province.slug) },
+      { name: 'İklim', url: climatePath(province.slug) },
+      { name: M.name, url: canonical },
+    ]} />
+
+    <h1 class="font-display text-[1.9rem] sm:text-[2.4rem] font-semibold tracking-[-0.03em] leading-tight mb-3">{province.name} {M.name} Hava Durumu</h1>
+    <p class="text-[1.02rem] leading-relaxed max-w-3xl">{monthAnswer(locative, month, m)}</p>
+
+    {isCurrentMonth && (
+      <a href={`${getLocationPath(province.slug)}15-gunluk/`} class="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--color-accent)] text-white px-4 py-2 text-[0.9rem] font-semibold hover:brightness-110">
+        Bu ayın önümüzdeki günleri: {province.name} 15 günlük tahmin
+      </a>
+    )}
+
+    <section class="weather-card mt-6" aria-labelledby="ozet">
+      <h2 id="ozet" class="section-title">{province.name} {M.name.toLocaleLowerCase('tr')} ayı ortalamaları</h2>
+      <dl class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+        {stats.map((s) => (
+          <div class="rounded-2xl bg-[var(--color-surface-2)] p-3.5">
+            <dt class="text-[0.78rem] text-[var(--color-text-secondary)]">{s.label}</dt>
+            <dd class="font-display text-[1.45rem] font-semibold tracking-[-0.02em] tabular leading-tight mt-0.5">{s.value}</dd>
+            {s.note && <dd class="text-[0.7rem] text-[var(--color-text-secondary)]">{s.note}</dd>}
+          </div>
+        ))}
+      </dl>
+      <p class="mt-3 text-[0.85rem] text-[var(--color-text-secondary)]">
+        Rekorlar ({period}): en sıcak <strong class="text-[var(--color-text)] tabular">{fmt(m.recordHi)}°</strong> ({m.recordHiYear}),
+        en soğuk <strong class="text-[var(--color-text)] tabular">{fmt(m.recordLo)}°</strong> ({m.recordLoYear}).
+      </p>
+    </section>
+
+    <div class="grid sm:grid-cols-2 gap-4 mt-4">
+      <section class="weather-card" aria-labelledby="giyim">
+        <h2 id="giyim" class="section-title">{M.name} ayında ne giyilir?</h2>
+        <p class="leading-relaxed">{clothing(m)}</p>
+      </section>
+      <section class="weather-card" aria-labelledby="karsilastir">
+        <h2 id="karsilastir" class="section-title">Önceki ve sonraki ay</h2>
+        <ul class="space-y-2">
+          {[prev, next].map((i) => (
+            <li>
+              <a href={climatePath(province.slug, i)} class="flex justify-between gap-3 hover:underline">
+                <span class="font-semibold">{MONTHS[i].name}</span>
+                <span class="tabular text-[var(--color-text-secondary)]">{Math.round(rows[i].lo)}° / {Math.round(rows[i].hi)}° · {rows[i].precip} mm</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-3 text-[0.85rem] text-[var(--color-text-secondary)]">
+          {locative} en sıcak ay {MONTHS[warmest].name.toLocaleLowerCase('tr')}, en yağışlı ay {MONTHS[wettest].name.toLocaleLowerCase('tr')}.
+        </p>
+      </section>
+    </div>
+
+    <AdSlot slot="inContent" id="climate-mid" />
+
+    <section class="weather-card mt-4" aria-labelledby="yil">
+      <h2 id="yil" class="section-title">{province.name} aylara göre sıcaklık ve yağış</h2>
+      <ClimateChart rows={rows} provinceSlug={province.slug} active={month} />
+    </section>
+
+    {others.length > 0 && (
+      <section class="weather-card mt-4" aria-labelledby="komsu">
+        <h2 id="komsu" class="section-title">{MONTH_LOCATIVE[month]} yakın iller</h2>
+        <ul class="grid sm:grid-cols-2 gap-x-6">
+          {others.map(({ n, rows: r }) => (
+            <li class="border-t border-[var(--color-border)]">
+              <a href={climatePath(n.slug, month)} class="flex justify-between gap-3 py-2 hover:underline">
+                <span>{n.name} {M.name.toLocaleLowerCase('tr')} hava durumu</span>
+                <span class="tabular text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full" style={`background:${tempColor(r![month].hi)}`} aria-hidden="true"></span>
+                  {Math.round(r![month].lo)}° / {Math.round(r![month].hi)}°
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <p class="mt-6 text-[0.8rem] text-[var(--color-text-secondary)] leading-relaxed">
+      Değerler {period} yıllarının günlük verilerinden (ERA5 yeniden analizi, Open-Meteo) {province.name} il merkezi için hesaplanmış ortalamalardır;
+      tek bir yılın havası bu ortalamalardan belirgin şekilde sapabilir. Güncel tahmin için <a class="font-semibold text-[var(--color-accent)] hover:underline" href={getLocationPath(province.slug)}>{province.name} hava durumu</a> sayfasına bakın.
+    </p>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>

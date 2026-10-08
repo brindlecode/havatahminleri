@@ -15,7 +15,7 @@ import type { WeatherData, DailyForecast } from './weather.ts';
  * [period].astro routes and both landing pages, which is how the "15 Günlük"
  * page ended up rendering 16 days.
  */
-export type PeriodId = 'base' | 'bugun' | 'yarin' | '7gun' | '10gun' | '15gun' | 'saatlik';
+export type PeriodId = 'base' | 'bugun' | 'yarin' | 'haftasonu' | '7gun' | '10gun' | '15gun' | 'saatlik';
 
 export interface ForecastPeriod {
   id: PeriodId;
@@ -66,6 +66,19 @@ export const PERIOD_DEFS: Record<PeriodId, ForecastPeriod> = {
     dailyTitle: 'Yarınki Hava Durumu',
     hourlyTitle: 'Yarın Saat Saat',
   },
+  // The coming weekend. Which days that is depends on the build date, so the
+  // dayStart / dayCount / hourly below are placeholders that
+  // resolvePeriod() replaces from the forecast's first day.
+  haftasonu: {
+    id: 'haftasonu',
+    slug: 'hafta-sonu',
+    label: 'Hafta Sonu',
+    dayStart: 0,
+    dayCount: 2,
+    hourly: null,
+    dailyTitle: 'Hafta Sonu Hava Durumu',
+    hourlyTitle: 'Hafta Sonu Saat Saat',
+  },
   '7gun': {
     id: '7gun',
     slug: '7-gunluk',
@@ -115,6 +128,7 @@ export const PERIOD_DEFS: Record<PeriodId, ForecastPeriod> = {
 export const PERIODS: ForecastPeriod[] = [
   PERIOD_DEFS.bugun,
   PERIOD_DEFS.yarin,
+  PERIOD_DEFS.haftasonu,
   PERIOD_DEFS['7gun'],
   PERIOD_DEFS['10gun'],
   PERIOD_DEFS['15gun'],
@@ -122,6 +136,29 @@ export const PERIODS: ForecastPeriod[] = [
 ];
 
 export const SITE_ORIGIN = 'https://yarinhava.com';
+
+/**
+ * Daily indexes of the weekend the "Hafta Sonu" page is about, given the
+ * forecast's first day (YYYY-MM-DD, today): Monday-Friday -> the coming
+ * Saturday and Sunday, Saturday -> today and tomorrow, Sunday -> today only.
+ */
+export function weekendRange(firstDay: string): { start: number; count: number } {
+  const dow = new Date(`${firstDay}T00:00:00Z`).getUTCDay();
+  if (dow === 6) return { start: 0, count: 2 };
+  if (dow === 0) return { start: 0, count: 1 };
+  return { start: 6 - dow, count: 2 };
+}
+
+/** A period with its date-dependent fields filled in for this forecast. */
+export function resolvePeriod(periodId: PeriodId, firstDay: string | undefined): ForecastPeriod {
+  const def = PERIOD_DEFS[periodId];
+  if (periodId !== 'haftasonu' || !firstDay) return def;
+  const { start, count } = weekendRange(firstDay);
+  // The 48-hour series covers today and tomorrow; show it when the weekend
+  // starts within it.
+  const hourly: [number, number] | null = start <= 1 ? [start * 24, Math.min(48, (start + count) * 24)] : null;
+  return { ...def, dayStart: start, dayCount: count, hourly };
+}
 
 /** Path (always with trailing slash) of a location's landing page. */
 export function getLocationPath(provinceSlug: string, districtSlug?: string | null): string {
@@ -190,7 +227,7 @@ export function getPeriodForecastData(
   weather: WeatherData,
   periodId: PeriodId,
 ): PeriodForecastData {
-  const period = PERIOD_DEFS[periodId];
+  const period = resolvePeriod(periodId, weather.daily.time[0]);
   const available = Math.max(0, weather.daily.time.length - period.dayStart);
   const count = Math.min(period.dayCount, available);
 

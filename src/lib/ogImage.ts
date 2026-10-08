@@ -3,7 +3,7 @@ import { getWeatherDescription } from './weatherCodes.ts';
 import { getIconSVG } from './weatherIconSvg.ts';
 import { getActivityAdvice, type Verdict } from './activityAdvice.ts';
 import { weekdayName, dayMonth } from './periodSummary.ts';
-import { SITE_ORIGIN, type PeriodId } from './periods.ts';
+import { SITE_ORIGIN, weekendRange, type PeriodId } from './periods.ts';
 
 /**
  * Per-location share images (Open Graph / WhatsApp link previews).
@@ -19,8 +19,17 @@ import { SITE_ORIGIN, type PeriodId } from './periods.ts';
 export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
 
-/** Pages about today show today's image; every other page shows tomorrow's. */
-export function ogDayIndex(period: PeriodId): 0 | 1 {
+/**
+ * Pages about today show today's image; every other page shows tomorrow's.
+ * The weekend page shows its first day when that is today or tomorrow, and
+ * no day image (null: the site-wide default) when the weekend is further out,
+ * since images exist for today and tomorrow only.
+ */
+export function ogDayIndex(period: PeriodId, firstDay?: string): 0 | 1 | null {
+  if (period === 'haftasonu') {
+    const start = firstDay ? weekendRange(firstDay).start : 2;
+    return start === 0 || start === 1 ? start : null;
+  }
   return period === 'bugun' || period === 'saatlik' ? 0 : 1;
 }
 

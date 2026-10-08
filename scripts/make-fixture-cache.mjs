@@ -165,3 +165,30 @@ writeFileSync(
 
 console.log(`[FIXTURE] Wrote ${keys.size} synthetic locations for ${day} to ${OUT}`);
 console.log('[FIXTURE] THIS IS NOT REAL WEATHER DATA - never deploy a build made from it.');
+
+// Synthetic air quality and sea temperature in the shape scripts/fetch-extras.mjs
+// writes, so the boxes and pages that use them are built and validated
+// offline too. Only next to the real cache location, never with --out.
+if (outFlag === -1) {
+  const coastal = JSON.parse(readFileSync(join(DATA, 'coastalPoints.json'), 'utf-8')).points;
+  const hours = Array.from({ length: 48 }, (_, i) => `${addDays(day, Math.floor(i / 24))}T${pad(i % 24)}:00`);
+  const air = {};
+  for (const p of provinces) {
+    const r = hash(`aq${p.plate}`);
+    const base = 10 + r * 60;
+    air[p.plate] = {
+      time: hours,
+      aqi: hours.map((_, i) => Math.round(base + 12 * Math.sin(((i % 24) - 6) / 3.8))),
+      pm25: hours.map(() => Math.round(base * 0.5)),
+      pm10: hours.map(() => Math.round(base * 0.8)),
+    };
+  }
+  const sea = {};
+  for (const pt of coastal) {
+    const t = 17 + hash(`sea${pt.plate}`) * 11;
+    sea[pt.plate] = { time: hours, sst: hours.map((_, i) => Math.round((t + 0.4 * Math.sin(i / 4)) * 10) / 10), waveMax: [0.4, 0.8] };
+  }
+  const extras = { fetchedAt: new Date().toISOString(), day, synthetic: true, air, sea, warnings: { source: '', ok: false, items: [] } };
+  writeFileSync(join(DATA, 'extras-cache.json'), JSON.stringify(extras));
+  console.log(`[FIXTURE] Wrote synthetic air quality (${provinces.length}) and sea (${coastal.length}) data`);
+}

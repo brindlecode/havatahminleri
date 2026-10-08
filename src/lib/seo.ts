@@ -183,7 +183,7 @@ function periodSEOCore(
     weather?.maxTemp !== undefined && weather?.minTemp !== undefined
       ? `${Math.round(weather.minTemp)}°C - ${Math.round(weather.maxTemp)}°C`
       : null;
-  const PAD = ['Her gün güncellenir.', 'Kaynak: Open-Meteo.'];
+  const PAD = ['Günde iki kez güncellenir.', 'Kaynak: Open-Meteo.'];
 
   switch (periodId) {
     case 'bugun':
@@ -231,6 +231,26 @@ function periodSEOCore(
         ),
         canonical,
         heading: `${d} Yarın Hava Durumu`,
+      };
+
+    case 'haftasonu':
+      return {
+        title: fitTitle([
+          `${q} Hafta Sonu Hava Durumu - Cumartesi ve Pazar${BRAND}`,
+          `${q} Hafta Sonu Hava Durumu${BRAND}`,
+          `${q} Hafta Sonu Hava Durumu`,
+        ]),
+        description: fitDescription(
+          `${locative} hafta sonu hava nasıl olacak?`,
+          [[
+            'Cumartesi ve pazar için en yüksek ve en düşük sıcaklık, yağış olasılığı, rüzgar ve dışarı çıkmak için en uygun saatler.',
+            'Cumartesi ve pazar için en yüksek-en düşük sıcaklık, yağış olasılığı ve rüzgar.',
+            'Cumartesi ve pazar için sıcaklık ve yağış olasılığı.',
+          ]],
+          PAD,
+        ),
+        canonical,
+        heading: `${d} Hafta Sonu Hava Durumu`,
       };
 
     case '7gun':
