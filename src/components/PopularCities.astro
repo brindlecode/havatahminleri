@@ -1,7 +1,8 @@
 ---
 import WeatherIcon from './WeatherIcon.astro';
 import { getWeatherDescription } from '../lib/weatherCodes';
-import { getSkyClass } from '../lib/sky';
+import { tempColor, tempGradient } from '../lib/tempScale';
+import { smoothPath } from '../lib/curve';
 
 interface CityWeather {
   name: string;
@@ -10,8 +11,10 @@ interface CityWeather {
   weatherCode: number;
   max: number;
   min: number;
-  lat?: number;
-  lon?: number;
+  tomorrowCode?: number;
+  tomorrowMax?: number;
+  /** Daily highs for the coming week, for the trend line. */
+  week?: number[];
 }
 
 interface Props {
@@ -19,26 +22,68 @@ interface Props {
 }
 
 const { cities } = Astro.props;
+const gMin = Math.min(...cities.map((c) => Math.round(c.min)));
+const gMax = Math.max(...cities.map((c) => Math.round(c.max)));
+const range = gMax - gMin || 1;
+
+function spark(vals: number[]) {
+  const w = 96;
+  const h = 28;
+  const mn = Math.min(...vals);
+  const mx = Math.max(...vals);
+  const pts = vals.map((v, i) => ({ x: 2 + (i * (w - 4)) / (vals.length - 1), y: h - 3 - ((v - mn) / (mx - mn || 1)) * (h - 6) }));
+  return { w, h, d: smoothPath(pts), end: pts[pts.length - 1] };
+}
 ---
 
-<section>
-  <div class="flex items-baseline justify-between mb-3">
-    <h2 class="text-xl font-bold tracking-tight">Popüler Şehirler</h2>
+<section aria-labelledby="popular-title" class="weather-card !pb-2">
+  <div class="flex items-baseline justify-between mb-1">
+    <h2 id="popular-title" class="section-title !mb-0 !text-[1.35rem]">Büyük Şehirler</h2>
     <span class="text-xs text-[var(--color-text-secondary)]">Bugün öğle tahmini</span>
   </div>
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-    {cities.map((city) => (
-      <a
-        href={`/${city.slug}-hava-durumu/`}
-        class:list={['sky rounded-3xl p-4 flex flex-col min-h-[8.5rem] hover:brightness-105 transition', getSkyClass(city.weatherCode, true)]}
-      >
-        <div class="flex items-start justify-between gap-2">
-          <h3 class="text-[0.95rem] font-semibold leading-tight">{city.name}</h3>
-          <WeatherIcon code={city.weatherCode} size="w-9 h-9 -mt-1 -mr-1" decorative />
-        </div>
-        <p class="mt-auto text-4xl font-light tracking-tight tabular">{Math.round(city.temperature)}°</p>
-        <p class="text-xs text-white/85 leading-snug">{getWeatherDescription(city.weatherCode)} · {Math.round(city.max)}° / {Math.round(city.min)}°</p>
-      </a>
-    ))}
-  </div>
+  <ul class="divide-y divide-[var(--color-border)]">
+    {cities.map((city) => {
+      const lo = Math.round(city.min);
+      const hi = Math.round(city.max);
+      const s = city.week && city.week.length > 2 ? spark(city.week.map(Math.round)) : null;
+      return (
+        <li>
+          <a
+            href={`/${city.slug}-hava-durumu/`}
+            class="grid grid-cols-[minmax(0,1fr)_2.25rem_3.25rem] sm:grid-cols-[8.5rem_2.5rem_3.5rem_minmax(0,1fr)_minmax(0,12rem)] lg:grid-cols-[9rem_2.5rem_3.75rem_minmax(0,1fr)_minmax(0,13rem)_6rem] items-center gap-x-3 py-3 group"
+          >
+            <span class="min-w-0">
+              <span class="block font-semibold group-hover:text-[var(--color-accent)] transition-colors truncate">{city.name}</span>
+              <span class="block sm:hidden text-xs text-[var(--color-text-secondary)] truncate">{getWeatherDescription(city.weatherCode)} · {hi}° / {lo}°</span>
+            </span>
+            <WeatherIcon code={city.weatherCode} size="w-9 h-9" decorative />
+            <span class="font-display text-[1.6rem] font-normal tabular leading-none text-right sm:text-left">{Math.round(city.temperature)}°</span>
+            <span class="hidden sm:grid grid-cols-[1.75rem_minmax(0,1fr)_1.75rem] items-center gap-2 text-[0.8rem] tabular" aria-hidden="true">
+              <span class="text-right text-[var(--color-text-secondary)]">{lo}°</span>
+              <span class="range-track"><i style={`left:${((lo - gMin) / range) * 100}%;width:${Math.max(6, ((hi - lo) / range) * 100)}%;background:${tempGradient(lo, hi)}`}></i></span>
+              <span class="font-semibold">{hi}°</span>
+            </span>
+            <span class="hidden sm:block text-[0.82rem] text-[var(--color-text-secondary)] truncate">
+              {city.tomorrowCode !== undefined && city.tomorrowMax !== undefined && (
+                <Fragment>Yarın: <span class="text-[var(--color-text)] font-semibold">{getWeatherDescription(city.tomorrowCode)}, {Math.round(city.tomorrowMax)}°</span></Fragment>
+              )}
+            </span>
+            {s ? (
+              <svg class="hidden lg:block justify-self-end" width={s.w} height={s.h} viewBox={`0 0 ${s.w} ${s.h}`} aria-hidden="true">
+                <defs>
+                  <linearGradient id={`sp-${city.slug}`} x1="0" x2="1">
+                    <stop offset="0" stop-color={tempColor(city.week![0])} />
+                    <stop offset="1" stop-color={tempColor(city.week![city.week!.length - 1])} />
+                  </linearGradient>
+                </defs>
+                <path d={s.d} fill="none" stroke={`url(#sp-${city.slug})`} stroke-width="2.2" stroke-linecap="round" />
+                <circle cx={s.end.x.toFixed(1)} cy={s.end.y.toFixed(1)} r="2.8" fill={tempColor(city.week![city.week!.length - 1])} />
+              </svg>
+            ) : <span class="hidden lg:block"></span>}
+            <span class="sr-only">{getWeatherDescription(city.weatherCode)}, en yüksek {hi}, en düşük {lo} derece.</span>
+          </a>
+        </li>
+      );
+    })}
+  </ul>
 </section>

@@ -52,8 +52,11 @@
     }
   }
 
-  // Mirrors src/lib/sky.ts getSkyClass - keep the two in sync.
-  function skyClass(code, isDay) {
+  // Mirrors src/lib/sky.ts getSkyClass - keep the two in sync. On top of it,
+  // a clear or partly cloudy sky turns to dawn/dusk colours in the hour of
+  // sunrise and sunset (`edge` = 'dawn' | 'dusk').
+  function skyClass(code, isDay, edge) {
+    if (edge && code <= 2) return 'sky-' + edge;
     var t = isDay ? 'day' : 'night';
     if (code === 0 || code === 1) return 'sky-clear-' + t;
     if (code === 2) return 'sky-partly-' + t;
@@ -86,7 +89,16 @@
         setText('weather-temp', d.v[i] + '°');
         var hero = document.getElementById('current-weather');
         if (hero && d.i && typeof d.c[i] === 'number') {
-          var next = skyClass(d.c[i], d.i[i] === 1);
+          var edge = null;
+          var si = d.dt ? d.dt.indexOf(now.day) : -1;
+          if (si > -1 && d.sr && d.ss) {
+            var hr = Number(now.hour);
+            var rise = d.sr[si] ? Number(d.sr[si].slice(0, 2)) : -9;
+            var set = d.ss[si] ? Number(d.ss[si].slice(0, 2)) : -9;
+            if (hr === rise || hr === rise + 1) edge = 'dawn';
+            else if (hr === set || hr === set - 1) edge = 'dusk';
+          }
+          var next = skyClass(d.c[i], d.i[i] === 1, edge);
           var prev = hero.getAttribute('data-sky');
           if (prev && prev !== next) {
             hero.classList.remove(prev);
@@ -158,7 +170,8 @@
       var label = cells[c].querySelector('[data-hour-label]');
       if (label) {
         label.textContent = 'Şimdi';
-        label.style.color = 'var(--color-text)';
+        label.style.color = 'var(--color-bg)';
+        label.style.background = 'var(--color-text)';
         label.style.fontWeight = '700';
       }
     }

@@ -11,26 +11,22 @@ interface Props {
 const { links, activeId } = Astro.props;
 ---
 
-<nav aria-label="Tahmin dönemi" class="period-tabs relative -mx-4 sm:mx-0">
-  <div class="period-tabs-scroll flex gap-1.5 overflow-x-auto scrollbar-hide px-4 sm:px-0 py-0.5">
-    {links.map((link) => {
-      const isActive = link.id === activeId;
-      return (
-        <a
-          href={link.href}
-          aria-current={isActive ? 'page' : undefined}
-          data-period-tab-active={isActive ? 'true' : 'false'}
-          class:list={[
-            'h-10 px-4 inline-flex items-center rounded-full text-[0.9rem] font-semibold whitespace-nowrap transition-colors border',
-            isActive
-              ? 'bg-[var(--color-text)] text-[var(--color-bg)] border-[var(--color-text)]'
-              : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:text-[var(--color-text)] hover:border-[var(--color-text-secondary)]',
-          ]}
-        >
-          {link.label}
-        </a>
-      );
-    })}
+<nav aria-label="Tahmin dönemi" class="period-tabs sticky top-16 z-40 -mx-4 px-4 py-2 sm:mx-0 sm:px-0 bg-[var(--color-bg)]/85 backdrop-blur-md supports-[backdrop-filter]:bg-[var(--color-bg)]/70">
+  <div class="period-tabs-scroll overflow-x-auto scrollbar-hide">
+    <div class="period-seg">
+      {links.map((link) => {
+        const isActive = link.id === activeId;
+        return (
+          <a
+            href={link.href}
+            aria-current={isActive ? 'page' : undefined}
+            data-period-tab-active={isActive ? 'true' : 'false'}
+          >
+            {link.label}
+          </a>
+        );
+      })}
+    </div>
   </div>
 </nav>
 

@@ -5,7 +5,7 @@
 <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[200] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-[var(--color-surface)] focus:shadow">
   İçeriğe geç
 </a>
-<header class="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur-md supports-[backdrop-filter]:bg-[var(--color-bg)]/75">
+<header class="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/90 backdrop-blur-md supports-[backdrop-filter]:bg-[var(--color-surface)]/75">
   <div class="max-w-6xl mx-auto px-4 h-16 flex items-center gap-3 sm:gap-6">
     <a href="/" class="flex items-center gap-2 shrink-0" aria-label="Yarın Hava ana sayfa">
       <svg class="w-8 h-8" viewBox="0 0 32 32" fill="none" aria-hidden="true">
@@ -13,7 +13,7 @@
         <circle cx="20.5" cy="11.5" r="4.2" fill="#FFD166"/>
         <path d="M9.5 23.5h12a4.5 4.5 0 0 0 .6-8.96A6 6 0 0 0 10.8 16a3.8 3.8 0 0 0-1.3 7.5z" fill="#fff"/>
       </svg>
-      <span class="hidden sm:inline text-[1.15rem] font-extrabold tracking-tight">yarınhava</span>
+      <span class="hidden sm:inline font-display text-[1.2rem] font-bold tracking-[-0.03em]">yarınhava</span>
     </a>
 
     <div class="flex-1 max-w-lg relative" id="search-container" role="search">
@@ -29,10 +29,15 @@
         data-search-input
         data-search-target="search-results"
         data-search-theme="header"
-        class="w-full h-10 pl-10 pr-4 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-secondary)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-4 focus:ring-[var(--color-accent)]/15 transition text-[0.95rem]"
+        class="w-full h-10 pl-10 pr-4 rounded-full bg-[var(--color-surface-2)] border border-transparent text-[var(--color-text)] placeholder:text-[var(--color-text-secondary)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-4 focus:ring-[var(--color-accent)]/15 transition text-[0.95rem]"
       />
       <div id="search-results" class="absolute top-full left-0 right-0 mt-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-xl overflow-hidden hidden z-50 max-h-80 overflow-y-auto"></div>
     </div>
+
+    <nav class="hidden lg:flex items-center gap-1.5 ml-auto min-w-0" aria-label="Konumlarım" data-places-wrap hidden>
+      <span class="text-xs font-semibold text-[var(--color-text-secondary)] mr-1 whitespace-nowrap">Konumlarım</span>
+      <div class="flex items-center gap-1.5 overflow-hidden" data-places="saved" data-max="4" data-chip-class="px-3 py-1.5 rounded-full border border-[var(--color-border)] text-[0.85rem] font-semibold whitespace-nowrap hover:border-[var(--color-accent)] transition-colors aria-[current=page]:bg-[var(--color-text)] aria-[current=page]:text-[var(--color-bg)] aria-[current=page]:border-[var(--color-text)]"></div>
+    </nav>
 
     <button
       id="theme-toggle"
@@ -65,3 +70,4 @@
   })();
 </script>
 <script is:inline src="/scripts/search.js" defer></script>
+<script is:inline src="/scripts/places.js" defer></script>

@@ -3,9 +3,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import PopularCities from '../components/PopularCities.astro';
+import TurkeyMap from '../components/TurkeyMap.astro';
+import SkyFx from '../components/SkyFx.astro';
 import AdSlot from '../components/AdSlot.astro';
 import { getHomeSEO, generateStructuredData } from '../lib/seo';
 import { fetchWeatherData } from '../lib/weather';
+import { formatDate } from '../lib/utils';
 import provinces from '../data/provinces.json';
 import regions from '../data/regions.json';
 
@@ -16,36 +19,38 @@ const structuredData = generateStructuredData('home', {
   url: seo.canonical,
 });
 
-// Fetch weather for popular cities at build time
-const popularProvinces = provinces.filter((p: any) => p.popular);
-const popularCitiesWeather = await Promise.all(
-  popularProvinces.map(async (p: any) => {
+// Every province's forecast comes from the build-time cache (no API call):
+// the map shows all 81, the list the popular ones.
+const allWeather = await Promise.all(
+  provinces.map(async (p: any) => {
     try {
-      const weather = await fetchWeatherData(p.lat, p.lon);
-      return {
-        name: p.name,
-        slug: p.slug,
-        lat: p.lat,
-        lon: p.lon,
-        temperature: weather.current.temperature,
-        weatherCode: weather.current.weatherCode,
-        max: weather.daily.temperatureMax[0],
-        min: weather.daily.temperatureMin[0],
-      };
+      return { p, w: await fetchWeatherData(p.lat, p.lon) };
     } catch {
-      return {
-        name: p.name,
-        slug: p.slug,
-        lat: p.lat,
-        lon: p.lon,
-        temperature: 0,
-        weatherCode: 0,
-        max: 0,
-        min: 0,
-      };
+      return { p, w: null };
     }
   }),
 );
+
+const mapPoints = allWeather
+  .filter((x) => x.w)
+  .map(({ p, w }) => ({ name: p.name, slug: p.slug, lat: p.lat, lon: p.lon, temp: Math.round(w!.current.temperature) }));
+
+const popularCitiesWeather = allWeather
+  .filter(({ p, w }) => p.popular && w)
+  .map(({ p, w }) => ({
+    name: p.name,
+    slug: p.slug,
+    temperature: w!.current.temperature,
+    weatherCode: w!.current.weatherCode,
+    max: w!.daily.temperatureMax[0],
+    min: w!.daily.temperatureMin[0],
+    tomorrowCode: w!.daily.weatherCode[1],
+    tomorrowMax: w!.daily.temperatureMax[1],
+    week: w!.daily.temperatureMax.slice(0, 7),
+  }));
+
+const firstDay = allWeather.find((x) => x.w)?.w?.daily.time[0];
+const todayLabel = firstDay ? formatDate(firstDay, { weekday: 'long', day: 'numeric', month: 'long' }) : '';
 
 const regionGroups = regions.map((r: any) => ({
   ...r,
@@ -61,47 +66,76 @@ const regionGroups = regions.map((r: any) => ({
 >
   <Header slot="header" />
 
-  <section class="sky sky-clear-day">
-    <div class="max-w-6xl mx-auto px-4 pt-10 pb-12 sm:pt-16 sm:pb-16">
-      <h1 class="text-[2rem] sm:text-5xl font-bold tracking-tight leading-[1.1] max-w-2xl">
-        Türkiye Hava Durumu
-      </h1>
-      <p class="mt-3 text-base sm:text-lg text-white/85 max-w-xl">
-        81 il ve 969 ilçe için bugün, yarın, saatlik ve 15 günlük tahmin. Her gece yarısından sonra güncellenir.
-      </p>
-      <div class="mt-6 max-w-lg relative" role="search">
-        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"/>
-        </svg>
-        <input
-          type="search"
-          id="hero-search"
-          placeholder="İl veya ilçe adı yazın"
-          aria-label="İl veya ilçe ara"
-          autocomplete="off"
-          data-search-input
-          data-search-target="hero-search-results"
-          data-search-theme="hero"
-          class="w-full h-14 pl-12 pr-4 rounded-2xl bg-white text-slate-900 placeholder:text-slate-400 shadow-[0_10px_30px_rgba(0,0,0,0.15)] text-base focus:outline-none focus:ring-4 focus:ring-white/40"
-        />
-        <div id="hero-search-results" class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden hidden z-50 max-h-72 overflow-y-auto border border-slate-200 dark:border-slate-700"></div>
+  <section class="sky sky-clear-day overflow-hidden">
+    <SkyFx density={1.2} />
+    <div class="max-w-6xl mx-auto px-4 pt-10 pb-24 sm:pt-14 lg:pb-32 lg:grid lg:grid-cols-[minmax(0,1fr)_33rem] lg:gap-10 lg:items-start">
+      <div class="min-w-0">
+        {todayLabel && <p class="text-[0.78rem] font-semibold uppercase tracking-[0.08em] text-white/80 capitalize">{todayLabel}</p>}
+        <h1 class="font-display mt-2 text-[2.4rem] sm:text-[3.6rem] font-[650] tracking-[-0.03em] leading-[1.02] max-w-xl">
+          Türkiye Hava Durumu
+        </h1>
+        <p class="mt-3 text-base sm:text-lg text-white/90 max-w-lg">
+          81 il ve 969 ilçe için bugün, yarın, saatlik ve 15 günlük tahmin. Şehrini yaz ya da konumunu kullan.
+        </p>
+        <div class="mt-6 flex flex-col sm:flex-row gap-2 max-w-xl">
+          <div class="relative flex-1" role="search">
+            <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"/>
+            </svg>
+            <input
+              type="search"
+              id="hero-search"
+              placeholder="İl veya ilçe adı yazın"
+              aria-label="İl veya ilçe ara"
+              autocomplete="off"
+              data-search-input
+              data-search-target="hero-search-results"
+              data-search-theme="hero"
+              class="w-full h-14 pl-12 pr-4 rounded-2xl bg-white text-slate-900 placeholder:text-slate-400 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.35)] text-base focus:outline-none focus:ring-4 focus:ring-white/40"
+            />
+            <div id="hero-search-results" class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden hidden z-50 max-h-72 overflow-y-auto border border-slate-200 dark:border-slate-700"></div>
+          </div>
+          <button type="button" data-locate class="sky-panel h-14 px-5 inline-flex items-center justify-center gap-2 font-semibold text-[0.95rem] whitespace-nowrap hover:bg-white/25 transition-colors disabled:opacity-70">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg>
+            <span data-locate-label>Konumumu kullan</span>
+          </button>
+        </div>
+        <p class="mt-2 text-sm text-white/90" data-locate-msg hidden role="status"></p>
+        <div class="mt-4 flex flex-wrap items-center gap-1.5 text-sm" data-places-wrap hidden>
+          <span class="text-white/80 mr-1">Son baktıkların:</span>
+          <div class="contents" data-places="recent" data-max="5" data-chip-class="px-3 py-1 rounded-full bg-white/15 hover:bg-white/25 font-semibold transition-colors"></div>
+        </div>
+      </div>
+
+      <div class="mt-8 lg:mt-0 rounded-[1.75rem] bg-[var(--color-surface)] text-[var(--color-text)] p-4 sm:p-5 shadow-[0_30px_60px_-30px_rgba(10,20,40,0.55)]">
+        <div class="flex items-baseline justify-between gap-3 mb-1">
+          <h2 class="font-display text-lg font-semibold tracking-[-0.02em]">Türkiye bugün</h2>
+          <span class="text-xs text-[var(--color-text-secondary)]">Noktaya dokun, ili aç</span>
+        </div>
+        <TurkeyMap points={mapPoints} caption="Bugün öğle" />
       </div>
     </div>
   </section>
 
-  <div class="max-w-6xl mx-auto px-4 py-8 space-y-10">
+  <div class="max-w-6xl mx-auto px-4 pb-8 space-y-10 -mt-14 lg:-mt-20 relative">
+    <section aria-labelledby="places-title" data-places-wrap hidden class="weather-card">
+      <div class="flex items-baseline justify-between mb-3">
+        <h2 id="places-title" class="section-title !mb-0">Konumlarım</h2>
+        <span class="text-xs text-[var(--color-text-secondary)]">Bu cihazda saklanır</span>
+      </div>
+      <div class="flex flex-wrap gap-2" data-places="saved" data-max="8" data-chip-class="chip-link !inline-flex !py-2 !px-4 font-semibold"></div>
+    </section>
+
     <AdSlot slot="header" id="home-top" />
-
     <PopularCities cities={popularCitiesWeather} />
-
     <AdSlot slot="inContent" id="home-mid" />
 
     <section>
-      <h2 class="text-xl font-bold tracking-tight mb-3">Bölgelere Göre İller</h2>
+      <h2 class="section-title !text-[1.35rem]">Bölgelere Göre İller</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {regionGroups.map((region: any) => (
           <div class="weather-card">
-            <h3 class="text-sm font-semibold text-[var(--color-text-secondary)] mb-2.5">{region.name}</h3>
+            <h3 class="tile-label mb-3">{region.name}</h3>
             <div class="flex flex-wrap gap-1.5">
               {region.provinces.map((p: any) => (
                 <a href={`/${p.slug}-hava-durumu/`} class="px-3 py-1.5 rounded-full bg-[var(--color-surface-2)] text-[0.85rem] font-medium hover:text-[var(--color-accent)] transition-colors">
@@ -136,6 +170,7 @@ const regionGroups = regions.map((r: any) => ({
     </section>
   </div>
 
+  <script is:inline src="/scripts/locate.js" defer></script>
   <Footer slot="footer" />
 </BaseLayout>
 

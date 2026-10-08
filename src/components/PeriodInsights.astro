@@ -37,8 +37,8 @@ const faqs = getPeriodFAQs(weather, period, cityName);
     <section class="weather-card">
       <h2 class="section-title">Sık Sorulan Sorular</h2>
       <div class="divide-y divide-[var(--color-border)]">
-        {faqs.map((faq) => (
-          <details class="group py-3 first:pt-1" open>
+        {faqs.map((faq, i) => (
+          <details class="group py-3 first:pt-1" open={i === 0}>
             <summary class="flex items-center justify-between gap-3 cursor-pointer list-none font-semibold text-[0.975rem] [&::-webkit-details-marker]:hidden">
               <span>{faq.question}</span>
               <svg class="w-4 h-4 shrink-0 transition-transform group-open:rotate-180 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">

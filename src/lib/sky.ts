@@ -2,6 +2,8 @@
  * Hero background for a weather code, matching the .sky-* classes in
  * src/styles/global.css. public/scripts/weather-now.js mirrors this mapping to
  * re-tint the hero for the visitor's current hour - keep the two in sync.
+ * The browser additionally uses sky-dawn / sky-dusk around sunrise and sunset;
+ * the static page always describes noon, so it never needs them.
  */
 export function getSkyClass(code: number, isDay: boolean): string {
   const t = isDay ? 'day' : 'night';

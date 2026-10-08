@@ -2,27 +2,19 @@
 // CookieBanner.astro - KVKK ve GDPR uyumlu çerez onay bileşeni
 ---
 
-<div id="cookie-banner" hidden class="fixed bottom-0 left-0 right-0 z-[100] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-2xl translate-y-full transition-transform duration-300" role="dialog" aria-labelledby="cookie-title" aria-describedby="cookie-desc">
-  <div class="max-w-7xl mx-auto px-4 py-3 sm:py-5">
-    <div class="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
-      <div class="flex-1">
-        <p id="cookie-title" class="text-base font-semibold text-slate-900 dark:text-white mb-1">
-          Çerez Kullanımı Hakkında
-        </p>
-        <p id="cookie-desc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-          Trafik ölçümü (Google Analytics, Yandex Metrica) ve kişiselleştirilmiş reklam (Google AdSense) için çerezler kullanıyoruz; bunlar yalnızca onayınızla etkinleşir. Tercihinizi sayfa altındaki "Çerez Tercihleri"nden değiştirebilirsiniz.
-          <a href="/cerez-politikasi/" class="text-[var(--color-accent)] hover:underline font-medium">Ayrıntılar</a>
-        </p>
-      </div>
-      <div class="flex flex-row gap-2 shrink-0">
-        <button id="cookie-reject" class="flex-1 lg:flex-none px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors">
-          Reddet
-        </button>
-        <button id="cookie-accept" class="flex-1 lg:flex-none px-5 py-2 text-sm font-semibold text-white bg-[var(--color-accent)] hover:opacity-90 rounded-full transition">
-          Kabul Et
-        </button>
-      </div>
-    </div>
+<div id="cookie-banner" hidden class="cookie-off fixed z-[100] left-3 right-3 bottom-3 sm:left-5 sm:right-auto sm:bottom-5 sm:max-w-[25rem] rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-[0_24px_60px_-20px_rgba(14,26,43,0.45)] p-4 sm:p-5 transition-[opacity,transform] duration-300" role="dialog" aria-labelledby="cookie-title" aria-describedby="cookie-desc">
+  <p id="cookie-title" class="font-display text-base font-semibold text-[var(--color-text)]">Çerez tercihiniz</p>
+  <p id="cookie-desc" class="mt-1 text-[0.82rem] text-[var(--color-text-secondary)] leading-relaxed">
+    Trafik ölçümü (Google Analytics, Yandex Metrica) ve kişiselleştirilmiş reklam (Google AdSense) için çerezler kullanıyoruz; bunlar yalnızca onayınızla etkinleşir. Tercihinizi sayfa altındaki "Çerez Tercihleri"nden değiştirebilirsiniz.
+    <a href="/cerez-politikasi/" class="text-[var(--color-accent)] hover:underline font-medium">Ayrıntılar</a>
+  </p>
+  <div class="mt-3.5 flex gap-2">
+    <button id="cookie-reject" class="flex-1 px-4 py-2.5 text-sm font-semibold text-[var(--color-text)] bg-[var(--color-surface-2)] hover:brightness-95 rounded-full transition">
+      Reddet
+    </button>
+    <button id="cookie-accept" class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-[var(--color-accent)] dark:text-[#06101f] hover:opacity-90 rounded-full transition">
+      Kabul Et
+    </button>
   </div>
 </div>
 
@@ -31,10 +23,11 @@
     // The initial consent state is applied in BaseLayout's <head>, before any
     // tag fires. This script only shows the banner and records a new choice.
     //
-    // Show/hide toggles the Tailwind class rather than style.transform:
-    // Tailwind v4 implements translate-y-full with the CSS `translate`
-    // property, which a `transform` value does not override - the banner used
-    // to stay off-screen for every visitor, so nobody could give consent.
+    // Show/hide toggles the .cookie-off class (global.css) rather than
+    // style.transform: Tailwind v4 implements translate utilities with the CSS
+    // `translate` property, which a `transform` value does not override - the
+    // banner once stayed off-screen for every visitor, so nobody could give
+    // consent.
     var KEY = 'yh_cookie_consent_v1';
     var banner = document.getElementById('cookie-banner');
     var acceptBtn = document.getElementById('cookie-accept');
@@ -43,11 +36,11 @@
 
     function showBanner() {
       banner.hidden = false;
-      setTimeout(function() { banner.classList.remove('translate-y-full'); }, 50);
+      setTimeout(function() { banner.classList.remove('cookie-off'); }, 50);
     }
 
     function hideBanner() {
-      banner.classList.add('translate-y-full');
+      banner.classList.add('cookie-off');
       setTimeout(function() { banner.hidden = true; }, 300);
     }
 
