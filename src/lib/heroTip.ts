@@ -1,5 +1,5 @@
 import type { WeatherData } from './weather.ts';
-import type { PeriodId } from './periods.ts';
+import { weekendRange, type PeriodId } from './periods.ts';
 
 /**
  * The one-line answer in the hero: what the visitor should do about the
@@ -19,8 +19,11 @@ export interface HeroTip {
 const pad = (h: number) => `${String(h).padStart(2, '0')}:00`;
 
 export function getHeroTip(weather: WeatherData, period: PeriodId): HeroTip | null {
-  const dayIdx = period === 'base' || period === 'yarin' ? 1 : 0;
   const { daily, hourly } = weather;
+  // The weekend page talks about the weekend when it starts today or
+  // tomorrow; further out, about today.
+  const wk = period === 'haftasonu' && daily.time[0] ? weekendRange(daily.time[0]).start : 0;
+  const dayIdx = period === 'base' || period === 'yarin' ? 1 : wk <= 1 ? wk : 0;
   if (daily.time[dayIdx] === undefined) return null;
 
   const hi = Math.round(daily.temperatureMax[dayIdx]);

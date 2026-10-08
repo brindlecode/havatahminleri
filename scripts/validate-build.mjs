@@ -27,7 +27,7 @@ const ALLOW_SYNTHETIC = argv.includes('--allow-synthetic');
 
 const ORIGIN = 'https://yarinhava.com';
 const TIMEZONE = 'Europe/Istanbul';
-const PERIOD_SLUGS = ['bugun', 'yarin', '7-gunluk', '10-gunluk', '15-gunluk', 'saatlik'];
+const PERIOD_SLUGS = ['bugun', 'yarin', 'hafta-sonu', '7-gunluk', '10-gunluk', '15-gunluk', 'saatlik'];
 const EXPECTED_DAY_ROWS = {
   '': 1, bugun: 1, yarin: 1, '7-gunluk': 7, '10-gunluk': 10, '15-gunluk': 15, saatlik: 0,
 };
@@ -69,6 +69,12 @@ function countMatches(html, re) {
 
 const TODAY = todayInIstanbul();
 console.log(`[VALIDATE] Today in ${TIMEZONE}: ${TODAY}`);
+
+// The weekend page (src/lib/periods.ts weekendRange): Mon-Fri -> the coming
+// Saturday + Sunday, Saturday -> today + tomorrow, Sunday -> today only.
+const TODAY_DOW = new Date(`${TODAY}T00:00:00Z`).getUTCDay();
+const WEEKEND_START = TODAY_DOW === 6 || TODAY_DOW === 0 ? 0 : 6 - TODAY_DOW;
+EXPECTED_DAY_ROWS['hafta-sonu'] = TODAY_DOW === 0 ? 1 : 2;
 
 const cachePath = join(ROOT, 'src/data/weather-cache.json');
 if (!existsSync(cachePath)) {
@@ -116,8 +122,10 @@ const builtPaths = new Set(
   htmlFiles.map((f) => '/' + relative(DIST, f).replace(/index\.html$/, '').replace(/\\/g, '/')),
 );
 
-// 1 home + 5 legal + icon guide + 404 + admin + (81 + 969) x (1 base + 6 periods)
-const expectedLocationPages = (provinces.length + districts.length) * 7;
+// 1 home + 5 legal + icon guide + 404 + admin + (81 + 969) x (1 base + 7 periods)
+// (the national air-quality / sea / radar pages and the climate pages come on
+// top and only raise the count)
+const expectedLocationPages = (provinces.length + districts.length) * 8;
 const expectedTotal = expectedLocationPages + 9;
 
 note(`Built ${htmlFiles.length} HTML files (expected ${expectedTotal})`);
@@ -127,7 +135,7 @@ if (htmlFiles.length < expectedTotal) {
   warn(`${htmlFiles.length} pages built, expected ${expectedTotal} - new routes were added`);
 }
 
-// Every location must have all 7 templates.
+// Every location must have all 8 templates.
 const missing = [];
 for (const p of provinces) {
   const base = `/${p.slug}-hava-durumu/`;
@@ -308,7 +316,9 @@ function checkPage(path, { periodSlug }) {
   if (dates.length !== expectedRows) {
     fail(`${label}: ${dates.length} forecast day rows, expected ${expectedRows}`);
   }
-  const firstExpected = periodSlug === '' || periodSlug === 'yarin' ? addDays(TODAY, 1) : TODAY;
+  const firstExpected = periodSlug === '' || periodSlug === 'yarin'
+    ? addDays(TODAY, 1)
+    : periodSlug === 'hafta-sonu' ? addDays(TODAY, WEEKEND_START) : TODAY;
   if (dates.length && dates[0] !== firstExpected) {
     fail(`${label}: first forecast row is ${dates[0]}, expected ${firstExpected} - STALE CONTENT`);
   }

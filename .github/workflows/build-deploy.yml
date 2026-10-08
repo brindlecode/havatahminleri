@@ -40,6 +40,12 @@ on:
     - cron: '19 22 * * *'  # 01:19
     - cron: '53 23 * * *'  # 02:53
     - cron: '30 2 * * *'   # 05:30 - last-resort backup
+    # The midday refresh: a second forecast fetch so afternoon and evening
+    # visitors see a model run from the same day, not from midnight. It has its
+    # own cache key half ("pm"), so it always fetches, and its own gate (skip
+    # only if production already shows data fetched after 12:00 today).
+    - cron: '13 9 * * *'   # 12:13 Turkey
+    - cron: '47 10 * * *'  # 13:47 - backup
   workflow_dispatch:
 
 permissions:
@@ -65,7 +71,14 @@ jobs:
       - name: Is today's forecast already live?
         id: live
         if: github.event_name == 'schedule'
-        run: node scripts/check-live-fresh.mjs
+        env:
+          MIDDAY: ${{ (github.event.schedule == '13 9 * * *' || github.event.schedule == '47 10 * * *') && '1' || '' }}
+        run: |
+          if [ "$MIDDAY" = "1" ]; then
+            node scripts/check-live-fresh.mjs --since-hour 12
+          else
+            node scripts/check-live-fresh.mjs
+          fi
 
       - name: Decide
         id: decide
@@ -103,14 +116,16 @@ jobs:
       - name: Run tests
         run: npm test
 
-      # Same-day cache reuse. The key is the Turkey date, so the nightly 00:05
-      # build (a new date) never finds a cache and always fetches; any later
-      # build on the same date restores the first one's data, and
-      # fetch-weather.mjs skips Open-Meteo when every location is fresh for
-      # today, the cache is real (not synthetic) and fetched < 20h ago.
+      # Half-day cache reuse. The key is the Turkey date plus "am" / "pm", so
+      # the nightly 00:05 build and the 12:13 midday build (new keys) never
+      # find a cache and always fetch; any later build in the same half-day
+      # restores that fetch, and fetch-weather.mjs skips Open-Meteo when every
+      # location is fresh for today, the cache is real (not synthetic) and
+      # fetched < 20h ago. Open-Meteo is therefore queried twice a day.
       - name: Compute Istanbul date
         id: date
-        run: echo "day=$(TZ=Europe/Istanbul date +%F)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "day=$(TZ=Europe/Istanbul date +%F)-$( [ "$(TZ=Europe/Istanbul date +%H)" -lt 12 ] && echo am || echo pm )" >> "$GITHUB_OUTPUT"
 
       - name: Restore today's weather cache
         id: weather-cache

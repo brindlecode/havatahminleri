@@ -1,7 +1,7 @@
 import type { WeatherData } from './weather.ts';
 import { getWeatherDescription } from './weatherCodes.ts';
 import { getCityLocative } from './utils.ts';
-import { PERIOD_DEFS, type PeriodId } from './periods.ts';
+import { PERIOD_DEFS, weekendRange, type PeriodId } from './periods.ts';
 
 /**
  * Period-specific, data-driven page content.
@@ -556,6 +556,45 @@ function hourlyBlocks(weather: WeatherData, city: string): SummaryBlock[] {
   ];
 }
 
+function weekendBlocks(weather: WeatherData, city: string): SummaryBlock[] {
+  const { daily } = weather;
+  const loc = getCityLocative(city);
+  const { start, count } = weekendRange(daily.time[0]);
+  const stats = rangeStats(weather, start, count);
+  const days = Array.from({ length: stats.count }, (_, k) => start + k);
+  const dayLine = (i: number) => {
+    const d = daily.time[i];
+    return `${weekdayName(d)} (${dayMonth(d)}) ${getWeatherDescription(daily.weatherCode[i]).toLowerCase()}, ` +
+      `${round(daily.temperatureMin[i])}°C ile ${round(daily.temperatureMax[i])}°C arasında, ` +
+      `yağış olasılığı %${round(daily.precipitationProbabilityMax[i] ?? 0)}`;
+  };
+  const best = days.reduce((b, i) =>
+    (daily.precipitationProbabilityMax[i] ?? 0) < (daily.precipitationProbabilityMax[b] ?? 0) ? i : b, days[0]);
+  return [
+    {
+      heading: `${loc} hafta sonu hava durumu`,
+      paragraph: `${days.map(dayLine).join('; ')}.`,
+      stats: [
+        { label: 'En yüksek', value: `${stats.maxTemp}°C` },
+        { label: 'En düşük', value: `${stats.minTemp}°C` },
+        { label: 'Yağışlı gün', value: `${stats.rainyDays.length} / ${stats.count}` },
+        { label: 'Toplam yağış', value: `${trNum(stats.totalPrecip)} mm` },
+      ],
+    },
+    {
+      heading: 'Dışarı çıkmak için hangi gün daha uygun?',
+      paragraph: stats.count > 1
+        ? `Yağış olasılığı en düşük gün ${weekdayName(daily.time[best])}. ` +
+          (stats.rainyDays.length
+            ? `${stats.rainyDays.map((d) => weekdayName(d)).join(' ve ')} için yağış bekleniyor; açık hava planlarınızı buna göre yapın.`
+            : 'İki gün de kayda değer yağış beklenmiyor; açık hava planları için uygun bir hafta sonu.')
+        : stats.rainyDays.length
+          ? 'Bugün için yağış bekleniyor; açık hava planlarınızı saatlik tahmine göre yapın.'
+          : 'Bugün kayda değer yağış beklenmiyor.',
+    },
+  ];
+}
+
 /**
  * Visible, data-driven content blocks for one period page.
  */
@@ -570,6 +609,8 @@ export function getPeriodSummary(
     case 'base':
     case 'yarin':
       return tomorrowBlocks(weather, cityName);
+    case 'haftasonu':
+      return weekendBlocks(weather, cityName);
     case '7gun':
       return weekBlocks(weather, cityName);
     case '10gun':
@@ -625,6 +666,22 @@ export function getPeriodFAQs(
               : todayHi >= 18
                 ? `Gün içi ${todayLo}-${todayHi}°C aralığı için ince bir katman yeterli; sabah ve akşam serinliğine karşı hafif bir üst bulundurun.`
                 : `${todayLo}-${todayHi}°C aralığı için kat kat giyinmek ve rüzgar geçirmeyen bir üst tercih etmek uygun olur.`,
+        },
+      ];
+    }
+    case 'haftasonu': {
+      const { start, count } = weekendRange(daily.time[0]);
+      const s = rangeStats(weather, start, count);
+      return [
+        {
+          question: `${loc} hafta sonu yağmur yağacak mı?`,
+          answer: s.rainyDays.length
+            ? `Evet, ${s.rainyDays.map((d) => `${weekdayName(d)} (${dayMonth(d)})`).join(' ve ')} için yağış bekleniyor${s.totalPrecip > 0 ? `; toplam ${trNum(s.totalPrecip)} mm` : ''}.`
+            : `Hafta sonu için kayda değer bir yağış beklenmiyor.`,
+        },
+        {
+          question: `${cityName} hafta sonu kaç derece olacak?`,
+          answer: `Hafta sonu sıcaklıklar ${s.minTemp}°C ile ${s.maxTemp}°C arasında; en sıcak gün ${weekdayName(s.warmest.date)}, ${s.warmest.temp}°C.`,
         },
       ];
     }
@@ -806,6 +863,34 @@ function rangeAnswer(weather: WeatherData, loc: string, days: number): string {
   return composeAnswer(required, optional);
 }
 
+function weekendAnswer(weather: WeatherData, loc: string): string {
+  const { daily } = weather;
+  const { start, count } = weekendRange(daily.time[0]);
+  const s = rangeStats(weather, start, count);
+  const required: string[] = [];
+  for (let i = start; i < start + s.count; i++) {
+    const d = daily.time[i];
+    required.push(
+      `${weekdayName(d)} (${dayMonth(d)}) ${conditionClause(loc, daily.weatherCode[i])}; ` +
+        `${round(daily.temperatureMin[i])}°C ile ${round(daily.temperatureMax[i])}°C arasında, ` +
+        `yağış olasılığı %${round(daily.precipitationProbabilityMax[i] ?? 0)}, rüzgar en fazla ${round(daily.windSpeedMax[i] ?? 0)} km/s.`,
+    );
+  }
+  required.push(
+    s.rainyDays.length
+      ? `Hafta sonu ${s.totalPrecip > 0 ? `toplam ${trNum(s.totalPrecip)} mm ` : ''}yağış bekleniyor.`
+      : 'Hafta sonu kayda değer yağış beklenmiyor.',
+  );
+  const optional: string[] = [];
+  const sunrise = timeOnly(daily.sunrise[start]);
+  const sunset = timeOnly(daily.sunset[start]);
+  if (sunrise && sunset) optional.push(`${weekdayName(daily.time[start])} gün doğumu ${sunrise}, gün batımı ${sunset}.`);
+  const uv = Math.max(...daily.uvIndexMax.slice(start, start + s.count).map((v) => v ?? 0));
+  optional.push(`UV indeksi en fazla ${round(uv)}.`);
+  if (s.count > 1) optional.push(`En sıcak gün ${weekdayName(s.warmest.date)}, ${s.warmest.temp}°C.`);
+  return composeAnswer(required, optional);
+}
+
 function hourlyAnswer(weather: WeatherData, loc: string): string {
   const { hourly } = weather;
   const hours = Math.min(48, hourly.time.length);
@@ -865,6 +950,11 @@ export function getAnswerSummary(
         answer: rangeAnswer(weather, loc, days),
       };
     }
+    case 'haftasonu':
+      return {
+        question: `${cityName} hafta sonu hava durumu nasıl olacak?`,
+        answer: weekendAnswer(weather, loc),
+      };
     case 'saatlik':
       return {
         question: `${loc} önümüzdeki saatlerde hava nasıl olacak?`,

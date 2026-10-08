@@ -16,6 +16,6 @@ const freshness = getForecastFreshness();
   <p class="text-xs text-[var(--color-text-secondary)] flex items-center gap-1.5 flex-wrap px-1">
     <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
     <span>Son güncelleme: <time datetime={freshness.iso}>{freshness.label}</time> (TSİ)</span>
-    <span class="opacity-70 hidden sm:inline">· Veriler her gece yarısından sonra yenilenir · Kaynak: <a href="https://open-meteo.com/" rel="noopener" target="_blank" class="underline">Open-Meteo</a></span>
+    <span class="opacity-70 hidden sm:inline">· Veriler günde iki kez, gece yarısı ve öğlen yenilenir · Kaynak: <a href="https://open-meteo.com/" rel="noopener" target="_blank" class="underline">Open-Meteo</a></span>
   </p>
 )}

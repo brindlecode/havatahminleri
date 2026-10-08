@@ -35,7 +35,7 @@ const iconKeys = hourly
   ? [...new Set(hourly.weatherCode.slice(0, 48).map((c, i) => `${c}-${hourly.isDay[i] === 1 ? 1 : 0}`))]
   : [];
 
-// The page is built once a day, so the static numbers describe today at noon.
+// The page is built twice a day, so the static numbers describe today at noon.
 // weather-now.js swaps in the forecast for the visitor's current hour from
 // this compact hourly table - no API call from the browser.
 const asOf = current.hour ? `Bugün ${current.hour.slice(11, 16)} tahmini` : 'Bugün için tahmin';

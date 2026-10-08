@@ -1,0 +1,33 @@
+{
+  "_comment": "Sea point per coastal province for the sea-surface temperature (Open-Meteo Marine API). Points sit a few km offshore of the main coastal town so they fall on a sea grid cell; plate = provinces.json plate.",
+  "points": [
+    { "plate": 22, "sea": "Ege", "place": "Enez", "lat": 40.65, "lon": 25.95 },
+    { "plate": 39, "sea": "Karadeniz", "place": "İğneada", "lat": 41.9, "lon": 28.15 },
+    { "plate": 59, "sea": "Marmara", "place": "Tekirdağ", "lat": 40.9, "lon": 27.6 },
+    { "plate": 34, "sea": "Marmara", "place": "İstanbul", "lat": 40.9, "lon": 28.9 },
+    { "plate": 41, "sea": "Marmara", "place": "İzmit Körfezi", "lat": 40.72, "lon": 29.6 },
+    { "plate": 77, "sea": "Marmara", "place": "Yalova", "lat": 40.7, "lon": 29.2 },
+    { "plate": 16, "sea": "Marmara", "place": "Mudanya", "lat": 40.45, "lon": 28.8 },
+    { "plate": 10, "sea": "Ege", "place": "Ayvalık", "lat": 39.35, "lon": 26.5 },
+    { "plate": 17, "sea": "Ege", "place": "Bozcaada", "lat": 39.85, "lon": 25.95 },
+    { "plate": 35, "sea": "Ege", "place": "Çeşme", "lat": 38.35, "lon": 26.2 },
+    { "plate": 9, "sea": "Ege", "place": "Kuşadası", "lat": 37.85, "lon": 27.15 },
+    { "plate": 48, "sea": "Ege", "place": "Bodrum", "lat": 36.95, "lon": 27.4 },
+    { "plate": 7, "sea": "Akdeniz", "place": "Antalya", "lat": 36.75, "lon": 30.75 },
+    { "plate": 33, "sea": "Akdeniz", "place": "Mersin", "lat": 36.65, "lon": 34.7 },
+    { "plate": 1, "sea": "Akdeniz", "place": "Karataş", "lat": 36.45, "lon": 35.4 },
+    { "plate": 31, "sea": "Akdeniz", "place": "İskenderun", "lat": 36.65, "lon": 36.0 },
+    { "plate": 54, "sea": "Karadeniz", "place": "Karasu", "lat": 41.2, "lon": 30.7 },
+    { "plate": 81, "sea": "Karadeniz", "place": "Akçakoca", "lat": 41.15, "lon": 31.1 },
+    { "plate": 67, "sea": "Karadeniz", "place": "Zonguldak", "lat": 41.5, "lon": 31.75 },
+    { "plate": 74, "sea": "Karadeniz", "place": "Amasra", "lat": 41.8, "lon": 32.35 },
+    { "plate": 37, "sea": "Karadeniz", "place": "İnebolu", "lat": 42.05, "lon": 33.75 },
+    { "plate": 57, "sea": "Karadeniz", "place": "Sinop", "lat": 42.1, "lon": 35.2 },
+    { "plate": 55, "sea": "Karadeniz", "place": "Samsun", "lat": 41.4, "lon": 36.4 },
+    { "plate": 52, "sea": "Karadeniz", "place": "Ordu", "lat": 41.05, "lon": 37.9 },
+    { "plate": 28, "sea": "Karadeniz", "place": "Giresun", "lat": 41.0, "lon": 38.4 },
+    { "plate": 61, "sea": "Karadeniz", "place": "Trabzon", "lat": 41.05, "lon": 39.75 },
+    { "plate": 53, "sea": "Karadeniz", "place": "Rize", "lat": 41.1, "lon": 40.55 },
+    { "plate": 8, "sea": "Karadeniz", "place": "Hopa", "lat": 41.45, "lon": 41.4 }
+  ]
+}
