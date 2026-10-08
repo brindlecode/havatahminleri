@@ -31,7 +31,7 @@ const LEVEL = { good: 3, fair: 2, poor: 1 } as const;
 const QA: Record<string, { q: string; a: Record<'good' | 'fair' | 'poor', string> }> = {
   arac: { q: 'Araba yıkanır mı?', a: { good: 'Evet, yıkayabilirsin', fair: 'Yıkanır ama dikkat', poor: 'Hayır, ertele' } },
   cam: { q: 'Cam silinir mi?', a: { good: 'Evet, silebilirsin', fair: 'Silinir ama dikkat', poor: 'Hayır, ertele' } },
-  camasir: { q: 'Çamaşır kurur mu?', a: { good: 'Evet, kurur', fair: 'Kurur ama yavaş', poor: 'Hayır, içeride kurut' } },
+  camasir: { q: 'Çamaşır kurur mu?', a: { good: 'Evet, kurur', fair: 'Kurur ama dikkat', poor: 'Hayır, içeride kurut' } },
 };
 const plain = (s: string) =>
   s.replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '').replace(/\s{2,}/g, ' ').replace(/\s+([!?.,])/g, '$1').trim();
