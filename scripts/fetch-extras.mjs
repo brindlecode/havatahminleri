@@ -355,7 +355,7 @@ async function main() {
   log(`wrote ${OUT}`);
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((err) => {
     // Never fail the build over extras.
     console.log(`::warning::[EXTRAS] ${err.stack ?? err}`);
