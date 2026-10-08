@@ -1,0 +1,60 @@
+name: Climate normals
+
+# Fills src/data/climate.json, the monthly climate normals behind the
+# /<il>-hava-durumu/iklim/ pages, from ten years of ERA5 data. Ten years for
+# one province counts as ~260 Open-Meteo calls, so each run adds a batch of
+# provinces (scripts/fetch-climate.mjs --limit) and commits it; the forecast
+# builds keep the rest of the daily API budget. Once all 81 provinces exist,
+# runs are no-ops. The next forecast build publishes the new pages.
+
+on:
+  schedule:
+    - cron: '23 1 * * *' # 04:23 Turkey, away from the forecast builds
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Provinces to fetch in this run'
+        default: '14'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: climate
+  cancel-in-progress: false
+
+jobs:
+  climate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: claude/weather-forecast-site-JpQxB
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Fetch a batch of provinces
+        run: node scripts/fetch-climate.mjs --limit "${{ github.event.inputs.limit || '14' }}"
+
+      - name: Commit
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- src/data/climate.json && git ls-files --error-unmatch src/data/climate.json >/dev/null 2>&1; then
+            echo "No new climate data."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/climate.json
+          git commit -m "data: climate normals batch ($(node -e "console.log(Object.keys(require('./src/data/climate.json').provinces).length)")/81 provinces)"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:claude/weather-forecast-site-JpQxB; then exit 0; fi
+            git pull --rebase origin claude/weather-forecast-site-JpQxB
+            sleep $(( attempt * 5 ))
+          done
+          exit 1

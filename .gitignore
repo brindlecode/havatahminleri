@@ -9,3 +9,4 @@ dist/
 .DS_Store
 src/data/weather-cache.json
 .claude/worktrees/
+src/data/extras-cache.json

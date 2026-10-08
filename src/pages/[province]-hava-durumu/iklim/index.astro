@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import ClimateChart from '../../../components/ClimateChart.astro';
+import AdSlot from '../../../components/AdSlot.astro';
+import { getClimate, climatePath, climatePeriod, monthFeel, MONTHS, type ClimateMonth } from '../../../lib/climate';
+import { getCityLocative } from '../../../lib/utils';
+import { getLocationPath } from '../../../lib/periods';
+import provinces from '../../../data/provinces.json';
+
+export function getStaticPaths() {
+  return provinces
+    .map((p: any) => ({ p, rows: getClimate(p.plate) }))
+    .filter((x) => x.rows)
+    .map(({ p, rows }) => ({ params: { province: p.slug }, props: { province: p, rows } }));
+}
+
+const { province, rows } = Astro.props as { province: any; rows: ClimateMonth[] };
+const ORIGIN = 'https://yarinhava.com';
+const canonical = `${ORIGIN}${climatePath(province.slug)}`;
+const locative = getCityLocative(province.name);
+const period = climatePeriod();
+const warmest = rows.reduce((a, b, i) => (b.hi > rows[a].hi ? i : a), 0);
+const coldest = rows.reduce((a, b, i) => (b.lo < rows[a].lo ? i : a), 0);
+const wettest = rows.reduce((a, b, i) => (b.precip > rows[a].precip ? i : a), 0);
+const yearPrecip = rows.reduce((s, m) => s + m.precip, 0);
+const sunniest = rows.reduce((a, b, i) => (b.sunHours > rows[a].sunHours ? i : a), 0);
+const title = `${province.name} İklimi ve Aylık Hava Durumu - Yarın Hava`;
+const description = `${province.name} iklimi ve aylık hava durumu: her ay için ortalama en yüksek ve en düşük sıcaklık, yağış, yağışlı gün ve güneşlenme süresi (${period} ortalaması).`;
+const lower = (s: string) => s.toLocaleLowerCase('tr');
+
+// Months that suit a visit: mild days (20-30°) and few rainy days.
+const pleasant = rows
+  .map((m, i) => ({ i, m }))
+  .filter(({ m }) => m.hi >= 20 && m.hi <= 30 && m.rainyDays <= 7)
+  .map(({ i }) => MONTHS[i].name);
+
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: `${province.name} İklimi`,
+    description,
+    url: canonical,
+    inLanguage: 'tr-TR',
+    about: { '@type': 'Place', name: province.name, geo: { '@type': 'GeoCoordinates', latitude: province.lat, longitude: province.lon } },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: `${ORIGIN}/` },
+      { '@type': 'ListItem', position: 2, name: `${province.name} Hava Durumu`, item: `${ORIGIN}${getLocationPath(province.slug)}` },
+      { '@type': 'ListItem', position: 3, name: `${province.name} İklimi`, item: canonical },
+    ],
+  },
+].map((x) => JSON.stringify(x)).join('\n');
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData} lat={province.lat} lon={province.lon}>
+  <Header slot="header" />
+
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <Breadcrumb items={[
+      { name: `${province.name} Hava Durumu`, url: getLocationPath(province.slug) },
+      { name: 'İklim', url: canonical },
+    ]} />
+
+    <h1 class="font-display text-[1.9rem] sm:text-[2.4rem] font-semibold tracking-[-0.03em] leading-tight mb-3">{province.name} İklimi ve Aylık Hava Durumu</h1>
+    <p class="text-[1.02rem] leading-relaxed max-w-3xl">
+      {locative} en sıcak ay ortalama {Math.round(rows[warmest].hi)}° ile {lower(MONTHS[warmest].name)}, en soğuk ay
+      gece ortalaması {Math.round(rows[coldest].lo)}° ile {lower(MONTHS[coldest].name)}. Yılda ortalama {yearPrecip} mm yağış düşer;
+      en yağışlı ay {lower(MONTHS[wettest].name)} ({rows[wettest].precip} mm), en güneşli ay {lower(MONTHS[sunniest].name)}
+      (günde {rows[sunniest].sunHours.toLocaleString('tr-TR')} saat).
+      {pleasant.length > 0 && ` Gezmek için en rahat aylar: ${pleasant.join(', ')}.`}
+    </p>
+
+    <section class="weather-card mt-6" aria-labelledby="grafik">
+      <h2 id="grafik" class="section-title">Aylara göre sıcaklık ve yağış</h2>
+      <ClimateChart rows={rows} provinceSlug={province.slug} />
+    </section>
+
+    <AdSlot slot="inContent" id="climate-overview-mid" />
+
+    <section class="weather-card mt-4" aria-labelledby="tablo">
+      <h2 id="tablo" class="section-title">{province.name} aylık iklim tablosu</h2>
+      <div class="overflow-x-auto -mx-5 px-5">
+        <table class="w-full text-[0.88rem] tabular">
+          <thead class="text-left text-[0.76rem] text-[var(--color-text-secondary)]">
+            <tr>
+              <th class="py-2 pr-3 font-semibold">Ay</th>
+              <th class="py-2 pr-3 font-semibold">En yüksek</th>
+              <th class="py-2 pr-3 font-semibold">En düşük</th>
+              <th class="py-2 pr-3 font-semibold">Yağış</th>
+              <th class="py-2 pr-3 font-semibold whitespace-nowrap">Yağışlı gün</th>
+              <th class="py-2 pr-3 font-semibold">Güneş</th>
+              <th class="py-2 font-semibold">Hava</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((m, i) => (
+              <tr class="border-t border-[var(--color-border)]">
+                <td class="py-2 pr-3"><a class="font-semibold hover:underline" href={climatePath(province.slug, i)}>{MONTHS[i].name}</a></td>
+                <td class="py-2 pr-3">{Math.round(m.hi)}°</td>
+                <td class="py-2 pr-3">{Math.round(m.lo)}°</td>
+                <td class="py-2 pr-3 whitespace-nowrap">{m.precip} mm</td>
+                <td class="py-2 pr-3">{Math.round(m.rainyDays)}</td>
+                <td class="py-2 pr-3 whitespace-nowrap">{m.sunHours.toLocaleString('tr-TR')} sa</td>
+                <td class="py-2 whitespace-nowrap">{monthFeel(m)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="weather-card mt-4" aria-labelledby="aylar">
+      <h2 id="aylar" class="section-title">{province.name} aylık hava durumu</h2>
+      <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
+        {MONTHS.map((M, i) => (
+          <li><a class="chip-link" href={climatePath(province.slug, i)}><span>{province.name} {M.name} hava durumu</span></a></li>
+        ))}
+      </ul>
+    </section>
+
+    <p class="mt-6 text-[0.8rem] text-[var(--color-text-secondary)] leading-relaxed">
+      Değerler {period} yıllarının günlük verilerinden (ERA5 yeniden analizi, Open-Meteo) {province.name} il merkezi için hesaplanmış ortalamalardır.
+      Güncel tahmin için <a class="font-semibold text-[var(--color-accent)] hover:underline" href={getLocationPath(province.slug)}>{province.name} hava durumu</a>.
+    </p>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>

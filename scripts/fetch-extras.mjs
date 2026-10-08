@@ -36,8 +36,13 @@ const TIMEOUT_MS = 25000;
 
 const AQ_URL = 'https://air-quality-api.open-meteo.com/v1/air-quality';
 const MARINE_URL = 'https://marine-api.open-meteo.com/v1/marine';
-const MA_JSON_URL = 'https://feeds.meteoalarm.org/api/v1/warnings/feeds-turkey';
-const MA_ATOM_URL = 'https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-turkey';
+// MeteoAlarm has no Turkey feed today (both URLs answer 404). The site then
+// shows its own forecast-based alerts (src/lib/alerts.ts) only; should the
+// Turkish State Meteorological Service start publishing to MeteoAlarm, the
+// official warnings appear on the pages without a code change.
+const MA_SLUGS = ['turkiye', 'turkey'];
+const MA_JSON_URL = (slug) => `https://feeds.meteoalarm.org/api/v1/warnings/feeds-${slug}`;
+const MA_ATOM_URL = (slug) => `https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-${slug}`;
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 const log = (...a) => console.log('[EXTRAS]', ...a);
@@ -264,19 +269,27 @@ export function finaliseWarnings(list, provinces, now = Date.now()) {
 export async function fetchWarnings(provinces) {
   let list = null;
   let source = '';
-  try {
-    const doc = await get(MA_JSON_URL);
-    list = parseMeteoalarmJson(doc);
-    source = 'meteoalarm-json';
-    if (VERBOSE) log(`warnings json: top-level keys ${Object.keys(doc ?? {}).join(',')}; ${doc?.warnings?.length ?? 0} entries`);
-    if (VERBOSE && doc?.warnings?.[0]) log('warnings json sample:', JSON.stringify(doc.warnings[0]).slice(0, 1500));
-  } catch (err) {
-    log(`warnings json failed (${err.message}); trying the Atom feed`);
-    const xml = await get(MA_ATOM_URL, { json: false });
-    list = parseMeteoalarmAtom(xml);
-    source = 'meteoalarm-atom';
-    if (VERBOSE) log('warnings atom sample:', String(xml).slice(0, 1500));
+  for (const slug of MA_SLUGS) {
+    try {
+      const doc = await get(MA_JSON_URL(slug), { tries: 1 });
+      list = parseMeteoalarmJson(doc);
+      source = `meteoalarm-json:${slug}`;
+      if (VERBOSE) log(`warnings json: top-level keys ${Object.keys(doc ?? {}).join(',')}; ${doc?.warnings?.length ?? 0} entries`);
+      if (VERBOSE && doc?.warnings?.[0]) log('warnings json sample:', JSON.stringify(doc.warnings[0]).slice(0, 1500));
+      break;
+    } catch (err) {
+      try {
+        const xml = await get(MA_ATOM_URL(slug), { json: false, tries: 1 });
+        list = parseMeteoalarmAtom(xml);
+        source = `meteoalarm-atom:${slug}`;
+        if (VERBOSE) log('warnings atom sample:', String(xml).slice(0, 1500));
+        break;
+      } catch (err2) {
+        log(`no MeteoAlarm feed for "${slug}" (${err.message.slice(0, 40)} / ${err2.message.slice(0, 40)})`);
+      }
+    }
   }
+  if (!list) throw new Error('no MeteoAlarm feed for Turkey');
   const items = finaliseWarnings(list, provinces);
   if (VERBOSE) {
     const areas = [...new Set(list.flatMap((w) => w.areas))];

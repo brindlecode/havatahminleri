@@ -1,0 +1,45 @@
+---
+import { MONTHS, climatePath, type ClimateMonth } from '../lib/climate';
+import { tempGradient } from '../lib/tempScale';
+
+interface Props {
+  rows: ClimateMonth[];
+  provinceSlug: string;
+  /** Month to highlight (0-11), if any. */
+  active?: number;
+}
+
+// Twelve columns: a floating bar from the average low to the average high,
+// coloured with the site temperature scale, and the month's rainfall under
+// it. Each column links to that month's page.
+const { rows, provinceSlug, active } = Astro.props;
+const lo = Math.floor(Math.min(...rows.map((m) => m.lo)) / 5) * 5;
+const hi = Math.ceil(Math.max(...rows.map((m) => m.hi)) / 5) * 5;
+const span = Math.max(1, hi - lo);
+const maxP = Math.max(10, ...rows.map((m) => m.precip));
+const pct = (t: number) => ((t - lo) / span) * 100;
+---
+
+<div class="grid grid-cols-12 gap-1 sm:gap-2 items-end" role="list" aria-label="Aylara göre ortalama sıcaklık ve yağış">
+  {rows.map((m, i) => (
+    <a
+      href={climatePath(provinceSlug, i)}
+      role="listitem"
+      class:list={['group flex flex-col items-center rounded-xl py-1.5 transition-colors', i === active ? 'bg-[var(--color-surface-2)] ring-1 ring-[var(--color-accent)]' : 'hover:bg-[var(--color-surface-2)]']}
+      aria-label={`${MONTHS[i].name}: en yüksek ${Math.round(m.hi)}°, en düşük ${Math.round(m.lo)}°, yağış ${m.precip} mm`}
+      aria-current={i === active ? 'page' : undefined}
+    >
+      <span class="text-[0.7rem] sm:text-[0.78rem] font-semibold tabular">{Math.round(m.hi)}°</span>
+      <span class="relative w-2 sm:w-2.5 h-28 sm:h-36 my-1" aria-hidden="true">
+        <span class="absolute inset-x-0 rounded-full" style={`bottom:${pct(m.lo)}%;height:${Math.max(3, pct(m.hi) - pct(m.lo))}%;background:${tempGradient(m.lo, m.hi, 0)}`}></span>
+      </span>
+      <span class="text-[0.7rem] sm:text-[0.78rem] text-[var(--color-text-secondary)] tabular">{Math.round(m.lo)}°</span>
+      <span class="w-full flex justify-center h-8 items-end mt-1.5" aria-hidden="true">
+        <span class="w-3/5 rounded-t-[3px] bg-[var(--color-rain)] opacity-70" style={`height:${Math.max(2, (m.precip / maxP) * 100)}%`}></span>
+      </span>
+      <span class="text-[0.62rem] sm:text-[0.7rem] text-[var(--color-text-secondary)] tabular">{m.precip}</span>
+      <span class="mt-1 text-[0.68rem] sm:text-[0.78rem] font-semibold">{MONTHS[i].name.slice(0, 3)}</span>
+    </a>
+  ))}
+</div>
+<p class="mt-2 text-[0.72rem] text-[var(--color-text-secondary)]">Üstte ortalama en yüksek ve en düşük sıcaklık, altta aylık ortalama yağış (mm).</p>

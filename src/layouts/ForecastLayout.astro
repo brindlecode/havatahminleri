@@ -15,6 +15,8 @@ import AnswerSummary from '../components/AnswerSummary.astro';
 import NearbyLocations from '../components/NearbyLocations.astro';
 import ActivityAdvice from '../components/ActivityAdvice.astro';
 import IconLegend from '../components/IconLegend.astro';
+import EnvironmentCard from '../components/EnvironmentCard.astro';
+import WarningBanner from '../components/WarningBanner.astro';
 import { getPeriodForecastData, getPeriodLinks, type PeriodId } from '../lib/periods';
 import { ogDayIndex, ogImageUrl } from '../lib/ogImage';
 import { getWeatherDescription } from '../lib/weatherCodes';
@@ -93,6 +95,7 @@ const ogImageAlt = ogImage
 
     <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-6 lg:items-start">
       <div class="space-y-4 min-w-0">
+        <WarningBanner provinceSlug={provinceSlug} weather={weather} />
         <CurrentWeather cityName={cityName} current={weather.current} daily={weather.daily} hourly={weather.hourly} heading={heading} tip={tip} place={place} />
         <ForecastFreshness />
 
@@ -107,11 +110,15 @@ const ogImageAlt = ogImage
           />
         )}
 
+        <AdSlot slot="header" id="forecast-top" />
+
         {daily.time.length > 0 && <DailyForecast daily={daily} title={def.dailyTitle} />}
 
         <AnswerSummary weather={weather} cityName={displayName ?? cityName} period={period} canonical={canonical} />
 
         <ActivityAdvice weather={weather} cityName={displayName ?? cityName} period={period} canonical={canonical} />
+
+        <EnvironmentCard provinceSlug={provinceSlug} cityName={displayName ?? cityName} isDistrict={Boolean(districtSlug)} />
 
         <AdSlot slot="inContent" id="forecast-mid" />
 

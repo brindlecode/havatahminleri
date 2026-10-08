@@ -1,0 +1,187 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import TurkeyMap from '../components/TurkeyMap.astro';
+import AdSlot from '../components/AdSlot.astro';
+import { generateLegalPageStructuredData } from '../lib/seo';
+import { fetchWeatherData } from '../lib/weather';
+import provinces from '../data/provinces.json';
+
+// Hour-by-hour precipitation over the next 48 hours, province by province,
+// animated on the map. Built from the same forecast as the rest of the site
+// (no third-party radar tiles, whose free licences exclude commercial sites).
+const pageName = 'Yağış Haritası';
+const title = 'Yağış Haritası: Saat Saat Yağmur ve Kar - Yarın Hava';
+const description =
+  'Türkiye yağış haritası: önümüzdeki 48 saatte hangi ilde, saat kaçta yağmur, sağanak ya da kar bekleniyor? Saat saat oynatılabilir yağış tahmini haritası.';
+const canonical = 'https://yarinhava.com/yagis-haritasi/';
+const structuredData = generateLegalPageStructuredData(pageName, description, canonical);
+
+const rows = await Promise.all(
+  provinces.map(async (p: any) => ({ p, w: await fetchWeatherData(p.lat, p.lon) })),
+);
+const time = rows[0]?.w.hourly.time.slice(0, 48) ?? [];
+const data = {
+  t: time,
+  p: rows.map((r) => r.p.plate),
+  c: rows.map((r) => r.w.hourly.weatherCode.slice(0, 48)),
+  r: rows.map((r) => r.w.hourly.precipitationProbability.slice(0, 48).map((v) => Math.round(v ?? 0))),
+};
+const points = rows.map((r) => ({ name: r.p.name, slug: r.p.slug, plate: r.p.plate, fill: 'var(--color-surface-2)', label: '' }));
+
+// Static summary for the next 24 hours from 12:00 (the page's reference
+// hour; the map itself starts at the visitor's hour).
+const isSnow = (c: number) => (c >= 71 && c <= 77) || c === 85 || c === 86;
+const wet = rows
+  .map((r) => {
+    let first = -1;
+    let snow = false;
+    let storm = false;
+    let peak = 0;
+    for (let i = 12; i < Math.min(36, r.w.hourly.time.length); i++) {
+      const prob = r.w.hourly.precipitationProbability[i] ?? 0;
+      const code = r.w.hourly.weatherCode[i];
+      if (prob >= 50 && code >= 51) {
+        if (first < 0) first = i;
+        peak = Math.max(peak, prob);
+        snow ||= isSnow(code);
+        storm ||= code >= 95;
+      }
+    }
+    return { p: r.p, first, snow, storm, peak };
+  })
+  .filter((x) => x.first >= 0)
+  .sort((a, b) => a.first - b.first || a.p.name.localeCompare(b.p.name, 'tr'));
+const hourLabel = (i: number) => `${i < 24 ? 'Bugün' : 'Yarın'} ${String(i % 24).padStart(2, '0')}:00`;
+// Ablative of the hour as read aloud: "12:00'den", "06:00'dan", "15:00'ten".
+const ABL = ['dan', 'den', 'den', 'ten', 'ten', 'ten', 'dan', 'den', 'den', 'dan', 'dan', 'den', 'den', 'ten', 'ten', 'ten', 'dan', 'den', 'den', 'dan', 'den', 'den', 'den', 'ten'];
+const fromHour = (i: number) => `${hourLabel(i)}'${ABL[i % 24]}`;
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData}>
+  <Header slot="header" />
+
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <Breadcrumb items={[{ name: pageName, url: canonical }]} />
+    <h1 class="font-display text-[2rem] sm:text-[2.4rem] font-semibold tracking-[-0.03em] leading-tight mb-2">Yağış Haritası</h1>
+    <p class="text-[var(--color-text-secondary)] leading-relaxed mb-6 max-w-3xl">
+      Önümüzdeki 48 saatte hangi ilde, saat kaçta yağış bekleniyor? Haritayı oynatın ya da kaydırıcıyla saati seçin;
+      renk koyulaştıkça yağış olasılığı artar.
+    </p>
+
+    <section class="weather-card" aria-label="Saatlik yağış haritası" id="yagis-harita">
+      <div class="flex items-center gap-3 mb-3">
+        <button type="button" id="rm-play" class="w-10 h-10 shrink-0 rounded-full grid place-items-center bg-[var(--color-accent)] text-white" aria-label="Oynat">
+          <svg id="rm-ic-play" class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" /></svg>
+          <svg id="rm-ic-pause" class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" hidden><path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z" /></svg>
+        </button>
+        <div class="min-w-0 flex-1">
+          <p id="rm-time" class="font-display text-[1.25rem] font-semibold tracking-[-0.02em] leading-tight tabular">{hourLabel(12)}</p>
+          <input id="rm-range" type="range" min="0" max={Math.max(0, time.length - 1)} value="12" class="w-full accent-[var(--color-accent)]" aria-label="Saat seçin" />
+        </div>
+      </div>
+      <TurkeyMap points={points} caption="Saatlik yağış" title="Türkiye saatlik yağış tahmini haritası" legend={false} />
+      <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[0.78rem] text-[var(--color-text-secondary)]">
+        <li class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#cfe3fb" aria-hidden="true"></span>Yağış olası</li>
+        <li class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#8cbcf3" aria-hidden="true"></span>Yağış muhtemel</li>
+        <li class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#4b8fe6" aria-hidden="true"></span>Yağış çok muhtemel</li>
+        <li class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#9b83ec" aria-hidden="true"></span>Gök gürültülü sağanak</li>
+        <li class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#d9cdf7" aria-hidden="true"></span>Kar</li>
+      </ul>
+    </section>
+
+    <AdSlot slot="inContent" id="rainmap-mid" />
+
+    <section class="weather-card mt-4" aria-labelledby="yagis-liste" data-day-relative>
+      <h2 id="yagis-liste" class="section-title">Önümüzdeki 24 saatte yağış beklenen iller</h2>
+      {wet.length === 0 ? (
+        <p class="text-[0.92rem] text-[var(--color-text-secondary)]">Bugün öğleden yarın öğlene kadar hiçbir ilde belirgin yağış beklenmiyor.</p>
+      ) : (
+        <ul class="grid sm:grid-cols-2 gap-x-6">
+          {wet.map((x) => (
+            <li class="flex justify-between gap-3 py-1.5 border-t border-[var(--color-border)] text-[0.9rem]">
+              <a class="font-semibold hover:underline" href={`/${x.p.slug}-hava-durumu/saatlik/`}>{x.p.name}</a>
+              <span class="text-[var(--color-text-secondary)] tabular text-right">
+                {fromHour(x.first)} itibaren{x.storm ? ', sağanak' : x.snow ? ', kar' : ''} · %{x.peak}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p class="mt-3 text-[0.8rem] text-[var(--color-text-secondary)]">
+        Liste bugün 12:00 ile yarın 12:00 arasını kapsar ve yağış olasılığı %50 ve üzeri olan saatlere göre hazırlanır.
+      </p>
+    </section>
+
+    <section class="weather-card mt-4 prose-text" aria-labelledby="harita-nedir">
+      <h2 id="harita-nedir" class="section-title">Bu harita radar mı?</h2>
+      <p>
+        Hayır. Yağış radarı o anda yağan yağışı gösterir; bu harita ise önümüzdeki saatler için hazırlanan yağış
+        tahminini il il gösterir, böylece yağışın nereye ve ne zaman geleceğini önceden görebilirsiniz. Değerler il merkezleri
+        için hesaplanır ve günde iki kez yenilenir. Anlık radar görüntüleri için Meteoroloji Genel Müdürlüğü'nün radar
+        sayfasına bakabilirsiniz.
+      </p>
+    </section>
+  </div>
+
+  <Footer slot="footer" />
+  <script type="application/json" id="rain-data" set:html={JSON.stringify(data)} />
+  <script is:inline>
+    (function () {
+      var d;
+      try { d = JSON.parse(document.getElementById('rain-data').textContent); } catch (e) { return; }
+      if (!d.t || !d.t.length) return;
+      var paths = {};
+      document.querySelectorAll('#yagis-harita path[data-plate]').forEach(function (p) { paths[p.getAttribute('data-plate')] = p; });
+      var range = document.getElementById('rm-range');
+      var label = document.getElementById('rm-time');
+      var play = document.getElementById('rm-play');
+      var icPlay = document.getElementById('rm-ic-play');
+      var icPause = document.getElementById('rm-ic-pause');
+      function isSnow(c) { return (c >= 71 && c <= 77) || c === 85 || c === 86; }
+      function fill(c, r) {
+        if (c >= 51 && r >= 20) {
+          if (c >= 95) return '#9b83ec';
+          if (isSnow(c)) return '#d9cdf7';
+          return r >= 80 ? '#4b8fe6' : r >= 50 ? '#8cbcf3' : '#cfe3fb';
+        }
+        return '';
+      }
+      function lab(i) {
+        var h = d.t[i].slice(11, 13);
+        return (d.t[i].slice(0, 10) === d.t[0].slice(0, 10) ? 'Bugün ' : 'Yarın ') + h + ':00';
+      }
+      function show(i) {
+        for (var k = 0; k < d.p.length; k++) {
+          var el = paths[d.p[k]];
+          if (el) el.style.fill = fill(d.c[k][i], d.r[k][i]) || 'var(--color-surface-2)';
+        }
+        label.textContent = lab(i);
+        range.value = i;
+      }
+      // Start at the visitor's hour in Turkey.
+      var start = 12;
+      try {
+        var parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
+        var g = function (t) { return parts.find(function (x) { return x.type === t; }).value; };
+        var stamp = g('year') + '-' + g('month') + '-' + g('day') + 'T' + g('hour') + ':00';
+        var at = d.t.indexOf(stamp);
+        if (at > -1) start = at;
+      } catch (e) {}
+      show(start);
+      range.addEventListener('input', function () { stop(); show(+range.value); });
+      var timer = null;
+      function stop() { if (timer) { clearInterval(timer); timer = null; } icPlay.hidden = false; icPause.hidden = true; play.setAttribute('aria-label', 'Oynat'); }
+      play.addEventListener('click', function () {
+        if (timer) return stop();
+        icPlay.hidden = true; icPause.hidden = false; play.setAttribute('aria-label', 'Duraklat');
+        timer = setInterval(function () {
+          var n = +range.value + 1;
+          show(n >= d.t.length ? 0 : n);
+        }, 600);
+      });
+    })();
+  </script>
+</BaseLayout>

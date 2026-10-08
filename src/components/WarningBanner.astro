@@ -1,0 +1,89 @@
+---
+import { warningsFor, warningTitle, warningWindow, LEVEL_LABEL, type Warning } from '../lib/extras';
+import { getAlerts, ALERT_LEVEL_LABEL, MGM_WARNINGS_URL } from '../lib/alerts';
+import type { WeatherData } from '../lib/weather';
+import provinces from '../data/provinces.json';
+
+interface Props {
+  provinceSlug?: string;
+  weather: WeatherData;
+}
+
+// Severe weather on a location page, above the hero. Two sources:
+//   - official MGM warnings via MeteoAlarm, when that feed exists (it carries
+//     its end time; a small script hides it once it has passed);
+//   - the site's own forecast-based alerts for today and tomorrow, labelled
+//     "Dikkat" / "Tehlike" so they are never mistaken for the official codes.
+const { provinceSlug, weather } = Astro.props;
+const prov = provinces.find((p: any) => p.slug === provinceSlug);
+const official: Warning[] = prov ? warningsFor(prov.plate).slice(0, 3) : [];
+const alerts = getAlerts(weather).slice(0, 3);
+const OFFICIAL_CLASS: Record<number, string> = { 2: 'wl-yellow', 3: 'wl-orange', 4: 'wl-red' };
+const DAY = ['Bugün', 'Yarın'];
+---
+
+{(official.length > 0 || alerts.length > 0) && (
+  <section class="warn-banner rounded-2xl border overflow-hidden" aria-label="Hava uyarıları" data-warn-banner>
+    <ul class="divide-y divide-[var(--color-border)]">
+      {official.map((w) => (
+        <li class:list={['flex gap-3 px-4 py-3', OFFICIAL_CLASS[w.level]]} data-expires={w.expires ?? ''}>
+          <span class="wl-bar w-1.5 shrink-0 rounded-full self-stretch" aria-hidden="true"></span>
+          <div class="min-w-0">
+            <p class="text-[0.92rem] leading-snug">
+              <strong class="wl-text font-semibold">MGM {LEVEL_LABEL[w.level].toLocaleLowerCase('tr')} uyarı:</strong>{' '}
+              <span class="font-semibold">{warningTitle(w)}</span>
+            </p>
+            <p class="text-[0.8rem] text-[var(--color-text-secondary)] mt-0.5 tabular">{warningWindow(w)}</p>
+            {w.description && <p class="text-[0.82rem] mt-1 leading-relaxed line-clamp-3">{w.description}</p>}
+          </div>
+        </li>
+      ))}
+      {alerts.map((a) => (
+        <li class:list={['flex gap-3 px-4 py-3', a.level === 2 ? 'wl-red' : 'wl-orange']} data-day-relative>
+          <span class="wl-bar w-1.5 shrink-0 rounded-full self-stretch" aria-hidden="true"></span>
+          <div class="min-w-0">
+            <p class="text-[0.92rem] leading-snug">
+              <strong class="wl-text font-semibold">{ALERT_LEVEL_LABEL[a.level]}:</strong>{' '}
+              <span class="font-semibold">{DAY[a.day]} {a.title.toLocaleLowerCase('tr')} bekleniyor.</span>
+            </p>
+            <p class="text-[0.82rem] mt-0.5 leading-relaxed text-[var(--color-text-secondary)]">{a.detail}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+    <p class="px-4 py-2 text-[0.75rem] text-[var(--color-text-secondary)] border-t border-[var(--color-border)]">
+      {alerts.length > 0 && 'Tahmin modeline göre hazırlanır, resmi uyarı değildir. '}
+      <a href="/hava-uyarilari/" class="font-semibold text-[var(--color-accent)] hover:underline">Türkiye geneli</a>
+      {' · '}
+      <a href={MGM_WARNINGS_URL} rel="noopener" target="_blank" class="font-semibold text-[var(--color-accent)] hover:underline">MGM resmi uyarıları</a>
+    </p>
+  </section>
+)}
+
+<script is:inline>
+  (function () {
+    var now = Date.now();
+    document.querySelectorAll('[data-warn-banner]').forEach(function (b) {
+      b.querySelectorAll('[data-expires]').forEach(function (li) {
+        var t = Date.parse(li.getAttribute('data-expires'));
+        if (t && t < now) li.hidden = true;
+      });
+    });
+  })();
+</script>
+
+<style>
+  .warn-banner { background: var(--color-surface); border-color: var(--color-border); }
+  .wl-yellow .wl-bar { background: #e6b800; }
+  .wl-orange .wl-bar { background: #f08a1c; }
+  .wl-red .wl-bar { background: #d7263d; }
+  .wl-yellow .wl-text { color: #8a6a00; }
+  .wl-orange .wl-text { color: #a8520a; }
+  .wl-red .wl-text { color: #b3162c; }
+  :global(.dark) .wl-yellow .wl-text { color: #f2cf4a; }
+  :global(.dark) .wl-orange .wl-text { color: #ffa552; }
+  :global(.dark) .wl-red .wl-text { color: #ff7a85; }
+  .wl-yellow { background: color-mix(in srgb, #e6b800 7%, transparent); }
+  .wl-orange { background: color-mix(in srgb, #f08a1c 8%, transparent); }
+  .wl-red { background: color-mix(in srgb, #d7263d 8%, transparent); }
+</style>

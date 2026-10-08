@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import AdSlot from '../components/AdSlot.astro';
+import { generateLegalPageStructuredData } from '../lib/seo';
+import { allSea, seaDay, waveFeel, extrasDay } from '../lib/extras';
+import { tempColor, tempTint } from '../lib/tempScale';
+import provinces from '../data/provinces.json';
+import coastal from '../data/coastalPoints.json';
+
+const pageName = 'Deniz Suyu Sıcaklığı';
+const title = 'Deniz Suyu Sıcaklığı: Bugün Türkiye Kıyıları - Yarın Hava';
+const description =
+  'Antalya, Bodrum, Çeşme, İstanbul, Trabzon ve tüm kıyılarda bugün deniz suyu kaç derece? Karadeniz, Marmara, Ege ve Akdeniz için deniz sıcaklığı ve dalga boyu.';
+const canonical = 'https://yarinhava.com/deniz-suyu-sicakligi/';
+const structuredData = generateLegalPageStructuredData(pageName, description, canonical);
+
+const sea = allSea();
+const byPlate = new Map(provinces.map((p: any) => [p.plate, p]));
+const rows = coastal.points
+  .map((pt) => ({ pt, prov: byPlate.get(pt.plate) as any, today: seaDay(sea[pt.plate] ?? null, 0), tomorrow: seaDay(sea[pt.plate] ?? null, 1) }))
+  .filter((r) => r.today && r.prov);
+const SEAS = [
+  { id: 'Akdeniz', name: 'Akdeniz' },
+  { id: 'Ege', name: 'Ege Denizi' },
+  { id: 'Marmara', name: 'Marmara Denizi' },
+  { id: 'Karadeniz', name: 'Karadeniz' },
+];
+const groups = SEAS.map((s) => {
+  const list = rows.filter((r) => r.pt.sea === s.id);
+  const temps = list.map((r) => r.today!.temp);
+  return { ...s, list, min: Math.min(...temps), max: Math.max(...temps) };
+}).filter((g) => g.list.length);
+const warmest = [...rows].sort((a, b) => b.today!.temp - a.today!.temp)[0];
+const coldest = [...rows].sort((a, b) => a.today!.temp - b.today!.temp)[0];
+const fmt = (n: number) => n.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
+const day = extrasDay();
+const dateText = day
+  ? new Date(`${day}T00:00:00Z`).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long', timeZone: 'UTC' })
+  : '';
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData}>
+  <Header slot="header" />
+
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <Breadcrumb items={[{ name: pageName, url: canonical }]} />
+    <h1 class="font-display text-[2rem] sm:text-[2.4rem] font-semibold tracking-[-0.03em] leading-tight mb-2">Deniz Suyu Sıcaklığı</h1>
+    <p class="text-[var(--color-text-secondary)] leading-relaxed mb-6 max-w-3xl">
+      {dateText && <>{dateText}, </>}Türkiye kıyılarında öğle saatlerinde beklenen deniz yüzeyi sıcaklığı ve günün en yüksek dalga boyu.
+      {warmest && coldest && <> Bugün en sıcak deniz {warmest.pt.place} açıklarında ({warmest.today!.temp}°), en serin deniz {coldest.pt.place} açıklarında ({coldest.today!.temp}°).</>}
+    </p>
+
+    {groups.length === 0 && (
+      <p class="weather-card">Deniz suyu sıcaklığı verisi şu anda alınamadı. Bir sonraki güncellemede yeniden denenecek.</p>
+    )}
+
+    <div class="space-y-4">
+      {groups.map((g, gi) => (
+        <>
+          <section class="weather-card" aria-labelledby={`deniz-${g.id}`}>
+            <h2 id={`deniz-${g.id}`} class="section-title flex items-baseline justify-between gap-3">
+              <span>{g.name}</span>
+              <span class="text-[0.85rem] font-normal text-[var(--color-text-secondary)] tabular">{g.min === g.max ? `${g.min}°` : `${g.min}°-${g.max}°`}</span>
+            </h2>
+            <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+              {g.list.map((r) => (
+                <li>
+                  <a href={`/${r.prov.slug}-hava-durumu/#hava-kalitesi`} class="block rounded-2xl p-3.5 h-full hover:brightness-[0.97]" style={`background:${tempTint(r.today!.temp, 0.22)}`}>
+                    <span class="block text-[0.85rem] font-semibold text-[#0e1a2b]">{r.pt.place}</span>
+                    <span class="block text-[0.72rem] text-[#3a4a5e]">{r.prov.name}</span>
+                    <span class="mt-1.5 flex items-center gap-1.5">
+                      <span class="font-display text-[1.7rem] font-semibold tracking-[-0.03em] leading-none tabular text-[#0e1a2b]">{r.today!.temp}°</span>
+                      <span class="w-2 h-2 rounded-full" style={`background:${tempColor(r.today!.temp)}`} aria-hidden="true"></span>
+                    </span>
+                    <span class="block mt-1 text-[0.75rem] text-[#3a4a5e] leading-snug">
+                      {r.today!.feel}{r.today!.wave !== null && `, dalga ${fmt(r.today!.wave)} m`}
+                      {r.tomorrow && <><br />Yarın {r.tomorrow.temp}°</>}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+          {gi === 1 && <AdSlot slot="inContent" id="sea-mid" />}
+        </>
+      ))}
+    </div>
+
+    <section class="weather-card mt-4 prose-text" aria-labelledby="deniz-bilgi">
+      <h2 id="deniz-bilgi" class="section-title">Deniz suyu kaç derecede yüzülür?</h2>
+      <ul class="space-y-1.5">
+        <li><strong>25°C ve üstü:</strong> ılık; uzun süre yüzmek için rahat.</li>
+        <li><strong>22-24°C:</strong> yüzmek için ideal; girerken serin gelir, kısa sürede alışılır.</li>
+        <li><strong>19-21°C:</strong> serin; kısa yüzmeler için uygun.</li>
+        <li><strong>19°C altı:</strong> soğuk; çoğu kişi için uzun süre yüzmek zordur, çocuklar ve yaşlılar dikkatli olmalı.</li>
+      </ul>
+      <p class="mt-3">
+        Dalga boyu 0,5 m'nin altındaysa deniz sakindir; 1,25 m'yi aşan dalgalarda kıyıda yüzmek tehlikeli olabilir.
+        {' '}{waveFeel(0.3) && 'Bayrak uyarılarına ve cankurtaranların talimatlarına her zaman uyun.'}
+      </p>
+      <p class="mt-3 text-[0.85rem] text-[var(--color-text-secondary)]">
+        Değerler kıyıdan birkaç kilometre açıktaki deniz yüzeyi için Open-Meteo deniz modeli tahminidir; koylarda ve sığ kumsallarda su
+        öğleden sonra birkaç derece daha sıcak olabilir. Veriler günde iki kez yenilenir.
+      </p>
+    </section>
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>

@@ -123,10 +123,17 @@ const builtPaths = new Set(
 );
 
 // 1 home + 5 legal + icon guide + 404 + admin + (81 + 969) x (1 base + 7 periods)
-// (the national air-quality / sea / radar pages and the climate pages come on
-// top and only raise the count)
+// + 4 national pages (air quality, sea, alerts, rain map)
+// + 13 climate pages (overview + 12 months) per province in climate.json,
+//   which fills in over several days.
+const NATIONAL_PAGES = ['/hava-kalitesi/', '/deniz-suyu-sicakligi/', '/hava-uyarilari/', '/yagis-haritasi/'];
+const climatePath = join(ROOT, 'src/data/climate.json');
+const climatePlates = existsSync(climatePath)
+  ? Object.keys(JSON.parse(read(climatePath)).provinces ?? {}).map(Number)
+  : [];
+const CLIMATE_MONTHS = ['ocak', 'subat', 'mart', 'nisan', 'mayis', 'haziran', 'temmuz', 'agustos', 'eylul', 'ekim', 'kasim', 'aralik'];
 const expectedLocationPages = (provinces.length + districts.length) * 8;
-const expectedTotal = expectedLocationPages + 9;
+const expectedTotal = expectedLocationPages + 9 + NATIONAL_PAGES.length + climatePlates.length * 13;
 
 note(`Built ${htmlFiles.length} HTML files (expected ${expectedTotal})`);
 if (htmlFiles.length < expectedTotal) {
@@ -147,6 +154,15 @@ for (const d of districts) {
   if (!builtPaths.has(base)) missing.push(base);
   for (const s of PERIOD_SLUGS) if (!builtPaths.has(`${base}${s}/`)) missing.push(`${base}${s}/`);
 }
+for (const path of NATIONAL_PAGES) if (!builtPaths.has(path)) missing.push(path);
+for (const plate of climatePlates) {
+  const p = provinces.find((x) => x.plate === plate);
+  if (!p) continue;
+  const base = `/${p.slug}-hava-durumu/iklim/`;
+  if (!builtPaths.has(base)) missing.push(base);
+  for (const m of CLIMATE_MONTHS) if (!builtPaths.has(`${base}${m}/`)) missing.push(`${base}${m}/`);
+}
+note(`Climate pages for ${climatePlates.length}/81 provinces`);
 if (missing.length) {
   fail(`${missing.length} expected location pages were not built (e.g. ${missing.slice(0, 3).join(', ')})`);
 }
@@ -359,6 +375,34 @@ for (const loc of SAMPLE_LOCATIONS) {
   for (const slug of PERIOD_SLUGS) {
     checkPage(`${base}${slug}/`, { periodSlug: slug });
   }
+}
+
+// National and climate pages: the structural checks (no forecast rows).
+function checkStaticPage(path) {
+  const file = join(DIST, path, 'index.html');
+  if (!existsSync(file)) return fail(`Page not built: ${path}`);
+  const html = read(file);
+  const title = firstMatch(html, /<title>([^<]*)<\/title>/);
+  if (!title || !title.trim()) fail(`${path}: empty <title>`);
+  else if (title.length > 60) warn(`${path}: title is ${title.length} chars (max 60) - "${title}"`);
+  const desc = firstMatch(html, /<meta name="description" content="([^"]*)"/);
+  if (!desc) fail(`${path}: no meta description`);
+  else if (desc.length < 120 || desc.length > 160) warn(`${path}: meta description is ${desc.length} chars (want 120-155)`);
+  const canonical = firstMatch(html, /<link rel="canonical" href="([^"]*)"/);
+  if (canonical !== `${ORIGIN}${path}`) fail(`${path}: canonical is ${canonical}, expected ${ORIGIN}${path}`);
+  const h1s = (html.match(/<h1[\s>]/g) ?? []).length;
+  if (h1s !== 1) fail(`${path}: ${h1s} <h1> elements, expected exactly 1`);
+  for (const href of new Set([...html.matchAll(/href="(\/[^"#?]*)"/g)].map((m) => m[1]))) {
+    if (href.endsWith('/') && !builtPaths.has(href)) fail(`${path}: internal link to a page that was not built: ${href}`);
+  }
+}
+for (const path of NATIONAL_PAGES) checkStaticPage(path);
+for (const plate of climatePlates.slice(0, 3)) {
+  const p = provinces.find((x) => x.plate === plate);
+  if (!p) continue;
+  checkStaticPage(`/${p.slug}-hava-durumu/iklim/`);
+  checkStaticPage(`/${p.slug}-hava-durumu/iklim/ocak/`);
+  checkStaticPage(`/${p.slug}-hava-durumu/iklim/temmuz/`);
 }
 
 // --- 4. robots + admin -------------------------------------------------------
