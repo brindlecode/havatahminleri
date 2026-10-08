@@ -39,3 +39,10 @@ export function tempGradient(min: number, max: number, angle = 90): string {
 function rgb(c: [number, number, number]): string {
   return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
 }
+
+/** The scale colour mixed toward white, for large filled areas (the map). */
+export function tempTint(t: number, white = 0.3): string {
+  const m = tempColor(t).match(/\d+/g)!.map(Number);
+  const c = m.map((v) => Math.round(v + (255 - v) * white));
+  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+}
