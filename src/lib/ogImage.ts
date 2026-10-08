@@ -59,10 +59,11 @@ function skyStops(code: number): [string, string, string] {
 
 const VERDICT_COLOR: Record<Verdict, string> = { good: '#4ade80', fair: '#fbbf24', poor: '#f87171' };
 const VERDICT_TEXT: Record<Verdict, string> = { good: 'Uygun', fair: 'Dikkat', poor: 'Ertele' };
+// Infinitives: "Cam silme" above "Uygun" can read as "don't wipe".
 const ACTIVITY_LABEL: Record<string, string> = {
-  arac: 'Araç yıkama',
-  cam: 'Cam silme',
-  camasir: 'Çamaşır kurutma',
+  arac: 'Araç yıkamak',
+  cam: 'Cam silmek',
+  camasir: 'Çamaşır kurutmak',
 };
 
 function esc(s: string): string {

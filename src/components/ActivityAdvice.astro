@@ -26,6 +26,13 @@ const ICONS: Record<string, string> = {
   camasir: '<path d="M9 4.2 4.6 6.6l1.5 4 1.9-1V20h8V9.6l1.9 1 1.5-4L15 4.2a3.1 3.1 0 0 1-6 0Z"/>',
 };
 const LEVEL = { good: 3, fair: 2, poor: 1 } as const;
+// The card leads with the question and a plain yes/no answer, so the verdict
+// cannot be misread.
+const QA: Record<string, { q: string; a: Record<'good' | 'fair' | 'poor', string> }> = {
+  arac: { q: 'Araba yıkanır mı?', a: { good: 'Evet, yıkayabilirsin', fair: 'Yıkanır ama dikkat', poor: 'Hayır, ertele' } },
+  cam: { q: 'Cam silinir mi?', a: { good: 'Evet, silebilirsin', fair: 'Silinir ama dikkat', poor: 'Hayır, ertele' } },
+  camasir: { q: 'Çamaşır kurur mu?', a: { good: 'Evet, kurur', fair: 'Kurur ama yavaş', poor: 'Hayır, içeride kurut' } },
+};
 const plain = (s: string) =>
   s.replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '').replace(/\s{2,}/g, ' ').replace(/\s+([!?.,])/g, '$1').trim();
 ---
@@ -38,21 +45,23 @@ const plain = (s: string) =>
     <ul class="relative flex gap-2.5 overflow-x-auto scrollbar-hide snap-x snap-mandatory -mx-5 px-5 scroll-px-5 sm:grid sm:grid-cols-3 sm:overflow-visible sm:mx-0 sm:px-0">
       {advice.items.map((item) => (
         <li class="rounded-2xl bg-[var(--color-surface-2)] p-4 flex flex-col shrink-0 w-[82%] snap-start sm:w-auto">
-          <div class="flex items-start justify-between gap-3">
-            <span class="w-10 h-10 rounded-xl grid place-items-center bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text)]" aria-hidden="true">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 shrink-0 rounded-xl grid place-items-center bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text)]" aria-hidden="true">
               <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" set:html={ICONS[item.id] ?? ''} />
             </span>
-            <span class={`verdict-meter verdict-${item.verdict}-text`}>
-              <span class="flex items-end gap-[3px]" aria-hidden="true">
-                {[1, 2, 3].map((n) => (
-                  <i class:list={['block w-1 rounded-full', n <= LEVEL[item.verdict] ? 'bg-current' : 'bg-[var(--color-track)]']} style={`height:${4 + n * 3}px`} />
-                ))}
-              </span>
-              {item.verdictLabel}
-            </span>
+            <div class="min-w-0">
+              <h3 class="text-[0.85rem] font-semibold text-[var(--color-text-secondary)] leading-tight">{QA[item.id]?.q ?? item.title}</h3>
+              <p class="text-xs text-[var(--color-text-secondary)] mt-0.5 opacity-80">{item.dayLabel}</p>
+            </div>
           </div>
-          <h3 class="mt-3 font-display text-[1.05rem] font-semibold tracking-[-0.01em] leading-tight">{item.title}</h3>
-          <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">{item.dayLabel}</p>
+          <p class={`mt-3 flex items-center gap-2 font-display text-[1.2rem] font-semibold tracking-[-0.015em] leading-tight verdict-${item.verdict}-text`}>
+            <span class="flex items-end gap-[3px] shrink-0" aria-hidden="true">
+              {[1, 2, 3].map((n) => (
+                <i class:list={['block w-1 rounded-full', n <= LEVEL[item.verdict] ? 'bg-current' : 'bg-[var(--color-track)]']} style={`height:${4 + n * 3}px`} />
+              ))}
+            </span>
+            {QA[item.id]?.a[item.verdict] ?? item.verdictLabel}
+          </p>
           <p class="mt-3 pt-3 border-t border-[var(--color-border)] font-semibold text-[0.95rem] leading-snug">{plain(item.headline)}</p>
           <p class="mt-1 text-[0.85rem] text-[var(--color-text-secondary)] leading-relaxed flex-1">{plain(item.detail)}</p>
           <div class="mt-3">
@@ -60,7 +69,7 @@ const plain = (s: string) =>
               variant="mini"
               text={item.shareText}
               url={shareUrl}
-              title={`${item.title} - Yarın Hava`}
+              title={`${QA[item.id]?.q ?? item.title} - Yarın Hava`}
               type="activity"
               itemId={item.id}
             />

@@ -51,10 +51,12 @@ export const VERDICT_LABEL: Record<Verdict, string> = {
 const VERDICT_EMOJI: Record<Verdict, string> = { good: '✅', fair: '⚠️', poor: '❌' };
 const SCORE: Record<Verdict, number> = { good: 2, fair: 1, poor: 0 };
 
+// Infinitive titles on purpose: "Araç yıkama" / "Cam silme" also read as the
+// negative imperative ("don't wash", "don't wipe") and flip the meaning.
 const ACTIVITIES: { id: ActivityId; emoji: string; title: string }[] = [
-  { id: 'arac', emoji: '🚗', title: 'Araç yıkama' },
-  { id: 'cam', emoji: '🪟', title: 'Cam silme' },
-  { id: 'camasir', emoji: '👕', title: 'Çamaşır kurutma' },
+  { id: 'arac', emoji: '🚗', title: 'Araç yıkamak' },
+  { id: 'cam', emoji: '🪟', title: 'Cam silmek' },
+  { id: 'camasir', emoji: '👕', title: 'Çamaşır kurutmak' },
 ];
 
 /** How far ahead a "better day" is looked for; beyond a week it is a trend. */
