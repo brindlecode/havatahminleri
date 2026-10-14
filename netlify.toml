@@ -34,6 +34,12 @@
   [headers.values]
     Content-Type = "text/plain; charset=utf-8"
 
+# ads.txt is fetched by the AdSense crawler; serve it explicitly as plain text.
+[[headers]]
+  for = "/ads.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
 [[headers]]
   for = "/favicon.svg"
   [headers.values]

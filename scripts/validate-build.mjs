@@ -440,6 +440,17 @@ const llmsPath = join(DIST, 'llms.txt');
 if (!existsSync(llmsPath)) warn('dist/llms.txt is missing');
 else if (!read(llmsPath).startsWith('# ')) warn('llms.txt does not start with an H1');
 
+// AdSense needs ads.txt at the domain root with a record for the publisher ID
+// the pages load ads with; without it the site is flagged and earnings drop.
+const adsTxtPath = join(DIST, 'ads.txt');
+const adsPublisherId = JSON.parse(read(join(ROOT, 'src/data/site-config.json'))).ads?.adsensePublisherId ?? '';
+if (adsPublisherId) {
+  const pub = adsPublisherId.replace(/^ca-/, '');
+  const record = new RegExp(`^google\\.com,\\s*${pub},\\s*DIRECT,\\s*f08c47fec0942fa0\\s*$`, 'm');
+  if (!existsSync(adsTxtPath)) fail('dist/ads.txt is missing - AdSense will report it as not found');
+  else if (!record.test(read(adsTxtPath))) fail(`dist/ads.txt has no "google.com, ${pub}, DIRECT, f08c47fec0942fa0" record`);
+}
+
 const indexNowKeys = readdirSync(DIST).filter((f) => /^[0-9a-f]{32}\.txt$/.test(f));
 if (!indexNowKeys.length) warn('no IndexNow key file (<32 hex>.txt) in dist/');
 for (const f of indexNowKeys) {
