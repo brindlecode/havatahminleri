@@ -94,7 +94,7 @@ console.log(`Smoke test against ${BASE} (today in ${TIMEZONE}: ${TODAY}${IN_GRAC
 
 // --- 1. infrastructure -------------------------------------------------------
 
-console.log('robots.txt and sitemap');
+console.log('robots.txt, ads.txt and sitemap');
 try {
   const robots = await get('/robots.txt', { redirect: 'follow' });
   if (robots.status !== 200) fail(`robots.txt returned ${robots.status}`);
@@ -103,6 +103,21 @@ try {
   else pass('robots.txt is served and allows crawling');
 } catch (err) {
   fail(`robots.txt request failed: ${err.message}`);
+}
+
+// AdSense reports "ads.txt: Bulunamadı" and limits earnings when its crawler
+// cannot fetch this file from the root domain, so check what it actually gets:
+// the redirect chain followed, a 200, plain text, and the publisher record.
+const ADS_TXT_RECORD = /^google\.com,\s*pub-9110547384071189,\s*DIRECT,\s*f08c47fec0942fa0\s*$/m;
+try {
+  const ads = await get('/ads.txt', { redirect: 'follow' });
+  const type = ads.headers.get('content-type') ?? '';
+  if (ads.status !== 200) fail(`ads.txt returned ${ads.status}`);
+  else if (!type.startsWith('text/plain')) fail(`ads.txt is served as "${type}", expected text/plain`);
+  else if (!ADS_TXT_RECORD.test(ads.body)) fail('ads.txt does not contain the AdSense publisher record');
+  else pass('ads.txt is served with the AdSense publisher record');
+} catch (err) {
+  fail(`ads.txt request failed: ${err.message}`);
 }
 
 let sitemapUrlCount = 0;
