@@ -29,9 +29,11 @@ const LOCATIONS = [
 const IDS = ['base', 'bugun', 'yarin', '7gun', '10gun', '15gun', 'saatlik'];
 // Longest condition text ("dondurucu şiddetli yağmur") and a negative low.
 const WEATHER = { temperature: -12.4, weatherCode: 67, maxTemp: -2.2, minTemp: -15.6 };
+// Same worst case for tomorrow (longest month name), which the 7/10/15-day descriptions quote.
+const WEATHER_TOMORROW = { ...WEATHER, tomorrow: { date: '2026-08-30', maxTemp: -12.4, minTemp: -15.6, weatherCode: 67 } };
 
 test('every location title fits in 60 characters and keeps the keyword first', () => {
-  for (const weather of [undefined, WEATHER]) {
+  for (const weather of [undefined, WEATHER, WEATHER_TOMORROW]) {
     for (const loc of LOCATIONS) {
       const names = getLocationNames(loc);
       for (const id of IDS) {
@@ -45,7 +47,7 @@ test('every location title fits in 60 characters and keeps the keyword first', (
 });
 
 test('descriptions are 120-155 chars and unique across the whole site', () => {
-  for (const weather of [undefined, WEATHER]) {
+  for (const weather of [undefined, WEATHER, WEATHER_TOMORROW]) {
     const seen = new Map();
     for (const loc of LOCATIONS) {
       for (const id of IDS) {
@@ -62,6 +64,21 @@ test('descriptions are 120-155 chars and unique across the whole site', () => {
   const home = getHomeSEO();
   assert.ok(home.title.length <= 60);
   assert.ok(home.description.length >= 120 && home.description.length <= 155, home.description);
+});
+
+test('7/10/15-day descriptions open with tomorrow; titles do not change', () => {
+  const loc = LOCATIONS.find((l) => l.districtSlug === 'eregli-zonguldak');
+  const tomorrow = { ...WEATHER, tomorrow: { date: '2026-10-16', maxTemp: 18.4, minTemp: 9.2, weatherCode: 80 } };
+  for (const id of ['7gun', '10gun', '15gun']) {
+    const plain = getPeriodSEO(loc, id, WEATHER);
+    const withTomorrow = getPeriodSEO(loc, id, tomorrow);
+    assert.match(withTomorrow.description, /günlük hava durumu( tahmini)?\. Yarın \(16 Ekim\): 9°C - 18°C, /, withTomorrow.description);
+    assert.equal(withTomorrow.title, plain.title);
+    assert.equal(withTomorrow.heading, plain.heading);
+  }
+  for (const id of ['base', 'bugun', 'yarin', 'saatlik']) {
+    assert.equal(getPeriodSEO(loc, id, tomorrow).description, getPeriodSEO(loc, id, WEATHER).description);
+  }
 });
 
 test('titles and H1s are unique across the whole site', () => {

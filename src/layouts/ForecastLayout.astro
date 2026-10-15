@@ -12,6 +12,7 @@ import PeriodInsights from '../components/PeriodInsights.astro';
 import ForecastFreshness from '../components/ForecastFreshness.astro';
 import AdSlot from '../components/AdSlot.astro';
 import AnswerSummary from '../components/AnswerSummary.astro';
+import TomorrowGlance from '../components/TomorrowGlance.astro';
 import NearbyLocations from '../components/NearbyLocations.astro';
 import ActivityAdvice from '../components/ActivityAdvice.astro';
 import IconLegend from '../components/IconLegend.astro';
@@ -100,6 +101,10 @@ const ogImageAlt = ogImage && ogIdx !== null
         <ForecastFreshness />
 
         <PeriodTabs links={links} activeId={activeId} />
+
+        {(period === '7gun' || period === '10gun' || period === '15gun') && (
+          <TomorrowGlance daily={weather.daily} cityName={displayName ?? cityName} href={`${basePath}/`} />
+        )}
 
         {showHourly && def.hourlyTitle && (
           <HourlyForecast
