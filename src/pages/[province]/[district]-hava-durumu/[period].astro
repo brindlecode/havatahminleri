@@ -42,6 +42,13 @@ const seo = getPeriodSEO(loc, periodId, {
   weatherCode: weather.current.weatherCode,
   maxTemp: weather.daily.temperatureMax[0],
   minTemp: weather.daily.temperatureMin[0],
+  tomorrow: weather.daily.time.length > 1
+    ? {
+        maxTemp: weather.daily.temperatureMax[1],
+        minTemp: weather.daily.temperatureMin[1],
+        weatherCode: weather.daily.weatherCode[1],
+      }
+    : undefined,
 });
 
 const region = regions.find((r: any) => r.id === province.region);

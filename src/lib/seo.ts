@@ -23,6 +23,17 @@ export interface SEOData {
   schemaName?: string;
 }
 
+/** Forecast values the title/description may quote. */
+export interface SEOWeather {
+  temperature: number;
+  weatherCode: number;
+  /** Today's high and low. */
+  maxTemp?: number;
+  minTemp?: number;
+  /** Tomorrow's forecast, quoted in the 7/10/15-day descriptions. */
+  tomorrow?: { maxTemp: number; minTemp: number; weatherCode: number };
+}
+
 /**
  * A province or district, resolved into the names the templates need.
  */
@@ -158,7 +169,7 @@ const BRAND = ' | Yarın Hava';
 export function getPeriodSEO(
   loc: LocationRef,
   periodId: PeriodId,
-  weather?: { temperature: number; weatherCode: number; maxTemp?: number; minTemp?: number },
+  weather?: SEOWeather,
 ): SEOData {
   const core = periodSEOCore(loc, periodId, weather);
   const names = getLocationNames(loc);
@@ -169,7 +180,7 @@ export function getPeriodSEO(
 function periodSEOCore(
   loc: LocationRef,
   periodId: PeriodId,
-  weather?: { temperature: number; weatherCode: number; maxTemp?: number; minTemp?: number },
+  weather?: SEOWeather,
 ): Omit<SEOData, 'schemaName'> {
   const names = getLocationNames(loc);
   const canonical = getCanonicalForPeriod(loc.provinceSlug, periodId, loc.districtSlug);
@@ -184,6 +195,14 @@ function periodSEOCore(
       ? `${Math.round(weather.minTemp)}°C - ${Math.round(weather.maxTemp)}°C`
       : null;
   const PAD = ['Günde iki kez güncellenir.', 'Kaynak: Open-Meteo.'];
+  // The 7/10/15-day pages, not the base page, are where Google sends most
+  // "yarınki hava durumu" searches (75% of that query's clicks in Search
+  // Console, Apr-Oct 2026), so their descriptions open with tomorrow's
+  // numbers. Titles stay as they are: they own the "N günlük" keyword.
+  const t = weather?.tomorrow;
+  const tomorrow = t
+    ? ` Yarın ${Math.round(t.minTemp)}°C - ${Math.round(t.maxTemp)}°C, ${getWeatherDescription(t.weatherCode).toLowerCase()}.`
+    : '';
 
   switch (periodId) {
     case 'bugun':
@@ -261,7 +280,7 @@ function periodSEOCore(
           `${q} 7 Günlük Hava Durumu`,
         ]),
         description: fitDescription(
-          `${d} 7 günlük hava durumu tahmini.`,
+          `${d} 7 günlük hava durumu tahmini.${tomorrow}`,
           [[
             'Haftalık sıcaklık eğilimi, en sıcak ve en serin günler, yağışlı gün sayısı ve hafta sonu karşılaştırması.',
             'Haftalık sıcaklık eğilimi, en sıcak ve en serin günler ve yağışlı gün sayısı.',
@@ -281,7 +300,7 @@ function periodSEOCore(
           `${q} 10 Günlük Hava Durumu`,
         ]),
         description: fitDescription(
-          `${d} 10 günlük hava durumu tahmini.`,
+          `${d} 10 günlük hava durumu tahmini.${tomorrow}`,
           [[
             'İlk 5 gün ile sonraki 5 günün karşılaştırması, sıcaklık eğilimi ve yağış dağılımı ile günlük tablo.',
             'İlk 5 gün ile sonraki 5 günün karşılaştırması, sıcaklık eğilimi ve yağış dağılımı.',
@@ -301,11 +320,12 @@ function periodSEOCore(
           `${q} 15 Günlük Hava Durumu`,
         ]),
         description: fitDescription(
-          `${d} 15 günlük hava durumu.`,
+          `${d} 15 günlük hava durumu.${tomorrow}`,
           [[
             'Her gün için en yüksek-en düşük sıcaklık, yağışlı gün sayısı, en sıcak ve en serin dönemler ve uzun vadeli eğilim.',
             'Günlük en yüksek-en düşük sıcaklık, yağışlı gün sayısı, en sıcak ve en serin dönemler.',
             'Günlük en yüksek-en düşük sıcaklık, yağışlı gün sayısı ve uzun vadeli eğilim.',
+            'Günlük sıcaklık, yağış ve uzun vadeli eğilim.',
           ]],
           PAD,
         ),
