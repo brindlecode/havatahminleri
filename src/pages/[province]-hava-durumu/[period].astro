@@ -40,6 +40,7 @@ const seo = getPeriodSEO(loc, periodId, {
   minTemp: weather.daily.temperatureMin[0],
   tomorrow: weather.daily.time.length > 1
     ? {
+        date: weather.daily.time[1],
         maxTemp: weather.daily.temperatureMax[1],
         minTemp: weather.daily.temperatureMin[1],
         weatherCode: weather.daily.weatherCode[1],
