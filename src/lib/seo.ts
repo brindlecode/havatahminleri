@@ -1,5 +1,6 @@
 import { getWeatherDescription } from './weatherCodes.ts';
 import { getCityLocative } from './utils.ts';
+import { dayMonth } from './periodSummary.ts';
 import { getForecastFreshness } from './freshness.ts';
 import {
   PERIOD_DEFS,
@@ -31,7 +32,7 @@ export interface SEOWeather {
   maxTemp?: number;
   minTemp?: number;
   /** Tomorrow's forecast, quoted in the 7/10/15-day descriptions. */
-  tomorrow?: { maxTemp: number; minTemp: number; weatherCode: number };
+  tomorrow?: { date: string; maxTemp: number; minTemp: number; weatherCode: number };
 }
 
 /**
@@ -199,9 +200,12 @@ function periodSEOCore(
   // "yarınki hava durumu" searches (75% of that query's clicks in Search
   // Console, Apr-Oct 2026), so their descriptions open with tomorrow's
   // numbers. Titles stay as they are: they own the "N günlük" keyword.
+  // The date travels with "Yarın": static HTML outlives midnight until the
+  // next build, and Google's cached snippet outlives it by days, so a stale
+  // description still names the day it is about.
   const t = weather?.tomorrow;
   const tomorrow = t
-    ? ` Yarın ${Math.round(t.minTemp)}°C - ${Math.round(t.maxTemp)}°C, ${getWeatherDescription(t.weatherCode).toLowerCase()}.`
+    ? ` Yarın (${dayMonth(t.date)}): ${Math.round(t.minTemp)}°C - ${Math.round(t.maxTemp)}°C, ${getWeatherDescription(t.weatherCode).toLowerCase()}.`
     : '';
 
   switch (periodId) {
