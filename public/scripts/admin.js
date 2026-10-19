@@ -6,6 +6,10 @@
       const ADMIN_USERS = ['ilkukaya'];
       const TOKEN_KEY = 'admin_gh_token';
 
+      // The owner's own visits must not count as ad traffic: opening the admin
+      // panel opts this browser out of ads site-wide (BaseLayout reads it).
+      try { localStorage.setItem('yh_no_ads', '1'); } catch (e) {}
+
       let currentToken = null;
       let currentConfig = null;
       let currentConfigSha = null;

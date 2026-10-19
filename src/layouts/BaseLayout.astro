@@ -26,6 +26,7 @@ const {
 } = Astro.props;
 const { analytics, verification, ads } = siteConfig;
 const hasCoords = typeof lat === 'number' && typeof lon === 'number';
+const siteHost = new URL(Astro.site ?? 'https://yarinhava.com').hostname;
 ---
 
 <!doctype html>
@@ -132,10 +133,48 @@ const hasCoords = typeof lat === 'number' && typeof lon === 'number';
       } catch (e) {}
     </script>
 
-    {ads.enabled && ads.adsensePublisherId && (
-      <script is:inline async
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ads.adsensePublisherId}`}
-        crossorigin="anonymous"></script>
+    <!-- AdSense limited ad serving for invalid traffic (2026-10-18). The
+         script used to load unconditionally, so every automated browser
+         (headless crawlers, SEO auditors, uptime monitors, AI agents),
+         every scraped copy of the site on another domain and the owner's
+         own daily visits produced impressions under our publisher ID.
+         It now loads only for a real visitor: on our own domain, not in a
+         frame, not under automation, not on the 404 page, not on a device
+         opted out with ?reklamsiz=1 (the admin panel sets that too), and
+         only after the first scroll/tap/key/mouse move - bots that render
+         the page but never interact no longer see ads at all. -->
+    {ads.enabled && ads.adsensePublisherId && !noindex && (
+      <script is:inline define:vars={{ adClient: ads.adsensePublisherId, adHosts: [siteHost, `www.${siteHost}`] }}>
+        (function () {
+          var optOut = false;
+          try {
+            var flag = /[?&]reklamsiz=([01])/.exec(location.search);
+            if (flag && flag[1] === '1') localStorage.setItem('yh_no_ads', '1');
+            if (flag && flag[1] === '0') localStorage.removeItem('yh_no_ads');
+            optOut = localStorage.getItem('yh_no_ads') === '1';
+          } catch (e) {}
+          var ua = navigator.userAgent || '';
+          var automated = navigator.webdriver ||
+            /bot[\/;)]|\+https?:|crawl|spider|slurp|headless|lighthouse|pagespeed|gtmetrix|ptst|pingdom|uptime|phantom|selenium|puppeteer|playwright|python|curl|wget|httpclient|okhttp|axios|node-fetch|go-http|java\//i.test(ua);
+          var framed = false;
+          try { framed = window.top !== window.self; } catch (e) { framed = true; }
+          if (optOut || automated || framed || adHosts.indexOf(location.hostname) === -1) return;
+
+          var events = ['pointerdown', 'touchstart', 'scroll', 'wheel', 'keydown', 'mousemove'];
+          var loaded = false;
+          function load() {
+            if (loaded) return;
+            loaded = true;
+            events.forEach(function (e) { window.removeEventListener(e, load, { passive: true }); });
+            var s = document.createElement('script');
+            s.async = true;
+            s.crossOrigin = 'anonymous';
+            s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + adClient;
+            document.head.appendChild(s);
+          }
+          events.forEach(function (e) { window.addEventListener(e, load, { passive: true }); });
+        })();
+      </script>
     )}
   </head>
   <body
