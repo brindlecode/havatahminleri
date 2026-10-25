@@ -14,6 +14,8 @@ import { airDay, allAir, allSea, seaDay } from '../lib/extras';
 import coastal from '../data/coastalPoints.json';
 import provinces from '../data/provinces.json';
 import regions from '../data/regions.json';
+import { loadBulletins } from '../lib/bulletinData';
+import { longDate } from '../lib/bulletin';
 
 const seo = getHomeSEO();
 const structuredData = generateStructuredData('home', {
@@ -72,6 +74,9 @@ const explore = [
   ...(cleanest ? [{ href: '/hava-kalitesi/', title: 'Hava kalitesi', value: `${cleanest.d!.band.label}: ${cleanest.p.name}`, note: 'En temiz il · 81 ilin AQI değeri', accent: '#4cb38f' }] : []),
   ...(warmSea ? [{ href: '/deniz-suyu-sicakligi/', title: 'Deniz suyu', value: `${warmSea.pt.place} ${warmSea.d!.temp}°`, note: 'En ılık deniz · tüm kıyılar', accent: '#38b6e8' }] : []),
 ];
+
+// Today's bulletin, once one exists (src/pages/bulten/).
+const bulletin = loadBulletins()[0]?.bulletin ?? null;
 
 const regionGroups = regions.map((r: any) => ({
   ...r,
@@ -149,6 +154,16 @@ const regionGroups = regions.map((r: any) => ({
 
     <AdSlot slot="header" id="home-top" />
     <PopularCities cities={popularCitiesWeather} />
+
+    {bulletin && (
+      <section aria-labelledby="bulten-title">
+        <a href={bulletin.path} class="weather-card block hover:border-[var(--color-accent)] transition-colors">
+          <span id="bulten-title" class="block text-[0.78rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-secondary)]">Günün hava bülteni · {longDate(bulletin.date)}</span>
+          <span class="block font-display text-[1.25rem] font-semibold tracking-[-0.02em] leading-tight mt-1">{bulletin.headline}</span>
+          <span class="block text-[0.9rem] text-[var(--color-text-secondary)] mt-2 leading-relaxed line-clamp-3">{bulletin.lead}</span>
+        </a>
+      </section>
+    )}
 
     <section aria-labelledby="kesfet-title">
       <h2 id="kesfet-title" class="section-title !text-[1.35rem]">Keşfet</h2>

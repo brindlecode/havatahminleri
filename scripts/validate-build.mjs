@@ -133,7 +133,12 @@ const climatePlates = existsSync(climatePath)
   : [];
 const CLIMATE_MONTHS = ['ocak', 'subat', 'mart', 'nisan', 'mayis', 'haziran', 'temmuz', 'agustos', 'eylul', 'ekim', 'kasim', 'aralik'];
 const expectedLocationPages = (provinces.length + districts.length) * 8;
-const expectedTotal = expectedLocationPages + 9 + NATIONAL_PAGES.length + climatePlates.length * 13;
+// The bulletin archive (/bulten/) plus one page per file in src/data/bulletins.
+const bulletinDir = join(ROOT, 'src/data/bulletins');
+const bulletinDates = existsSync(bulletinDir)
+  ? readdirSync(bulletinDir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10)).sort()
+  : [];
+const expectedTotal = expectedLocationPages + 9 + NATIONAL_PAGES.length + climatePlates.length * 13 + 1 + bulletinDates.length;
 
 note(`Built ${htmlFiles.length} HTML files (expected ${expectedTotal})`);
 if (htmlFiles.length < expectedTotal) {
@@ -403,6 +408,36 @@ function checkStaticPage(path) {
   }
 }
 for (const path of NATIONAL_PAGES) checkStaticPage(path);
+checkStaticPage('/bulten/');
+
+// Bulletins: every file in src/data/bulletins has its page, a NewsArticle with
+// the publication time, and a built share image; the newest is fully checked.
+const MONTH_SLUGS = CLIMATE_MONTHS;
+const bulletinPath = (date) => {
+  const [y, m, d] = date.split('-').map(Number);
+  return `/bulten/${d}-${MONTH_SLUGS[m - 1]}-${y}-hava-durumu/`;
+};
+note(`Bulletins: ${bulletinDates.length}${bulletinDates.length ? ` (newest ${bulletinDates.at(-1)})` : ''}`);
+for (const date of bulletinDates) {
+  const path = bulletinPath(date);
+  const file = join(DIST, path, 'index.html');
+  if (!existsSync(file)) { fail(`Bulletin ${date} was not built at ${path}`); continue; }
+  if (!existsSync(join(DIST, 'og', 'bulten', `${date}.png`))) fail(`Bulletin ${date}: share image /og/bulten/${date}.png was not built`);
+  const html = read(file);
+  const article = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
+    .map((m) => { try { return JSON.parse(m[1]); } catch { return null; } })
+    .find((x) => x?.['@type'] === 'NewsArticle');
+  if (!article) fail(`${path}: no NewsArticle JSON-LD`);
+  else {
+    for (const key of ['headline', 'datePublished', 'image', 'author', 'publisher']) {
+      if (!article[key]) fail(`${path}: NewsArticle has no ${key}`);
+    }
+    if (article.headline && article.headline.length > 110) fail(`${path}: NewsArticle headline is over 110 characters`);
+  }
+}
+if (bulletinDates.length) checkStaticPage(bulletinPath(bulletinDates.at(-1)));
+const newsSitemap = join(DIST, 'bulten', 'haber-sitemap.xml');
+if (!existsSync(newsSitemap)) fail('dist/bulten/haber-sitemap.xml is missing');
 for (const plate of climatePlates.slice(0, 3)) {
   const p = provinces.find((x) => x.plate === plate);
   if (!p) continue;

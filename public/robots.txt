@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Sitemap: https://yarinhava.com/sitemap-index.xml
+Sitemap: https://yarinhava.com/bulten/haber-sitemap.xml
 
 User-agent: Googlebot
 Allow: /

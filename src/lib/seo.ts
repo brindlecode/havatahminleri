@@ -562,3 +562,51 @@ export function generateLegalPageStructuredData(
   ];
   return items.map((i) => JSON.stringify(i)).join('\n');
 }
+
+/**
+ * JSON-LD for a bulletin (/bulten/...): NewsArticle plus BreadcrumbList.
+ * The author is the organisation - the bulletins are compiled automatically
+ * from model data, and the page says so; no person is named as their writer.
+ */
+export function generateArticleStructuredData(data: {
+  headline: string;
+  description: string;
+  url: string;
+  image: string;
+  datePublished: string;
+  dateModified: string;
+  breadcrumbs: { name: string; url: string }[];
+}): string {
+  const items = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'NewsArticle',
+      headline: data.headline,
+      description: data.description,
+      url: data.url,
+      mainEntityOfPage: data.url,
+      image: [data.image],
+      datePublished: data.datePublished,
+      dateModified: data.dateModified,
+      inLanguage: 'tr-TR',
+      articleSection: 'Hava Durumu',
+      isAccessibleForFree: true,
+      author: ORGANIZATION,
+      publisher: ORGANIZATION,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: `${SITE_ORIGIN}/` },
+        ...data.breadcrumbs.map((crumb, i) => ({
+          '@type': 'ListItem',
+          position: i + 2,
+          name: crumb.name,
+          item: crumb.url,
+        })),
+      ],
+    },
+  ];
+  return items.map((i) => JSON.stringify(i)).join('\n');
+}

@@ -118,6 +118,7 @@ const siteHost = new URL(Astro.site ?? 'https://yarinhava.com').hostname;
     )}
 
     <title>{title}</title>
+    <slot name="head" />
 
     {structuredData && structuredData.split('\n').map((json: string) => (
       <script type="application/ld+json" set:html={json} />

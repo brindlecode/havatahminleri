@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import { loadBulletins } from '../../lib/bulletinData';
+import { longDate } from '../../lib/bulletin';
+import { MONTHS } from '../../lib/climate';
+import { generateLegalPageStructuredData } from '../../lib/seo';
+
+// The archive of daily bulletins. Until the first bulletin exists the page is
+// built (so links to it never break) but kept out of the index and the
+// sitemap (astro.config.mjs).
+const all = loadBulletins().map((x) => x.bulletin);
+const latest = all[0];
+const pageName = 'Hava Durumu Bülteni';
+const canonical = 'https://yarinhava.com/bulten/';
+const title = 'Günlük Hava Durumu Bülteni - Türkiye Geneli | Yarın Hava';
+const description =
+  'Her sabah Türkiye geneli hava durumu bülteni: 81 ilde sıcaklık, yağış, kar ve uyarılar, mevsim normalleriyle karşılaştırma ve büyük şehirlerde yarının tahmini.';
+const structuredData = generateLegalPageStructuredData(pageName, description, canonical);
+
+const groups: { label: string; items: typeof all }[] = [];
+for (const b of all) {
+  const label = `${MONTHS[Number(b.date.slice(5, 7)) - 1].name} ${b.date.slice(0, 4)}`;
+  if (groups.at(-1)?.label !== label) groups.push({ label, items: [] });
+  groups.at(-1)!.items.push(b);
+}
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} structuredData={structuredData} noindex={!latest}>
+  <Header slot="header" />
+  <link slot="head" rel="alternate" type="application/rss+xml" title="Yarın Hava bülten" href="/bulten/rss.xml" />
+
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <Breadcrumb items={[{ name: pageName, url: canonical }]} />
+    <h1 class="font-display text-[2rem] sm:text-[2.4rem] font-semibold tracking-[-0.03em] leading-tight mb-2">Günlük Hava Durumu Bülteni</h1>
+    <p class="text-[var(--color-text-secondary)] leading-relaxed mb-6 max-w-3xl">
+      Her gün gece yarısından sonra, günün ilk tahmininden derlenir: Türkiye genelinde nerede yağış ve kar beklendiği,
+      en sıcak ve en soğuk iller, sıcaklıkların mevsim normallerine göre durumu ve büyük şehirlerde yarının tahmini.
+    </p>
+
+    {latest ? (
+      <>
+        <a href={latest.path} class="weather-card block hover:border-[var(--color-accent)] mb-8">
+          <span class="block text-xs font-semibold uppercase tracking-[0.08em] text-[var(--color-text-secondary)]">Son bülten · {longDate(latest.date)}</span>
+          <span class="block font-display text-[1.35rem] font-semibold tracking-[-0.02em] leading-tight mt-1">{latest.headline}</span>
+          <span class="block text-[0.92rem] text-[var(--color-text-secondary)] mt-2 leading-relaxed">{latest.lead}</span>
+        </a>
+
+        {groups.map((g) => (
+          <section class="mb-6" aria-label={g.label}>
+            <h2 class="section-title">{g.label}</h2>
+            <ul class="divide-y divide-[var(--color-border)]">
+              {g.items.map((b) => (
+                <li class="py-2.5">
+                  <a href={b.path} class="font-semibold hover:text-[var(--color-accent)]">{b.headline}</a>
+                  <span class="block text-xs text-[var(--color-text-secondary)]">{longDate(b.date)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </>
+    ) : (
+      <p class="weather-card">İlk bülten bir sonraki gece güncellemesinde yayımlanacak.</p>
+    )}
+  </div>
+
+  <Footer slot="footer" />
+</BaseLayout>
