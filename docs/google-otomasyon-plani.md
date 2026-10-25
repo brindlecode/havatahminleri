@@ -157,11 +157,16 @@ sayılar yüzünden benzersizdir.
   ilgili il sayfasına iç link.
 - **Görsel:** her bülten için verinden çizilen Türkiye sıcaklık/yağış
   haritası (mevcut `TurkeyMap` + resvg), 1200px+, Discover için.
-- **Metin:** iki seçenek.
-  1. Şablon cümleler (dış bağımlılık yok, tamamen deterministik).
-  2. Claude API ile, yalnızca o günün olgu listesinden doğal Türkçe metin;
-     bir doğrulayıcı metindeki her sayıyı ve il adını veriyle karşılaştırır,
-     tutmazsa şablona düşer. Günde 1 çağrı.
+- **Metin:** şablon cümleler; ücretli API yok, dış bağımlılık yok, her sayı
+  doğrudan veriden geldiği için hata yapmaz. Kalıp hissini kırmak için:
+  - her bölüm için birden çok cümle kalıbı, seçim tarih + veri ile
+    deterministik (aynı gün hep aynı metin, ardışık günler farklı);
+  - bölümler o günün olaylarına göre sıralanır (kar varsa kar başta) ve
+    olayı olmayan bölüm hiç yazılmaz, böylece yazıların yapısı da değişir;
+  - Türkçe ekler (`'da/'de/'ta/'te`, `'a/'e/'ya/'ye`) mevcut yardımcılarla
+    doğru çekilir;
+  - test: son 30 günün verisiyle üretilen bültenler arasında metin
+    benzerliği ölçülür, eşik aşılırsa CI kırmızı olur.
 - **Kalıcılık:** yazı build sırasında değil, ayrı bir iş akışında üretilip
   repoya commit edilir; eski bültenler yeni veriyle değişmez. Bu commit
   keep-alive'ın yerini de tutar.
@@ -252,7 +257,7 @@ erişime bağlıdır.
 | 1 | Faz 1 (hızlı kazanımlar) + Faz 2.1 (normaller) | yok |
 | 1-2 | Faz 0 (ölçüm), Lighthouse CI | §10 kurulumu |
 | 2-3 | Faz 2.2 (tahmin doğruluğu) | 2.1 |
-| 2-3 | Faz 2.5 (günlük bülten) | 2.1; Claude API seçilirse `ANTHROPIC_API_KEY` |
+| 2-3 | Faz 2.5 (günlük bülten) | 2.1 |
 | 3-4 | Faz 2.3 (olay hub'ları) + 3.1 (gündem modülü) | yok |
 | 4+ | Faz 2.4 (takvim hub'ları) | yok |
 | 6+ | Faz 3.2, 3.3, Faz 4 | 4-6 haftalık Faz 0 verisi |
