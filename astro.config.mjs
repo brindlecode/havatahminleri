@@ -74,6 +74,15 @@ const STATIC_PAGES = [
   '/hava-durumu-simgeleri/',
 ];
 
+/** Which sitemap file a path goes in; null = the general "pages" file. */
+function sitemapType(path) {
+  if (path.startsWith('/bulten/')) return 'bulten';
+  if (path.includes('/iklim/')) return 'iklim';
+  if (/^\/[a-z0-9-]+-hava-durumu\//.test(path)) return 'il-tahmin';
+  if (/^\/[a-z0-9-]+\/[a-z0-9-]+-hava-durumu\//.test(path)) return 'ilce-tahmin';
+  return null;
+}
+
 export default defineConfig({
   site: 'https://yarinhava.com',
   trailingSlash: 'always',
@@ -111,6 +120,18 @@ export default defineConfig({
         item.lastmod = forecastFetchedAt.toISOString();
         return item;
       },
+      // One sitemap file per page type (sitemap-<name>-0.xml; the rest go to
+      // sitemap-pages-0.xml). Search Console reports indexing per submitted
+      // sitemap, so this shows which template Google indexes and which it
+      // leaves out, without inspecting URLs one by one.
+      // Every URL belongs to exactly one type; the plugin does not enforce
+      // that, so sitemapType() decides and each chunk takes its own.
+      chunks: Object.fromEntries(
+        ['il-tahmin', 'ilce-tahmin', 'iklim', 'bulten'].map((type) => [
+          type,
+          (item) => (sitemapType(new URL(item.url).pathname) === type ? item : undefined),
+        ]),
+      ),
       i18n: {
         defaultLocale: 'tr',
         locales: { tr: 'tr-TR' },

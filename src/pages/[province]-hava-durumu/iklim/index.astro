@@ -56,6 +56,27 @@ const structuredData = [
       { '@type': 'ListItem', position: 3, name: `${province.name} İklimi`, item: canonical },
     ],
   },
+  // The monthly normals are a real, reusable dataset: describing them as
+  // one makes them eligible for Google Dataset Search. Only on the overview
+  // page, not on the twelve month pages, so each province is one dataset.
+  // No licence is declared: that is the site owner's decision to make.
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: `${province.name} aylık iklim normalleri (${period})`,
+    description: `${province.name} il merkezi için ${period} yıllarının günlük ERA5 verisinden hesaplanmış aylık iklim ortalamaları: ortalama en yüksek ve en düşük sıcaklık, toplam yağış, yağışlı, karlı, sıcak ve donlu gün sayısı, günlük güneşlenme süresi, en kuvvetli rüzgar ve dönemin sıcaklık rekorları.`,
+    url: canonical,
+    inLanguage: 'tr-TR',
+    creator: { '@type': 'Organization', name: 'Yarın Hava', url: `${ORIGIN}/` },
+    isBasedOn: 'https://open-meteo.com/en/docs/historical-weather-api',
+    temporalCoverage: /^\d{4}-\d{4}$/.test(period) ? `${period.slice(0, 4)}-01-01/${period.slice(5)}-12-31` : period,
+    spatialCoverage: { '@type': 'Place', name: `${province.name}, Türkiye`, geo: { '@type': 'GeoCoordinates', latitude: province.lat, longitude: province.lon } },
+    variableMeasured: [
+      'Ortalama en yüksek sıcaklık (°C)', 'Ortalama en düşük sıcaklık (°C)', 'Aylık toplam yağış (mm)',
+      'Yağışlı gün sayısı', 'Karlı gün sayısı', 'Sıcak gün sayısı', 'Donlu gün sayısı',
+      'Günlük güneşlenme süresi (saat)', 'En yüksek rüzgar hızı (km/s)', 'Sıcaklık rekorları (°C)',
+    ],
+  },
 ].map((x) => JSON.stringify(x)).join('\n');
 ---
 

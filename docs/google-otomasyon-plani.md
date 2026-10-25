@@ -91,13 +91,30 @@ için ayrı bir `seo-data` dalına yazılır.
 
 ---
 
+## Durum (25 Ekim 2026)
+
+`claude/intelligent-planck-cpuw7h` dalında yapıldı, üretime henüz alınmadı:
+
+| Madde | Durum |
+|---|---|
+| 2.1 Mevsim normalleri karşılaştırması | Yapıldı (il sayfaları) |
+| 2.5 Günlük bülten (`/bulten/`, RSS, haber sitemap'i, harita görseli, otomatik arşiv commit'i) | Yapıldı; ilk bülten üretim build'inde oluşur |
+| 1.1 `max-image-preview:large` | Yapıldı |
+| 1.2 Sitemap'in tiplere bölünmesi | Yapıldı |
+| 1.3 Dataset şeması | Yapıldı (il iklim sayfaları) |
+| 1.4 Tüm siteyi tarayan doğrulama | Yapıldı |
+| 1.5 Bing doğrulaması | Sahibin Bing Webmaster kodu gerekiyor |
+| Faz 0, 3, 4, 5 | Sırada; Faz 0 için §10 kurulumu gerekiyor |
+
+---
+
 ## 4. Faz 1: Hızlı teknik kazanımlar (tek PR, düşük risk)
 
 | # | Değişiklik | Neden |
 |---|---|---|
 | 1.1 | `robots` meta'ya `max-image-preview:large` | Discover'da büyük görsel gösterimi için gerekli; şu an yok |
-| 1.2 | Sitemap'i tiplere bölmek (`il-tahmin`, `ilce-tahmin`, `iklim`, `sabit`) | Search Console her sitemap için ayrı indeks oranı gösterir; Faz 0.3 ile birlikte hangi şablonun sorunlu olduğu otomatik görünür |
-| 1.3 | İklim sayfalarına `Dataset` şeması (ERA5 2015-2024, CC BY 4.0, coğrafi kapsam) | Google Dataset Search'e girme hakkı; gerçek ve meşru bir veri seti |
+| 1.2 | Sitemap'i tiplere bölmek (`il-tahmin`, `ilce-tahmin`, `iklim`, `bulten`, `pages`) | Search Console her sitemap için ayrı indeks oranı gösterir; Faz 0.3 ile birlikte hangi şablonun sorunlu olduğu otomatik görünür |
+| 1.3 | İklim sayfalarına `Dataset` şeması (ERA5 2015-2024, coğrafi kapsam; lisans alanı sahibin kararına bırakıldı) | Google Dataset Search'e girme hakkı; gerçek ve meşru bir veri seti |
 | 1.4 | Validator'ı tüm siteye genişletmek: tekrar eden başlık/açıklama, şema zorunlu alanları, kırık iç link | Şu an 13 örnek konum kontrol ediliyor; tam tarama ucuz ve hatayı deploy öncesi yakalar |
 | 1.5 | Bing Webmaster doğrulaması (`site-config.json` içinde boş) | Bing verisi de rapora girer (kod sahibin hesabından alınmalı) |
 
@@ -168,8 +185,8 @@ sayılar yüzünden benzersizdir.
   - test: son 30 günün verisiyle üretilen bültenler arasında metin
     benzerliği ölçülür, eşik aşılırsa CI kırmızı olur.
 - **Kalıcılık:** yazı build sırasında değil, ayrı bir iş akışında üretilip
-  repoya commit edilir; eski bültenler yeni veriyle değişmez. Bu commit
-  keep-alive'ın yerini de tutar.
+  repoya commit edilir; eski bültenler yeni veriyle değişmez. (Haftalık
+  keep-alive commit'i ek güvence olarak yerinde bırakıldı.)
 - **Şema:** `NewsArticle` (yazar: kuruluş "Yarın Hava", sahte insan yazar
   yok), metinde "model verisinden otomatik derlenmiştir" açıklaması; son
   48 saatin yazıları için Google News sitemap'i.
