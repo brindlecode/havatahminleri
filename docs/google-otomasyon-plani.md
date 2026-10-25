@@ -144,6 +144,37 @@ kar yağacak mı" tipi haber benzeri sorgular ve Discover.
   tahmin, değilse o günlerin iklim normalleri gösterilir; yıl boyu geçerli.
 - Yaklaşan dönemde ana sayfadan otomatik link.
 
+### 2.5 Günlük hava bülteni (otomatik blog)
+Genel "kışın nasıl giyinmeli" tipi yapay zeka yazıları **yazılmaz**: yüzlerce
+sitede aynısı var, Google bunları ölçeklenmiş içerik sayar. Bunun yerine her
+gün **o günün verisinden** bir haber bülteni üretilir; her yazı içerdiği
+sayılar yüzünden benzersizdir.
+
+- **URL:** `/bulten/2026-10-25-turkiye-hava-durumu/` (+ `/bulten/` arşivi).
+- **İçerik, veriden:** yarının en sıcak/soğuk illeri, kar/yağış/fırtına
+  beklenen iller ve saatleri, normalden sapan iller (2.1), dünkü tahmin
+  doğruluğu (2.2), hafta sonu görünümü, büyük şehirler tablosu; her ilden
+  ilgili il sayfasına iç link.
+- **Görsel:** her bülten için verinden çizilen Türkiye sıcaklık/yağış
+  haritası (mevcut `TurkeyMap` + resvg), 1200px+, Discover için.
+- **Metin:** iki seçenek.
+  1. Şablon cümleler (dış bağımlılık yok, tamamen deterministik).
+  2. Claude API ile, yalnızca o günün olgu listesinden doğal Türkçe metin;
+     bir doğrulayıcı metindeki her sayıyı ve il adını veriyle karşılaştırır,
+     tutmazsa şablona düşer. Günde 1 çağrı.
+- **Kalıcılık:** yazı build sırasında değil, ayrı bir iş akışında üretilip
+  repoya commit edilir; eski bültenler yeni veriyle değişmez. Bu commit
+  keep-alive'ın yerini de tutar.
+- **Şema:** `NewsArticle` (yazar: kuruluş "Yarın Hava", sahte insan yazar
+  yok), metinde "model verisinden otomatik derlenmiştir" açıklaması; son
+  48 saatin yazıları için Google News sitemap'i.
+- **Kalite kapısı:** kayda değer olay yoksa kısa bülten çıkar, dolgu metin
+  yazılmaz; olay eşiklerini aşan günlerde (ilk kar, fırtına, sıcak hava
+  dalgası) ek, olaya özel yazı açılır.
+- **İzleme:** Faz 0 bültenlerin indekslenme oranını ve tıklamasını ayrı
+  takip eder; 4-6 hafta sonra indekslenmeyen veya tıklanmayan bir desen
+  varsa eski bültenler `noindex` yapılır ya da haftalığa geçilir.
+
 ---
 
 ## 6. Faz 3: İç linkleme ve tarama bütçesi (veriye dayalı)
@@ -221,6 +252,7 @@ erişime bağlıdır.
 | 1 | Faz 1 (hızlı kazanımlar) + Faz 2.1 (normaller) | yok |
 | 1-2 | Faz 0 (ölçüm), Lighthouse CI | §10 kurulumu |
 | 2-3 | Faz 2.2 (tahmin doğruluğu) | 2.1 |
+| 2-3 | Faz 2.5 (günlük bülten) | 2.1; Claude API seçilirse `ANTHROPIC_API_KEY` |
 | 3-4 | Faz 2.3 (olay hub'ları) + 3.1 (gündem modülü) | yok |
 | 4+ | Faz 2.4 (takvim hub'ları) | yok |
 | 6+ | Faz 3.2, 3.3, Faz 4 | 4-6 haftalık Faz 0 verisi |
