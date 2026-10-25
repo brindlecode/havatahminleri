@@ -133,7 +133,12 @@ const climatePlates = existsSync(climatePath)
   : [];
 const CLIMATE_MONTHS = ['ocak', 'subat', 'mart', 'nisan', 'mayis', 'haziran', 'temmuz', 'agustos', 'eylul', 'ekim', 'kasim', 'aralik'];
 const expectedLocationPages = (provinces.length + districts.length) * 8;
-const expectedTotal = expectedLocationPages + 9 + NATIONAL_PAGES.length + climatePlates.length * 13;
+// The bulletin archive (/bulten/) plus one page per file in src/data/bulletins.
+const bulletinDir = join(ROOT, 'src/data/bulletins');
+const bulletinDates = existsSync(bulletinDir)
+  ? readdirSync(bulletinDir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10)).sort()
+  : [];
+const expectedTotal = expectedLocationPages + 9 + NATIONAL_PAGES.length + climatePlates.length * 13 + 1 + bulletinDates.length;
 
 note(`Built ${htmlFiles.length} HTML files (expected ${expectedTotal})`);
 if (htmlFiles.length < expectedTotal) {
@@ -403,12 +408,104 @@ function checkStaticPage(path) {
   }
 }
 for (const path of NATIONAL_PAGES) checkStaticPage(path);
+checkStaticPage('/bulten/');
+
+// Bulletins: every file in src/data/bulletins has its page, a NewsArticle with
+// the publication time, and a built share image; the newest is fully checked.
+const MONTH_SLUGS = CLIMATE_MONTHS;
+const bulletinPath = (date) => {
+  const [y, m, d] = date.split('-').map(Number);
+  return `/bulten/${d}-${MONTH_SLUGS[m - 1]}-${y}-hava-durumu/`;
+};
+note(`Bulletins: ${bulletinDates.length}${bulletinDates.length ? ` (newest ${bulletinDates.at(-1)})` : ''}`);
+for (const date of bulletinDates) {
+  const path = bulletinPath(date);
+  const file = join(DIST, path, 'index.html');
+  if (!existsSync(file)) { fail(`Bulletin ${date} was not built at ${path}`); continue; }
+  if (!existsSync(join(DIST, 'og', 'bulten', `${date}.png`))) fail(`Bulletin ${date}: share image /og/bulten/${date}.png was not built`);
+  const html = read(file);
+  const article = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
+    .map((m) => { try { return JSON.parse(m[1]); } catch { return null; } })
+    .find((x) => x?.['@type'] === 'NewsArticle');
+  if (!article) fail(`${path}: no NewsArticle JSON-LD`);
+  else {
+    for (const key of ['headline', 'datePublished', 'image', 'author', 'publisher']) {
+      if (!article[key]) fail(`${path}: NewsArticle has no ${key}`);
+    }
+    if (article.headline && article.headline.length > 110) fail(`${path}: NewsArticle headline is over 110 characters`);
+  }
+}
+if (bulletinDates.length) checkStaticPage(bulletinPath(bulletinDates.at(-1)));
+const newsSitemap = join(DIST, 'bulten', 'haber-sitemap.xml');
+if (!existsSync(newsSitemap)) fail('dist/bulten/haber-sitemap.xml is missing');
 for (const plate of climatePlates.slice(0, 3)) {
   const p = provinces.find((x) => x.plate === plate);
   if (!p) continue;
   checkStaticPage(`/${p.slug}-hava-durumu/iklim/`);
   checkStaticPage(`/${p.slug}-hava-durumu/iklim/ocak/`);
   checkStaticPage(`/${p.slug}-hava-durumu/iklim/temmuz/`);
+}
+
+// --- 3b. every page ----------------------------------------------------------
+// The checks above look closely at a sample; these run on all ~9,500 pages and
+// catch what a sample misses: one template variant with no title, a broken
+// JSON-LD block, two pages claiming the same canonical, or a link to a page
+// that does not exist.
+
+{
+  const byCanonical = new Map();
+  const byTitle = new Map();
+  const byDescription = new Map();
+  const problems = { title: [], description: [], canonical: [], h1: [], jsonld: [], links: [] };
+  // A regex match is a slice that keeps its whole page alive in V8; copying it
+  // lets each page be collected (9,500 pages would otherwise not fit).
+  const own = (x) => (x == null ? x : Buffer.from(x).toString());
+  for (const file of htmlFiles) {
+    const path = '/' + relative(DIST, file).replace(/index\.html$/, '').replace(/\\/g, '/');
+    if (path === '/404.html' || path.startsWith('/admin/')) continue;
+    const html = read(file);
+    if (/<meta name="robots" content="[^"]*noindex/i.test(html)) continue;
+
+    const title = own(firstMatch(html, /<title>([^<]*)<\/title>/));
+    if (!title || !title.trim()) problems.title.push(path);
+    else byTitle.set(title, [...(byTitle.get(title) ?? []), path]);
+
+    const desc = own(firstMatch(html, /<meta name="description" content="([^"]*)"/));
+    if (!desc || !desc.trim()) problems.description.push(path);
+    else byDescription.set(desc, [...(byDescription.get(desc) ?? []), path]);
+
+    const canonical = own(firstMatch(html, /<link rel="canonical" href="([^"]*)"/));
+    if (canonical !== `${ORIGIN}${path}`) problems.canonical.push(`${path} -> ${canonical}`);
+    else byCanonical.set(canonical, [...(byCanonical.get(canonical) ?? []), path]);
+
+    if (countMatches(html, /<h1[\s>]/g) !== 1) problems.h1.push(path);
+
+    for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)) {
+      try { JSON.parse(m[1]); } catch { problems.jsonld.push(path); break; }
+    }
+
+    for (const m of html.matchAll(/href="(\/[^"#?]*)"/g)) {
+      const href = m[1];
+      if (href.endsWith('/') && !builtPaths.has(href)) { problems.links.push(`${path} -> ${own(href)}`); break; }
+    }
+  }
+
+  const report = (list, what) => {
+    if (list.length) fail(`${list.length} indexable pages ${what} (e.g. ${list.slice(0, 3).join(', ')})`);
+  };
+  report(problems.title, 'have no <title>');
+  report(problems.description, 'have no meta description');
+  report(problems.canonical, 'have a missing or non-self canonical');
+  report(problems.h1, 'do not have exactly one <h1>');
+  report(problems.jsonld, 'carry invalid JSON-LD');
+  report(problems.links, 'link to a page that was not built');
+
+  const dupes = (map) => [...map].filter(([, paths]) => paths.length > 1);
+  const dupTitles = dupes(byTitle);
+  const dupDescs = dupes(byDescription);
+  note(`Whole-site scan: ${byTitle.size} distinct titles, ${dupTitles.length} shared by more than one page, ${dupDescs.length} shared descriptions`);
+  if (dupTitles.length) warn(`${dupTitles.length} titles are used by more than one page (e.g. "${dupTitles[0][0]}" on ${dupTitles[0][1].slice(0, 2).join(', ')})`);
+  if (dupDescs.length) warn(`${dupDescs.length} meta descriptions are used by more than one page (e.g. ${dupDescs[0][1].slice(0, 2).join(', ')})`);
 }
 
 // --- 4. robots + admin -------------------------------------------------------

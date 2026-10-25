@@ -28,6 +28,7 @@ Her sayfa tahminin ne zaman alındığını "Son güncelleme" olarak ve JSON-LD 
   - `10-gunluk/` — 10 günlük / 10 days
   - `15-gunluk/` — 15 günlük / 15 days
 - İl iklim sayfaları / Province climate pages: `https://yarinhava.com/{il}-hava-durumu/iklim/` ve aylar / and months `.../iklim/{ocak|subat|mart|nisan|mayis|haziran|temmuz|agustos|eylul|ekim|kasim|aralik}/` (2015-2024 ERA5 ortalamaları / averages)
+- Günlük bülten / Daily bulletin: `https://yarinhava.com/bulten/{gün}-{ay}-{yıl}-hava-durumu/` (ör. / e.g. `/bulten/25-ekim-2026-hava-durumu/`), arşiv / archive `https://yarinhava.com/bulten/`, RSS `https://yarinhava.com/bulten/rss.xml`. Her gün günün ilk tahmininden otomatik derlenir; yayımlandıktan sonra değişmez. / Compiled automatically from the day's first forecast; unchanged after publication.
 - Slug'lar Türkçe karakterlerden arındırılmış küçük harflerdir (İstanbul → `istanbul`, Şişli → `sisli`). / Slugs are ASCII-folded lowercase names.
 - Tüm URL'ler eğik çizgiyle biter. / All URLs end with a trailing slash.
 

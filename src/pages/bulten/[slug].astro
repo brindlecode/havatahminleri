@@ -1,0 +1,145 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import TurkeyMap from '../../components/TurkeyMap.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { loadBulletins } from '../../lib/bulletinData';
+import { longDate } from '../../lib/bulletin';
+import { generateArticleStructuredData } from '../../lib/seo';
+import provinces from '../../data/provinces.json';
+
+export function getStaticPaths() {
+  const all = loadBulletins();
+  return all.map(({ facts, bulletin }, i) => ({
+    params: { slug: bulletin.slug },
+    props: {
+      facts,
+      bulletin,
+      newer: i > 0 ? all[i - 1].bulletin : null,
+      older: all[i + 1]?.bulletin ?? null,
+    },
+  }));
+}
+
+const { facts, bulletin: b, newer, older } = Astro.props;
+const archive = 'https://yarinhava.com/bulten/';
+const breadcrumbs = [
+  { name: 'Hava Durumu Bülteni', url: archive },
+  { name: longDate(b.date), url: b.url },
+];
+const structuredData = generateArticleStructuredData({
+  headline: b.headline,
+  description: b.description,
+  url: b.url,
+  image: b.imageUrl,
+  datePublished: b.datePublished,
+  dateModified: b.dateModified,
+  breadcrumbs,
+});
+
+const byPlate = new Map(provinces.map((p: any) => [p.plate, p]));
+const mapPoints = b.mapPoints
+  .map((x) => ({ ...byPlate.get(x.plate), temp: x.temp }))
+  .filter((x: any) => x.slug)
+  .map((x: any) => ({ name: x.name, slug: x.slug, plate: x.plate, temp: x.temp }));
+
+const published = new Intl.DateTimeFormat('tr-TR', {
+  timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+}).format(new Date(b.datePublished)).replace(/,\s*/, ' ');
+---
+
+<BaseLayout
+  title={b.title}
+  description={b.description}
+  canonical={b.url}
+  structuredData={structuredData}
+  ogImage={b.imageUrl}
+  ogImageAlt={`${longDate(b.date)} Türkiye sıcaklık haritası`}
+>
+  <Header slot="header" />
+  <link slot="head" rel="alternate" type="application/rss+xml" title="Yarın Hava bülten" href="/bulten/rss.xml" />
+
+  <article class="max-w-4xl mx-auto px-4 py-8">
+    <Breadcrumb items={breadcrumbs} />
+    <p class="text-[0.78rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-secondary)]">Günlük hava durumu bülteni</p>
+    <h1 class="font-display text-[1.9rem] sm:text-[2.4rem] font-semibold tracking-[-0.03em] leading-tight mt-1 mb-2">{b.headline}</h1>
+    <p class="text-[0.82rem] text-[var(--color-text-secondary)] mb-5">
+      Yarın Hava · <time datetime={b.datePublished}>{published}</time>
+    </p>
+
+    <p class="text-[1.05rem] leading-relaxed mb-6">{b.lead}</p>
+
+    <figure class="weather-card mb-4">
+      <TurkeyMap points={mapPoints} caption={`${longDate(b.date)}, en yüksek`} title={`${longDate(b.date)} Türkiye en yüksek sıcaklık haritası`} />
+      <figcaption class="text-xs text-[var(--color-text-secondary)] mt-2">İl merkezlerinde beklenen en yüksek sıcaklık. İle dokunun, güncel tahmini açın.</figcaption>
+    </figure>
+
+    <AdSlot slot="header" id="bulletin-top" />
+
+    <div class="space-y-4">
+      {b.sections.map((s, i) => (
+        <>
+          <section id={s.id} class="weather-card scroll-mt-28" aria-labelledby={`${s.id}-baslik`}>
+            <h2 id={`${s.id}-baslik`} class="section-title">{s.heading}</h2>
+            {s.paragraphs.map((p) => <p class="prose-text mb-2 last:mb-0">{p}</p>)}
+            {s.table && (
+              <div class="overflow-x-auto mt-3">
+                <table class="w-full text-sm tabular">
+                  <caption class="text-left text-xs text-[var(--color-text-secondary)] pb-2">{s.table.caption}</caption>
+                  <thead>
+                    <tr class="text-left text-[0.72rem] text-[var(--color-text-secondary)]">
+                      {s.table.head.map((h) => <th scope="col" class="font-medium pb-1.5 pr-3">{h}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-[var(--color-border)]">
+                    {s.table.rows.map((row) => (
+                      <tr>
+                        {row.cells.map((c, j) => j === 0 ? (
+                          <th scope="row" class="py-1.5 pr-3 text-left font-semibold">
+                            {c.href ? <a href={c.href} class="hover:text-[var(--color-accent)]">{c.text}</a> : c.text}
+                          </th>
+                        ) : (
+                          <td class="py-1.5 pr-3">{c.href ? <a href={c.href} class="hover:text-[var(--color-accent)]">{c.text}</a> : c.text}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {s.more && <p class="mt-3 text-sm"><a href={s.more.href} class="font-semibold text-[var(--color-accent)] hover:underline">{s.more.text} →</a></p>}
+          </section>
+          {i === 2 && <AdSlot slot="inContent" id="bulletin-mid" />}
+        </>
+      ))}
+    </div>
+
+    <p class="text-xs text-[var(--color-text-secondary)] mt-6 leading-relaxed">
+      Bu bülten, {new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).format(new Date(facts.fetchedAt)).replace(/,\s*/, ' ')}
+      tarihinde <a href="https://open-meteo.com/" rel="noopener" class="underline">Open-Meteo</a> tahmin modellerinden alınan
+      veriden otomatik olarak derlenmiştir. Değerler il merkezleri içindir; ilçeler ve güncel tahmin için il sayfalarına bakın.
+      Mevsim normalleri 2015-2024 ERA5 ortalamalarıdır. Resmi uyarılar için
+      <a href="https://www.mgm.gov.tr/" rel="noopener" class="underline">Meteoroloji Genel Müdürlüğü</a>'nü takip edin.
+    </p>
+
+    <nav class="mt-6 grid gap-3 sm:grid-cols-2" aria-label="Diğer bültenler">
+      {older && (
+        <a href={older.path} class="weather-card !p-4 block hover:border-[var(--color-accent)]">
+          <span class="block text-xs text-[var(--color-text-secondary)]">← Önceki bülten</span>
+          <span class="block font-semibold mt-0.5">{older.headline}</span>
+        </a>
+      )}
+      {newer && (
+        <a href={newer.path} class="weather-card !p-4 block hover:border-[var(--color-accent)] sm:text-right sm:col-start-2">
+          <span class="block text-xs text-[var(--color-text-secondary)]">Sonraki bülten →</span>
+          <span class="block font-semibold mt-0.5">{newer.headline}</span>
+        </a>
+      )}
+    </nav>
+    <p class="mt-4 text-sm"><a href="/bulten/" class="font-semibold text-[var(--color-accent)] hover:underline">Tüm bültenler</a></p>
+  </article>
+
+  <Footer slot="footer" />
+</BaseLayout>

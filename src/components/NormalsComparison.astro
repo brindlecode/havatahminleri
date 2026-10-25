@@ -1,0 +1,83 @@
+---
+import { compareToNormals, signedDiff, BAND_LABEL, type AnomalyBand } from '../lib/normals';
+import { getClimate, climatePath, climatePeriod } from '../lib/climate';
+import { getCityLocative } from '../lib/utils';
+import { weekdayName, dayMonth } from '../lib/periodSummary';
+import { resolvePeriod, type PeriodId } from '../lib/periods';
+import type { WeatherData } from '../lib/weather';
+import provinces from '../data/provinces.json';
+
+interface Props {
+  provinceSlug?: string;
+  /** names.display */
+  cityName: string;
+  weather: WeatherData;
+  period: PeriodId;
+}
+
+// The forecast against the province's climate normals (src/lib/normals.ts).
+// Province pages only: the normals are computed at the province centre, and
+// a district can sit hundreds of metres higher or lower than it, so comparing
+// a district forecast with them would mislead.
+// Dates are written out instead of "bugün"/"yarın", so the card stays true
+// between midnight and the next build without data-day-relative.
+const { provinceSlug, cityName, weather, period } = Astro.props;
+const prov = provinces.find((p: any) => p.slug === provinceSlug);
+const rows = prov ? getClimate(prov.plate) : null;
+
+const def = resolvePeriod(period, weather.daily.time[0]);
+const [start, count] = def.dayCount > 0 ? [def.dayStart, def.dayCount] : [0, 2];
+const cmp = compareToNormals(rows, weather.daily, start, count, getCityLocative(cityName));
+const firstMonth = cmp ? Number(cmp.days[0].date.slice(5, 7)) - 1 : 0;
+
+const BAND_CLASS: Record<AnomalyBand, string> = {
+  'much-colder': 'bg-[#4c8df6] text-white',
+  colder: 'bg-[#4c8df6]/15 text-[var(--color-text)]',
+  normal: 'bg-[var(--color-surface-2)] text-[var(--color-text-secondary)]',
+  warmer: 'bg-[#f59a3c]/20 text-[var(--color-text)]',
+  'much-warmer': 'bg-[#ee5d45] text-white',
+};
+const r = Math.round;
+---
+
+{cmp && prov && (
+  <section id="mevsim-normalleri" class="weather-card scroll-mt-28" aria-labelledby="normaller-baslik">
+    <h2 id="normaller-baslik" class="section-title">{cityName} mevsim normallerine göre</h2>
+    <p class="prose-text">{cmp.summary}</p>
+
+    <table class="w-full mt-4 text-sm tabular">
+      <caption class="sr-only">Tahmin edilen en yüksek sıcaklık ve aynı tarihin mevsim normali</caption>
+      <thead>
+        <tr class="text-left text-[0.72rem] text-[var(--color-text-secondary)]">
+          <th scope="col" class="font-medium pb-1.5">Tarih</th>
+          <th scope="col" class="font-medium pb-1.5 text-right">Tahmin</th>
+          <th scope="col" class="font-medium pb-1.5 text-right">Normal</th>
+          <th scope="col" class="font-medium pb-1.5 text-right">Fark</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-[var(--color-border)]">
+        {cmp.days.map((d) => (
+          <tr>
+            <th scope="row" class="py-1.5 font-normal text-left">
+              <span class="font-semibold">{dayMonth(d.date)}</span>
+              <span class="ml-1 text-[var(--color-text-secondary)]">{weekdayName(d.date)}</span>
+            </th>
+            <td class="py-1.5 text-right">{r(d.hi)}° / {r(d.lo)}°</td>
+            <td class="py-1.5 text-right text-[var(--color-text-secondary)]">{r(d.normalHi)}° / {r(d.normalLo)}°</td>
+            <td class="py-1.5 text-right">
+              <span class:list={['inline-block min-w-[3rem] rounded-full px-2 py-0.5 text-center text-[0.78rem] font-semibold', BAND_CLASS[d.band]]} title={BAND_LABEL[d.band]}>
+                {signedDiff(d.diff)}
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    <p class="text-xs text-[var(--color-text-secondary)] mt-3 leading-relaxed">
+      Normal: {prov.name} il merkezi için {climatePeriod()} ortalaması (ERA5), tarihe göre aylık değerler arasından hesaplanır.
+      Fark, gündüz en yüksek sıcaklığı içindir.
+      <a href={climatePath(prov.slug, firstMonth)} class="underline">{prov.name} iklimi ve aylık ortalamalar</a>
+    </p>
+  </section>
+)}

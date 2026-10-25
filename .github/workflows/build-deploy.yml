@@ -95,6 +95,9 @@ jobs:
     if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    outputs:
+      bulletin: ${{ steps.bulletin.outputs.file }}
+      deployed: ${{ steps.deploy.outcome == 'success' }}
 
     steps:
       - name: Checkout
@@ -163,6 +166,23 @@ jobs:
           path: src/data/extras-cache.json
           key: extras-cache-${{ steps.date.outputs.day }}-${{ github.run_id }}
 
+      # The day's bulletin (/bulten/): the first build of the day freezes its
+      # numbers into src/data/bulletins/<date>.json, later builds keep them.
+      # The archive-bulletin job commits the new file so the page stays
+      # online after today. Never fails the build: no file, no bulletin.
+      - name: Write today's bulletin
+        id: bulletin
+        continue-on-error: true
+        run: node scripts/make-bulletin.mjs
+
+      - name: Keep the new bulletin for the archive job
+        if: steps.bulletin.outputs.file != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: bulletin
+          path: ${{ steps.bulletin.outputs.file }}
+          retention-days: 7
+
       - name: Build site
         run: npx astro build
 
@@ -185,6 +205,7 @@ jobs:
       # "Unauthorized: could not retrieve project" here means the
       # NETLIFY_AUTH_TOKEN repository secret has expired or been revoked.
       - name: Deploy to Netlify
+        id: deploy
         run: npx --yes netlify-cli@27.10.0 deploy --prod --dir=dist --message "Deploy from GitHub Actions (${{ github.run_id }})"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -272,6 +293,61 @@ jobs:
                 labels: ['deploy-failure'],
               });
             }
+
+  # Commits a bulletin that went live, so it stays in every later build. Runs
+  # even when a later step (smoke test, IndexNow) failed: what matters is that
+  # the page was deployed.
+  archive-bulletin:
+    needs: build-and-deploy
+    if: always() && needs.build-and-deploy.outputs.deployed == 'true' && needs.build-and-deploy.outputs.bulletin != '' && github.ref_name == 'claude/weather-forecast-site-JpQxB'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download the bulletin
+        uses: actions/download-artifact@v4
+        with:
+          name: bulletin
+          path: src/data/bulletins
+
+      - name: Commit
+        env:
+          FILE: ${{ needs.build-and-deploy.outputs.bulletin }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$FILE"
+          if git diff --cached --quiet; then
+            echo "Bulletin already committed."
+            exit 0
+          fi
+          git commit -m "data: bulletin $(basename "$FILE" .json)"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then exit 0; fi
+            echo "Push failed (attempt ${attempt}) - rebasing and retrying."
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            sleep $(( attempt * 5 ))
+          done
+          exit 1
+
+      - name: Report failure
+        if: failure()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Bulletin was published but not committed',
+              body: `@${context.repo.owner} today's bulletin is live but could not be committed, so it will disappear with the next build.\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              labels: ['deploy-failure'],
+            });
 
   # GitHub deactivates cron schedules after 60 days of repository inactivity.
   # A small commit at most once a week keeps the repository "active" so the

@@ -35,7 +35,9 @@ const siteHost = new URL(Astro.site ?? 'https://yarinhava.com').hostname;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
+    <!-- max-image-preview:large lets Google show the share images large in
+         Discover and image results; without it only thumbnails qualify. -->
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1'} />
     <meta name="author" content="Yarın Hava" />
     <!-- Search Engine Verification -->
     {verification.google && <meta name="google-site-verification" content={verification.google} />}
@@ -118,6 +120,7 @@ const siteHost = new URL(Astro.site ?? 'https://yarinhava.com').hostname;
     )}
 
     <title>{title}</title>
+    <slot name="head" />
 
     {structuredData && structuredData.split('\n').map((json: string) => (
       <script type="application/ld+json" set:html={json} />

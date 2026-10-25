@@ -18,6 +18,7 @@ import ActivityAdvice from '../components/ActivityAdvice.astro';
 import IconLegend from '../components/IconLegend.astro';
 import EnvironmentCard from '../components/EnvironmentCard.astro';
 import WarningBanner from '../components/WarningBanner.astro';
+import NormalsComparison from '../components/NormalsComparison.astro';
 import { getPeriodForecastData, getPeriodLinks, type PeriodId } from '../lib/periods';
 import { ogDayIndex, ogImageUrl } from '../lib/ogImage';
 import { getWeatherDescription } from '../lib/weatherCodes';
@@ -120,6 +121,10 @@ const ogImageAlt = ogImage && ogIdx !== null
         {daily.time.length > 0 && <DailyForecast daily={daily} title={def.dailyTitle} />}
 
         <AnswerSummary weather={weather} cityName={displayName ?? cityName} period={period} canonical={canonical} />
+
+        {!districtSlug && (
+          <NormalsComparison provinceSlug={provinceSlug} cityName={displayName ?? cityName} weather={weather} period={period} />
+        )}
 
         <ActivityAdvice weather={weather} cityName={displayName ?? cityName} period={period} canonical={canonical} />
 
