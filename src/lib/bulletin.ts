@@ -276,7 +276,9 @@ export function buildBulletin(facts: BulletinFacts, ctx: BulletinContext): Bulle
   if (alerts.length) {
     const groups = new Map<string, typeof alerts>();
     for (const a of alerts) {
-      const key = `${a.kind}|${a.level}`;
+      // The title carries distinctions within a kind and level (storms with
+      // and without hail), so provinces are grouped by it too.
+      const key = `${a.kind}|${a.level}|${a.title}`;
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(a);
     }

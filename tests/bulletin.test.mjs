@@ -113,6 +113,19 @@ test('alerts get their own section with the official-source note', () => {
   assert.match(b.headline, /Rize'de kuvvetli yağış/);
 });
 
+test('storms with and without hail are listed separately', () => {
+  const f = facts('2026-10-25', 8, (p, i, t) => {
+    if (i !== 0) return;
+    if (p.slug === 'adana') { t[2] = 96; t[3] = 10; }
+    if (p.slug === 'adiyaman') { t[2] = 95; t[3] = 10; }
+  });
+  const paras = buildBulletin(f, ctx).sections.find((x) => x.id === 'uyarilar').paragraphs;
+  const hail = paras.find((x) => x.startsWith('Gök gürültülü sağanak ve dolu'));
+  const plain = paras.find((x) => x.startsWith('Gök gürültülü sağanak (') );
+  assert.ok(hail && hail.includes('Adana') && !hail.includes('Adıyaman'), hail);
+  assert.ok(plain && plain.includes('Adıyaman') && !plain.includes('Adana'), plain);
+});
+
 test('Thursday and Friday bulletins carry the weekend', () => {
   assert.ok(buildBulletin(facts('2026-10-22', 6), ctx).sections.some((s) => s.id === 'hafta-sonu'));
   assert.ok(buildBulletin(facts('2026-10-23', 6), ctx).sections.some((s) => s.id === 'hafta-sonu'));
