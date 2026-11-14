@@ -43,6 +43,8 @@ const siteHost = new URL(Astro.site ?? 'https://yarinhava.com').hostname;
     {verification.google && <meta name="google-site-verification" content={verification.google} />}
     {verification.yandex && <meta name="yandex-verification" content={verification.yandex} />}
     {verification.bing && <meta name="msvalidate.01" content={verification.bing} />}
+    <!-- Admitad (Mitgo) publisher site ownership verification -->
+    <meta name="mitgo-verification" content="4aef0b08-fc0e-4678-bfaa-0fc055eed8e1" />
     {canonical && <link rel="canonical" href={canonical} />}
 
     <!-- Open Graph -->
